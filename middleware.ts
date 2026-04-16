@@ -5,8 +5,12 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
   const expected = process.env.DASHBOARD_PASSWORD;
+  // If no password is configured, allow access without auth
+  if (!expected) {
+    return NextResponse.next();
+  }
   const cookie = req.cookies.get("dashboard_auth")?.value;
-  if (!expected || cookie !== expected) {
+  if (cookie !== expected) {
     if (req.nextUrl.pathname.startsWith("/api/")) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
