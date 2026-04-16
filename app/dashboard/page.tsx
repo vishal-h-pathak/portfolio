@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase, type Job, type JobStatus } from "../lib/supabase";
 import MatchAgent from "./MatchAgent";
+import ReviewPanel from "./ReviewPanel";
 
 type TierFilter = "all" | 1 | 2 | 3;
 type ViewMode = "swipe" | "browse";
@@ -107,6 +108,15 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [matchJob, setMatchJob] = useState<Job | null>(null);
+  const [reviewJob, setReviewJob] = useState<Job | null>(null);
+
+  function openJobPanel(job: Job) {
+    if ((job.status ?? "new") === "ready_to_submit") {
+      setReviewJob(job);
+    } else {
+      setMatchJob(job);
+    }
+  }
 
   const [view, setView] = useState<ViewMode | null>(null);
 
@@ -157,7 +167,7 @@ export default function DashboardPage() {
           jobs={jobs}
           error={error}
           updateStatus={updateStatus}
-          openMatch={setMatchJob}
+          openMatch={openJobPanel}
           viewToggle={<ViewToggle view={view} onChange={chooseView} />}
         />
       ) : (
@@ -165,11 +175,18 @@ export default function DashboardPage() {
           jobs={jobs}
           error={error}
           updateStatus={updateStatus}
-          openMatch={setMatchJob}
+          openMatch={openJobPanel}
           viewToggle={<ViewToggle view={view} onChange={chooseView} />}
         />
       )}
       {matchJob && <MatchAgent job={matchJob} onClose={() => setMatchJob(null)} />}
+      {reviewJob && (
+        <ReviewPanel
+          job={reviewJob}
+          onClose={() => setReviewJob(null)}
+          onUpdateStatus={updateStatus}
+        />
+      )}
     </>
   );
 }
@@ -799,9 +816,13 @@ function BrowseCard({
         </select>
         <button
           onClick={onApply}
-          className="text-xs px-2.5 py-1 rounded border border-neutral-700 bg-neutral-800 hover:bg-neutral-700 text-neutral-100"
+          className={`text-xs px-2.5 py-1 rounded border ${
+            (job.status ?? "new") === "ready_to_submit"
+              ? "border-orange-700 bg-orange-900/40 hover:bg-orange-800/60 text-orange-200"
+              : "border-neutral-700 bg-neutral-800 hover:bg-neutral-700 text-neutral-100"
+          }`}
         >
-          Apply
+          {(job.status ?? "new") === "ready_to_submit" ? "Review" : "Apply"}
         </button>
         {job.url && (
           <a
