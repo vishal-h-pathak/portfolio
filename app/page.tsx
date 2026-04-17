@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { id: "resume", label: "Resume" },
   { id: "projects", label: "Projects" },
   { id: "contact", label: "Contact" },
+  { id: "pages", label: "Pages" },
 ];
 
 function Nav({
@@ -486,14 +487,54 @@ function ContactSection() {
       </h2>
       <div className="space-y-3">
         <a
-          href="mailto:vishal@pa.thak.io"
+          href="mailto:vishalp@thak.io"
           className="block text-neutral-200 underline decoration-neutral-700 underline-offset-4 hover:decoration-neutral-300 transition-colors"
         >
-          vishal@pa.thak.io
+          vishalp@thak.io
         </a>
         <p className="text-neutral-500 text-[13px]">
           Atlanta-based, remote-friendly, open to relocating for the right thing.
         </p>
+      </div>
+    </section>
+  );
+}
+
+// ── Pages Section ────────────────────────────────────────────────────
+
+const SITE_PAGES = [
+  {
+    title: "Job Dashboard",
+    href: "/dashboard",
+    description: "Browse, review, and approve job listings surfaced by the hunter agent.",
+  },
+  {
+    title: "Agent Status",
+    href: "/agents/jarvis-status-2026",
+    description: "Operational status for all running agents — scheduling, dependencies, known issues.",
+  },
+];
+
+function PagesSection() {
+  return (
+    <section id="pages" className="mb-32">
+      <h2 className="font-mono text-xs uppercase tracking-widest text-neutral-500 mb-10">
+        Pages
+      </h2>
+      <div className="space-y-3">
+        {SITE_PAGES.map((page) => (
+          <a
+            key={page.href}
+            href={page.href}
+            className="block border border-neutral-800 rounded-lg p-4 hover:border-neutral-700 hover:bg-neutral-900/50 transition-all"
+          >
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-neutral-200 text-[14px]">{page.title}</h3>
+              <span className="font-mono text-[11px] text-neutral-600">→</span>
+            </div>
+            <p className="text-neutral-500 text-[12px]">{page.description}</p>
+          </a>
+        ))}
       </div>
     </section>
   );
@@ -520,6 +561,7 @@ export default function Home() {
         <ResumeSection />
         <ProjectsSection />
         <ContactSection />
+        <PagesSection />
 
         <div className="border-t border-neutral-900 pt-6 text-center">
           <p className="font-mono text-[10px] text-neutral-700 uppercase tracking-widest">
