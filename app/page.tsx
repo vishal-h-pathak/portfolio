@@ -504,6 +504,11 @@ function ContactSection() {
 
 const SITE_PAGES = [
   {
+    title: "MERIDIAN Visualizations",
+    href: "/meridian",
+    description: "Decision timeline, quantitative signals, geopolitical trajectory, and performance tracking from the trading agent.",
+  },
+  {
     title: "Job Dashboard",
     href: "/dashboard",
     description: "Browse, review, and approve job listings surfaced by the hunter agent.",
