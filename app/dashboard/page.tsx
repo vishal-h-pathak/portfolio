@@ -609,7 +609,7 @@ function BrowseView({
   const [tierFilter, setTierFilter] = useState<"all" | 1 | 2 | 3>("all");
   const [minScore, setMinScore] = useState(0);
   const [sourceFilter, setSourceFilter] = useState<string>("all");
-  const [statusFilter, setStatusFilter] = useState<JobStatus | "all">("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [locationFilter, setLocationFilter] = useState<LocationFilter>("local");
 
   const sources = useMemo(() => {
@@ -623,7 +623,13 @@ function BrowseView({
       if (tierFilter !== "all" && j.tier !== tierFilter) return false;
       if ((j.score ?? 0) < minScore) return false;
       if (sourceFilter !== "all" && j.source !== sourceFilter) return false;
-      if (statusFilter !== "all" && (j.status ?? "new") !== statusFilter) return false;
+      if (statusFilter !== "all") {
+        const js = j.status ?? "new";
+        if (statusFilter === "unreviewed" && js !== "new") return false;
+        if (statusFilter === "in_progress" && !["approved", "preparing"].includes(js)) return false;
+        if (statusFilter === "needs_action" && !["ready_to_submit", "submit_confirmed"].includes(js)) return false;
+        if (statusFilter === "done" && !["applied", "failed", "ignored"].includes(js)) return false;
+      }
       if (locationFilter !== "all" && locationBucket(j.location) !== locationFilter) return false;
       return true;
     });
@@ -720,14 +726,13 @@ function BrowseView({
           <select
             className="bg-neutral-900 border border-neutral-800 rounded px-2 py-1.5"
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as JobStatus | "all")}
+            onChange={(e) => setStatusFilter(e.target.value)}
           >
             <option value="all">All</option>
-            {STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
+            <option value="unreviewed">Unreviewed</option>
+            <option value="in_progress">In Progress</option>
+            <option value="needs_action">Needs Action</option>
+            <option value="done">Done / Archived</option>
           </select>
         </label>
       </section>
