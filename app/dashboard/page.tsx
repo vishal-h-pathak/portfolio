@@ -553,14 +553,14 @@ function SwipeCard({
         <h2 className="text-xl font-semibold text-neutral-100 leading-tight">
           {job.title}
         </h2>
-        <p className="text-sm text-neutral-400 mt-1">{job.company}</p>
+        <p className="text-sm text-neutral-400 mt-1">
+          {job.company}
+          {job.location ? ` · ${job.location}` : ""}
+        </p>
         {relativeTime(job.created_at) && (
-          <p className="text-[11px] text-neutral-500 mt-0.5">
-            {relativeTime(job.created_at)}
+          <p className="text-[11px] text-neutral-500 mt-1 font-mono">
+            Found {relativeTime(job.created_at)}
           </p>
-        )}
-        {job.location && (
-          <p className="text-xs text-neutral-500 mt-0.5">{job.location}</p>
         )}
       </div>
 
@@ -764,6 +764,116 @@ function BrowseView({
   );
 }
 
+function ActionButtons({
+  job,
+  onStatus,
+  onOpen,
+}: {
+  job: Job;
+  onStatus: (s: JobStatus) => void;
+  onOpen: () => void;
+}) {
+  const s = job.status ?? "new";
+
+  switch (s) {
+    case "new":
+      return (
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => { onStatus("approved"); onOpen(); }}
+            className="text-xs px-3 py-1.5 rounded border border-emerald-800 bg-emerald-900/40 hover:bg-emerald-800/60 text-emerald-300 transition-colors"
+          >
+            Approve
+          </button>
+          <button
+            onClick={() => onStatus("ignored")}
+            className="text-xs px-3 py-1.5 rounded border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 text-neutral-500 transition-colors"
+          >
+            Ignore
+          </button>
+        </div>
+      );
+
+    case "approved":
+    case "preparing":
+      return (
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] text-neutral-500 italic">
+            {s === "preparing" ? "Agent is tailoring materials…" : "Queued for agent processing"}
+          </span>
+          <button
+            onClick={() => onStatus("new")}
+            className="text-xs px-2 py-1 rounded border border-neutral-800 text-neutral-600 hover:text-neutral-400 transition-colors"
+          >
+            Undo
+          </button>
+        </div>
+      );
+
+    case "ready_to_submit":
+      return (
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onOpen}
+            className="text-xs px-3 py-1.5 rounded border border-orange-700 bg-orange-900/40 hover:bg-orange-800/60 text-orange-200 transition-colors"
+          >
+            Review Materials
+          </button>
+          <button
+            onClick={() => onStatus("submit_confirmed")}
+            className="text-xs px-3 py-1.5 rounded border border-emerald-800 bg-emerald-900/40 hover:bg-emerald-800/60 text-emerald-300 transition-colors"
+          >
+            Confirm Submit
+          </button>
+          <button
+            onClick={() => onStatus("new")}
+            className="text-xs px-2 py-1 rounded border border-neutral-800 text-neutral-600 hover:text-neutral-400 transition-colors"
+          >
+            Reject
+          </button>
+        </div>
+      );
+
+    case "submit_confirmed":
+      return (
+        <span className="text-[11px] text-yellow-400/70 italic">Awaiting submission…</span>
+      );
+
+    case "applied":
+      return (
+        <span className="text-[11px] text-emerald-400/70">Applied {relativeTime(job.applied_at) ?? ""}</span>
+      );
+
+    case "failed":
+      return (
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] text-red-400/70">
+            Failed{job.failure_reason ? `: ${job.failure_reason.slice(0, 60)}` : ""}
+          </span>
+          <button
+            onClick={() => onStatus("approved")}
+            className="text-xs px-2 py-1 rounded border border-neutral-800 text-neutral-600 hover:text-neutral-400 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      );
+
+    case "ignored":
+      return (
+        <button
+          onClick={() => onStatus("new")}
+          className="text-xs px-2 py-1 rounded border border-neutral-800 text-neutral-600 hover:text-neutral-400 transition-colors"
+        >
+          Restore
+        </button>
+      );
+
+    default:
+      return null;
+  }
+}
+
 function BrowseCard({
   job,
   onStatus,
@@ -774,6 +884,8 @@ function BrowseCard({
   onApply: () => void;
 }) {
   const bucket = locationBucket(job.location);
+  const age = relativeTime(job.created_at);
+
   return (
     <article className="rounded-lg border border-neutral-800 bg-neutral-900/40 p-4 flex flex-col gap-2">
       <div className="flex items-start justify-between gap-3">
@@ -781,6 +893,9 @@ function BrowseCard({
           <div className="mb-1 flex items-center gap-2">
             <LocationBadge bucket={bucket} />
             <StatusBadge status={job.status} />
+            {age && (
+              <span className="text-[10px] text-neutral-600 font-mono">{age}</span>
+            )}
           </div>
           <h3 className="font-medium text-neutral-100 truncate">{job.title}</h3>
           <p className="text-sm text-neutral-400 truncate">
@@ -802,50 +917,26 @@ function BrowseCard({
         </p>
       )}
 
-      <div className="flex items-center gap-2 mt-1">
-        <select
-          value={job.status ?? "new"}
-          onChange={(e) => onStatus(e.target.value as JobStatus)}
-          className="bg-neutral-950 border border-neutral-800 rounded px-2 py-1 text-xs text-neutral-300"
-        >
-          {STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
-        <button
-          onClick={onApply}
-          className={`text-xs px-2.5 py-1 rounded border ${
-            (job.status ?? "new") === "ready_to_submit"
-              ? "border-orange-700 bg-orange-900/40 hover:bg-orange-800/60 text-orange-200"
-              : "border-neutral-700 bg-neutral-800 hover:bg-neutral-700 text-neutral-100"
-          }`}
-        >
-          {(job.status ?? "new") === "ready_to_submit" ? "Review" : "Apply"}
-        </button>
-        {job.url && (
-          <a
-            href={job.url}
-            target="_blank"
-            rel="noreferrer"
-            className="text-xs px-2.5 py-1 rounded border border-neutral-800 text-neutral-400 hover:text-neutral-200 hover:border-neutral-700 ml-auto"
-          >
-            Posting ↗
-          </a>
-        )}
-      </div>
-
-      {(job.source || job.created_at) && (
-        <div className="flex items-center gap-2 text-[11px] text-neutral-500">
+      <div className="flex items-center justify-between mt-1">
+        <ActionButtons job={job} onStatus={onStatus} onOpen={onApply} />
+        <div className="flex items-center gap-2 ml-auto">
           {job.source && (
-            <span className="px-1.5 py-0.5 rounded border border-neutral-800 bg-neutral-950">
+            <span className="text-[10px] px-1.5 py-0.5 rounded border border-neutral-800 bg-neutral-950 text-neutral-600">
               {job.source}
             </span>
           )}
-          {relativeTime(job.created_at) && <span>{relativeTime(job.created_at)}</span>}
+          {job.url && (
+            <a
+              href={job.url}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs px-2.5 py-1 rounded border border-neutral-800 text-neutral-400 hover:text-neutral-200 hover:border-neutral-700"
+            >
+              Posting ↗
+            </a>
+          )}
         </div>
-      )}
+      </div>
     </article>
   );
 }
