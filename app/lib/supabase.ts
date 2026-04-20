@@ -25,6 +25,8 @@ export type Job = {
   status_updated_at: string | null;
   resume_path: string | null;
   cover_letter_path: string | null;
+  resume_pdf_path: string | null;
+  cover_letter_pdf_path: string | null;
   application_url: string | null;
   application_notes: string | null;
   applied_at: string | null;

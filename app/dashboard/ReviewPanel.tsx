@@ -111,11 +111,59 @@ export default function ReviewPanel({
             </div>
           )}
 
-          {/* Cover Letter */}
+          {/* Resume PDF */}
+          {job.resume_pdf_path && (
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <div className="text-[10px] uppercase tracking-widest text-neutral-600">
+                  Resume PDF
+                </div>
+                <a
+                  href={`/api/materials/${job.id}/resume`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border border-neutral-700 bg-neutral-800 hover:bg-neutral-700 text-neutral-300"
+                >
+                  Open in new tab &#8599;
+                </a>
+              </div>
+              <iframe
+                src={`/api/materials/${job.id}/resume`}
+                title="Resume PDF"
+                className="w-full h-[600px] rounded border border-neutral-800 bg-neutral-900/40"
+              />
+            </div>
+          )}
+
+          {/* Cover Letter PDF */}
+          {job.cover_letter_pdf_path && (
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <div className="text-[10px] uppercase tracking-widest text-neutral-600">
+                  Cover Letter PDF
+                </div>
+                <a
+                  href={`/api/materials/${job.id}/cover_letter`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border border-neutral-700 bg-neutral-800 hover:bg-neutral-700 text-neutral-300"
+                >
+                  Open in new tab &#8599;
+                </a>
+              </div>
+              <iframe
+                src={`/api/materials/${job.id}/cover_letter`}
+                title="Cover Letter PDF"
+                className="w-full h-[600px] rounded border border-neutral-800 bg-neutral-900/40"
+              />
+            </div>
+          )}
+
+          {/* Cover Letter Text (for copy/paste into forms) */}
           <div>
             <div className="flex items-center justify-between mb-1">
               <div className="text-[10px] uppercase tracking-widest text-neutral-600">
-                Cover Letter
+                Cover Letter Text
               </div>
               {job.cover_letter_path && (
                 <button
