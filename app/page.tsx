@@ -103,9 +103,10 @@ const SKILLS = {
     "Intel Loihi / Kapoho Bay",
     "VHDL / RTL design",
     "Memristive devices",
-    "PCB design (EagleCAD)",
+    "PCB design (EagleCAD / Altium)",
     "SNN conversion pipelines",
     "Fixed-point arithmetic",
+    "RS-232 / RS-485 serial",
   ],
   "ML & Computer Vision": [
     "PyTorch / TensorFlow",
@@ -114,6 +115,7 @@ const SKILLS = {
     "Jetson Orin / AGX",
     "HPC training pipelines",
     "Edge deployment",
+    "AFSIM surrogate models",
   ],
   "Neuroscience & Simulation": [
     "Brian2 / NEST",
@@ -128,6 +130,7 @@ const SKILLS = {
     "Next.js / React",
     "Supabase / PostgreSQL",
     "Claude API / LLM tooling",
+    "PyQt6 desktop GUIs",
     "Docker / Linux",
     "Git / CI-CD",
   ],
@@ -140,11 +143,13 @@ const EXPERIENCE = [
     period: "2021 – Present",
     bullets: [
       "SPARSE (2021–2024): Developed VHDL models of CUBA and LIF neurons matching Intel LavaSDK behavior for simulation-to-FPGA deployment. Deployed and benchmarked spiking networks on Intel Kapoho Bay. Built DNN→SNN conversion pipeline using backpropagation in the spiking regime for overhead imagery and radar processing. Trained models on ICEHAMMER HPC cluster.",
-      "360-SA (2023–Present): Established pytest-based test suite on HPC covering KITTI data ingestion, object detection, and tracking pipeline validation. Designed Jacamar-CI pipeline for automated build/test/deploy on vehicle-mounted 360° camera systems. Engineered hardware fix using TI SD384EVK board for impedance mismatch between cameras and Wolf Orin platform.",
+      "360-SA (2023–Present): Established pytest-based test suite on HPC covering KITTI data ingestion, object detection, and tracking pipeline validation. Designed Jacamar-CI pipeline for automated build/test/deploy on vehicle-mounted 360° camera systems. Engineered hardware fix using TI SD384EVK board for impedance mismatch between cameras and Wolf Orin platform. Built a custom frame grabber for HGH's Spynel MWIR panoramic thermal camera so it could feed into the rest of the vision pipeline. Ported the operator GUI from tkinter to PyQt6 with collapsible/movable sub-windows and individually selectable elements.",
       "HACS (2024): Managed full lifecycle of custom thermal control PCB — hand-populated 0402 components on milled EagleCAD boards. Wrote C++ firmware for STM32 to control thermal switches and stream status over raw UDP/TCP.",
       "GREMLIN (2023): Selected model architectures for post-processing MWIR video. Designed annotation-repair algorithm that re-labels mis-detections by running data through trained models and performing similarity comparison between detections.",
       "ENFIRE (2024–Present): Assembled rugged portable sensor enclosure housing Jetson Orin, Ouster LiDAR, DAGR receiver, power pack, and network switch. Conducted campus-scale SLAM and point-cloud mapping tests.",
       "DRAGON (2024): Implemented Chrony time synchronization across multi-drone swarm and profiled system resilience under simulated network disruptions.",
+      "PAAM (2024): Built visualizations and surrogate models for high-dimensional AFSIM simulation data to support exploratory analysis and faster parameter sweeps than re-running the full simulation.",
+      "SHELAC (Nov 2025–Present): Deployed two weather stations and three anemometers along the northern edge of the building roof, running ruggedized Ethernet and serial cabling through a roof hatch into the LIDAR lab. Sourced all cable stock, connectors, and converters, then bench-tested everything with a coworker before on-roof install. Converted the Young sonic anemometer from RS-232 to RS-485 with an in-line converter to preserve signal integrity across the long cable run.",
     ],
   },
   {
