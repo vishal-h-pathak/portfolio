@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase, type Job, type JobStatus } from "../lib/supabase";
 import MatchAgent from "./MatchAgent";
@@ -44,6 +45,9 @@ function StatusBadge({ status }: { status: JobStatus | null }) {
     preparing: { bg: "bg-violet-900/40 text-violet-300 border-violet-800/60", label: "Preparing", icon: "spinner" },
     ready_to_submit: { bg: "bg-orange-900/40 text-orange-300 border-orange-800/60", label: "Ready", icon: "orange" },
     submit_confirmed: { bg: "bg-yellow-900/40 text-yellow-300 border-yellow-800/60", label: "Confirmed" },
+    submitting: { bg: "bg-violet-900/40 text-violet-300 border-violet-800/60", label: "Submitting", icon: "spinner" },
+    needs_review: { bg: "bg-amber-900/40 text-amber-300 border-amber-800/60", label: "Needs Review", icon: "orange" },
+    submitted: { bg: "bg-emerald-900/40 text-emerald-300 border-emerald-800/60", label: "Submitted", icon: "check" },
     applied: { bg: "bg-emerald-900/40 text-emerald-300 border-emerald-800/60", label: "Applied", icon: "check" },
     failed: { bg: "bg-red-900/40 text-red-300 border-red-800/60", label: "Failed", icon: "x" },
     ignored: { bg: "bg-neutral-900/40 text-neutral-500 border-neutral-800", label: "Ignored" },
@@ -71,6 +75,9 @@ const STATUSES: JobStatus[] = [
   "preparing",
   "ready_to_submit",
   "submit_confirmed",
+  "submitting",
+  "needs_review",
+  "submitted",
   "applied",
   "failed",
   "ignored",
@@ -626,9 +633,13 @@ function BrowseView({
       if (statusFilter !== "all") {
         const js = j.status ?? "new";
         if (statusFilter === "unreviewed" && js !== "new") return false;
-        if (statusFilter === "in_progress" && !["approved", "preparing"].includes(js)) return false;
-        if (statusFilter === "needs_action" && !["ready_to_submit", "submit_confirmed"].includes(js)) return false;
-        if (statusFilter === "done" && !["applied", "failed", "ignored"].includes(js)) return false;
+        if (statusFilter === "in_progress" && !["approved", "preparing", "submitting"].includes(js)) return false;
+        if (
+          statusFilter === "needs_action" &&
+          !["ready_to_submit", "submit_confirmed", "needs_review"].includes(js)
+        )
+          return false;
+        if (statusFilter === "done" && !["applied", "submitted", "failed", "ignored"].includes(js)) return false;
       }
       if (locationFilter !== "all" && locationBucket(j.location) !== locationFilter) return false;
       return true;
@@ -645,6 +656,11 @@ function BrowseView({
     return g;
   }, [filtered]);
 
+  const needsReviewCount = useMemo(
+    () => jobs.filter((j) => (j.status ?? "new") === "needs_review").length,
+    [jobs],
+  );
+
   return (
     <main className="min-h-screen px-4 py-8 sm:px-8 sm:py-12 max-w-6xl mx-auto bg-black text-neutral-100">
       <header className="mb-8 flex items-start justify-between gap-4">
@@ -656,7 +672,22 @@ function BrowseView({
             {`${filtered.length} of ${jobs.length} jobs`}
           </p>
         </div>
-        {viewToggle}
+        <div className="flex items-center gap-2">
+          <Link
+            href="/dashboard/review"
+            className={`text-xs px-3 py-1.5 rounded border transition ${
+              needsReviewCount > 0
+                ? "border-amber-700 bg-amber-900/40 text-amber-200 hover:bg-amber-800/60"
+                : "border-neutral-800 bg-neutral-950 text-neutral-400 hover:text-neutral-100 hover:border-neutral-700"
+            }`}
+          >
+            Review queue
+            {needsReviewCount > 0 && (
+              <span className="ml-1 font-mono">({needsReviewCount})</span>
+            )}
+          </Link>
+          {viewToggle}
+        </div>
       </header>
 
       <section className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-8 text-sm">
