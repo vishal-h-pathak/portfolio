@@ -674,6 +674,12 @@ function BrowseView({
         </div>
         <div className="flex items-center gap-2">
           <Link
+            href="/dashboard/insights"
+            className="text-xs px-3 py-1.5 rounded border border-neutral-800 bg-neutral-950 text-neutral-400 hover:text-neutral-100 hover:border-neutral-700"
+          >
+            Insights
+          </Link>
+          <Link
             href="/dashboard/review"
             className={`text-xs px-3 py-1.5 rounded border transition ${
               needsReviewCount > 0
