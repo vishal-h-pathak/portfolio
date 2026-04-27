@@ -77,6 +77,10 @@ export type Job = {
   // the packet is cleared. See SubmissionPacket above for the full shape.
   submission_log: SubmissionPacket | null;
   confidence: number | null;
+  // Match Agent conversation persisted from the dashboard chat. Read by
+  // the tailor at approval time and surfaced in the LLM prompts as
+  // authoritative framing for THIS specific role. Null = no chat yet.
+  match_chat: { role: "user" | "assistant"; content: string }[] | null;
 };
 
 export const supabase = createClient(

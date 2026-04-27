@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { Job } from "../lib/supabase";
+import { supabase, type Job } from "../lib/supabase";
 
 type Message = { role: "user" | "assistant"; content: string };
 
@@ -70,6 +70,11 @@ export default function MatchAgent({ job, onClose }: { job: Job; onClose: () => 
         ...apiHistoryRef.current,
         { role: "assistant", content: acc },
       ];
+      // Persist the conversation after the assistant's reply lands. The
+      // tailor reads this column at approval time, so saving here
+      // captures everything up to the most recent exchange even if the
+      // user closes the panel mid-conversation.
+      void persistChat(apiHistoryRef.current);
     } catch (err) {
       setMessages((m) => {
         const copy = [...m];
@@ -81,6 +86,26 @@ export default function MatchAgent({ job, onClose }: { job: Job; onClose: () => 
       });
     } finally {
       setStreaming(false);
+    }
+  }
+
+  // Save the running conversation back to jobs.match_chat. Filters out the
+  // hidden kickoff turn ("(begin interview — ask your first question)") so
+  // the persisted record is just the human-readable interview.
+  async function persistChat(history: Message[]) {
+    const cleaned = history.filter(
+      (m) =>
+        !(m.role === "user" && m.content.startsWith("(begin interview")),
+    );
+    try {
+      await supabase
+        .from("jobs")
+        .update({ match_chat: cleaned })
+        .eq("id", job.id);
+    } catch (err) {
+      // Failure here is non-fatal — the conversation still works in
+      // memory; only the next-run tailor loses access to it.
+      console.warn("MatchAgent: failed to persist chat:", err);
     }
   }
 
