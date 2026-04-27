@@ -25,7 +25,7 @@
  */
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -67,6 +67,12 @@ const TIER_COLORS: Record<string, string> = {
   skip:        "#525252", // neutral
   unknown:     "#404040", // neutral-700
 };
+
+// How often we re-pull the jobs table while the page is open. The hunter
+// streams new rows every few seconds during a run, so 30s is a good
+// balance between freshness and read load. Pauses automatically when the
+// tab is hidden — see the visibilitychange listener in InsightsPage.
+const REFRESH_INTERVAL_MS = 30_000;
 
 const STATUS_LABEL: Record<string, string> = {
   new: "New",
@@ -296,6 +302,56 @@ function ChartFrame({
   );
 }
 
+function relativeAgo(d: Date | null): string {
+  if (!d) return "";
+  const secs = Math.floor((Date.now() - d.getTime()) / 1000);
+  if (secs < 5) return "just now";
+  if (secs < 60) return `${secs}s ago`;
+  const mins = Math.floor(secs / 60);
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  return `${hours}h ago`;
+}
+
+function RefreshIndicator({
+  lastUpdated,
+  refreshing,
+  onRefresh,
+}: {
+  lastUpdated: Date | null;
+  refreshing: boolean;
+  onRefresh: () => void;
+}) {
+  // Tick once a second so the "Xs ago" string updates between polls.
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const label = lastUpdated ? `Updated ${relativeAgo(lastUpdated)}` : "Loading…";
+  return (
+    <div className="flex items-center gap-1 text-[11px] text-neutral-500">
+      <span className="font-mono">{label}</span>
+      <button
+        onClick={onRefresh}
+        disabled={refreshing}
+        className="ml-1 px-2 py-1 rounded border border-neutral-800 bg-neutral-950 text-neutral-400 hover:text-neutral-100 hover:border-neutral-700 disabled:opacity-50"
+        title="Refresh now"
+        aria-label="Refresh"
+      >
+        {refreshing ? (
+          <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+        ) : (
+          "↻"
+        )}
+      </button>
+    </div>
+  );
+}
+
 function KpiTile({
   label,
   value,
@@ -330,6 +386,8 @@ export default function InsightsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
   // ``mounted`` gates Recharts rendering until the client has run a
   // layout pass. Recharts measures its container with getBoundingClientRect
   // on its first render; under Turbopack/Next 16 the parent often reports
@@ -339,18 +397,66 @@ export default function InsightsPage() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
 
-  useEffect(() => {
-    (async () => {
-      // Pull all rows once. The dashboard does the same; we pay one read.
-      const { data, error } = await supabase
+  // Hold the latest fetch promise so a manual refresh during a polled
+  // refresh doesn't double-set state in surprising orders.
+  const inFlight = useRef<Promise<void> | null>(null);
+
+  const loadJobs = useCallback(async () => {
+    if (inFlight.current) return inFlight.current;
+    setRefreshing(true);
+    const p = (async () => {
+      const { data, error: fetchError } = await supabase
         .from("jobs")
         .select("*")
         .order("created_at", { ascending: false });
-      if (error) setError(error.message);
-      else setJobs((data ?? []) as Job[]);
+      if (fetchError) setError(fetchError.message);
+      else {
+        setJobs((data ?? []) as Job[]);
+        setError(null);
+        setLastUpdated(new Date());
+      }
       setLoading(false);
+      setRefreshing(false);
     })();
+    inFlight.current = p;
+    try {
+      await p;
+    } finally {
+      inFlight.current = null;
+    }
   }, []);
+
+  // Initial load + polling. We pause polling while the tab is hidden to
+  // avoid wasted reads, and force a refresh the moment the tab becomes
+  // visible again so the user sees fresh data without manually clicking.
+  useEffect(() => {
+    void loadJobs();
+    let timer: ReturnType<typeof setInterval> | null = null;
+    function start() {
+      if (timer) return;
+      timer = setInterval(() => { void loadJobs(); }, REFRESH_INTERVAL_MS);
+    }
+    function stop() {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    }
+    function onVisibilityChange() {
+      if (document.visibilityState === "visible") {
+        void loadJobs();
+        start();
+      } else {
+        stop();
+      }
+    }
+    if (document.visibilityState === "visible") start();
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      stop();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, [loadJobs]);
 
   const kpis = useMemo(() => computeKpis(jobs), [jobs]);
   const sourceShare = useMemo(() => aggregateSourceShare(jobs), [jobs]);
@@ -383,12 +489,19 @@ export default function InsightsPage() {
             inflow, and the application funnel.
           </p>
         </div>
-        <Link
-          href="/dashboard"
-          className="text-xs px-3 py-1.5 rounded border border-neutral-800 bg-neutral-950 text-neutral-400 hover:text-neutral-100 hover:border-neutral-700"
-        >
-          ← Dashboard
-        </Link>
+        <div className="flex items-center gap-2 shrink-0">
+          <RefreshIndicator
+            lastUpdated={lastUpdated}
+            refreshing={refreshing}
+            onRefresh={loadJobs}
+          />
+          <Link
+            href="/dashboard"
+            className="text-xs px-3 py-1.5 rounded border border-neutral-800 bg-neutral-950 text-neutral-400 hover:text-neutral-100 hover:border-neutral-700"
+          >
+            ← Dashboard
+          </Link>
+        </div>
       </header>
 
       {error && (
