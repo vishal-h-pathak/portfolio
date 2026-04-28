@@ -380,6 +380,163 @@ function KpiTile({
 }
 
 
+// ── Pattern Analysis (J-6) ────────────────────────────────────────────
+//
+// Reads the most recent row from the `pattern_analyses` table written by
+// `job-applicant/scripts/analyze_patterns.py`. The script runs on a
+// schedule (cron); this section just renders whatever the latest run
+// produced — flagged groups + a horizontal bar of response rates.
+
+type PatternGroupRow = {
+  name: string;
+  n: number;
+  applied: number;
+  responded: number;
+  interviewed: number;
+  offered: number;
+  applied_rate: number;
+  response_rate: number;
+  interview_rate: number;
+  offer_rate: number;
+};
+
+type PatternFlagged = {
+  group: string;
+  n: number;
+  applied: number;
+  response_rate: number;
+  delta_pp_vs_global: number;
+  direction: "above" | "below";
+};
+
+type PatternAnalysisRow = {
+  id: number;
+  created_at: string;
+  num_jobs_analyzed: number;
+  dimensions: string;
+  payload: {
+    groups: PatternGroupRow[];
+    flagged_patterns: PatternFlagged[];
+  };
+};
+
+function PatternAnalysisSection({ mounted }: { mounted: boolean }) {
+  const [row, setRow] = useState<PatternAnalysisRow | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const { data, error } = await supabase
+        .from("pattern_analyses")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) setError(error.message);
+      else setRow((data as PatternAnalysisRow) ?? null);
+      setLoading(false);
+    })();
+  }, []);
+
+  if (loading) {
+    return (
+      <>
+        <PanelHeader title="Pattern analysis" subtitle="loading…" />
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <PanelHeader title="Pattern analysis" subtitle={error} />
+      </>
+    );
+  }
+
+  if (!row) {
+    return (
+      <>
+        <PanelHeader
+          title="Pattern analysis"
+          subtitle="No analysis yet. Run `python -m scripts.analyze_patterns` from the job-applicant repo to seed this section."
+        />
+      </>
+    );
+  }
+
+  const subtitle = `${row.num_jobs_analyzed} jobs analyzed by ${row.dimensions} · ${new Date(row.created_at).toLocaleDateString()}`;
+  const groups = (row.payload?.groups ?? [])
+    .filter((g) => g.applied > 0)
+    .sort((a, b) => b.response_rate - a.response_rate)
+    .slice(0, 12);
+  const flagged = row.payload?.flagged_patterns ?? [];
+
+  const chartData = groups.map((g) => ({
+    name: g.name,
+    response_rate: Math.round(g.response_rate * 100),
+    n: g.n,
+    applied: g.applied,
+  }));
+
+  return (
+    <>
+      <PanelHeader title="Pattern analysis (J-6)" subtitle={subtitle} />
+      {flagged.length > 0 && (
+        <div className="mb-4 grid gap-2">
+          {flagged.map((p) => (
+            <div
+              key={p.group}
+              className={`rounded border px-3 py-2 text-xs flex items-center justify-between gap-3 ${
+                p.direction === "above"
+                  ? "border-emerald-800/60 bg-emerald-950/30 text-emerald-200"
+                  : "border-red-800/60 bg-red-950/30 text-red-200"
+              }`}
+            >
+              <code className="font-mono">{p.group}</code>
+              <span>
+                response rate {Math.round(p.response_rate * 100)}% (
+                {p.delta_pp_vs_global > 0 ? "+" : ""}
+                {p.delta_pp_vs_global.toFixed(1)}pp vs global) · n={p.n} · applied={p.applied}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+      <ChartFrame mounted={mounted} height={Math.max(160, chartData.length * 28)}>
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+          <BarChart data={chartData} layout="vertical">
+            <CartesianGrid strokeDasharray="3 3" stroke="#262626" />
+            <XAxis
+              type="number"
+              domain={[0, 100]}
+              tick={{ fill: "#a3a3a3", fontSize: 11 }}
+              unit="%"
+            />
+            <YAxis
+              type="category"
+              dataKey="name"
+              width={220}
+              tick={{ fill: "#a3a3a3", fontSize: 10 }}
+            />
+            <Tooltip
+              contentStyle={{
+                background: "#0a0a0a",
+                border: "1px solid #262626",
+                borderRadius: 6,
+                fontSize: 12,
+              }}
+            />
+            <Bar dataKey="response_rate" fill="#a855f7" name="Response rate %" />
+          </BarChart>
+        </ResponsiveContainer>
+      </ChartFrame>
+    </>
+  );
+}
+
+
 // ── Page ────────────────────────────────────────────────────────────────
 
 export default function InsightsPage() {
@@ -552,6 +709,11 @@ export default function InsightsPage() {
           hint="End of the funnel"
         />
       </section>
+
+      {/* ── Pattern Analysis (J-6) — latest row from `pattern_analyses` ── */}
+      <Panel className="mb-4">
+        <PatternAnalysisSection mounted={mounted} />
+      </Panel>
 
       {/* ── Pie + tier yield (side by side on wide, stacked on narrow) ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
