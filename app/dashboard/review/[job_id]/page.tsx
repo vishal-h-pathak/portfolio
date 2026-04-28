@@ -65,6 +65,30 @@ function confidenceColor(c: number | null | undefined): string {
   return "text-red-300";
 }
 
+// Posting Legitimacy pill (J-2). Renders nothing if scorer didn't emit
+// a category. Tooltip shows the reasoning for a fuller explanation.
+function LegitimacyPill({ job }: { job: Job }) {
+  if (!job.legitimacy) return null;
+  const styles: Record<NonNullable<Job["legitimacy"]>, string> = {
+    high_confidence: "border-emerald-800/60 bg-emerald-900/30 text-emerald-300",
+    proceed_with_caution: "border-amber-800/60 bg-amber-900/30 text-amber-300",
+    suspicious: "border-red-800/60 bg-red-900/30 text-red-300",
+  };
+  const labels: Record<NonNullable<Job["legitimacy"]>, string> = {
+    high_confidence: "legit: high confidence",
+    proceed_with_caution: "legit: proceed with caution",
+    suspicious: "legit: suspicious",
+  };
+  return (
+    <span
+      className={`px-2 py-0.5 rounded border text-[10px] uppercase tracking-widest ${styles[job.legitimacy]}`}
+      title={job.legitimacy_reasoning ?? undefined}
+    >
+      {labels[job.legitimacy]}
+    </span>
+  );
+}
+
 function ScreenshotRow({ shot }: { shot: PacketScreenshot }) {
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -327,20 +351,25 @@ export default function ReviewDetailPage() {
           </div>
         </div>
 
-        {packet && (
+        {(packet || job.legitimacy) && (
           <div className="mt-4 flex items-center gap-2 flex-wrap text-[10px] uppercase tracking-widest">
-            <span className="px-2 py-0.5 rounded border border-neutral-800 bg-neutral-900 text-neutral-400">
-              adapter: <span className="text-neutral-200">{packet.adapter}</span>
-            </span>
-            <span className="px-2 py-0.5 rounded border border-neutral-800 bg-neutral-900 text-neutral-400">
-              attempt {packet.attempt_n}
-            </span>
-            <span className="px-2 py-0.5 rounded border border-neutral-800 bg-neutral-900 text-neutral-400">
-              {packet.filled_fields.length} filled
-            </span>
-            <span className="px-2 py-0.5 rounded border border-neutral-800 bg-neutral-900 text-amber-300">
-              {packet.skipped_fields.length} skipped
-            </span>
+            {packet && (
+              <>
+                <span className="px-2 py-0.5 rounded border border-neutral-800 bg-neutral-900 text-neutral-400">
+                  adapter: <span className="text-neutral-200">{packet.adapter}</span>
+                </span>
+                <span className="px-2 py-0.5 rounded border border-neutral-800 bg-neutral-900 text-neutral-400">
+                  attempt {packet.attempt_n}
+                </span>
+                <span className="px-2 py-0.5 rounded border border-neutral-800 bg-neutral-900 text-neutral-400">
+                  {packet.filled_fields.length} filled
+                </span>
+                <span className="px-2 py-0.5 rounded border border-neutral-800 bg-neutral-900 text-amber-300">
+                  {packet.skipped_fields.length} skipped
+                </span>
+              </>
+            )}
+            <LegitimacyPill job={job} />
           </div>
         )}
       </header>

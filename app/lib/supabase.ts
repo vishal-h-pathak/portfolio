@@ -81,6 +81,11 @@ export type Job = {
   // the tailor at approval time and surfaced in the LLM prompts as
   // authoritative framing for THIS specific role. Null = no chat yet.
   match_chat: { role: "user" | "assistant"; content: string }[] | null;
+  // Posting Legitimacy axis (J-2). Evaluated by the scorer alongside fit
+  // but stored separately so it never leaks into the fit score. Surfaces
+  // as a colored pill in the review panel — soft warning, not a gate.
+  legitimacy: "high_confidence" | "proceed_with_caution" | "suspicious" | null;
+  legitimacy_reasoning: string | null;
 };
 
 export const supabase = createClient(

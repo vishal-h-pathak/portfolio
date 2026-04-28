@@ -11,6 +11,41 @@ type ResumeTailoring = {
   diff_notes?: string;
 };
 
+// Soft warning for ghost / re-posted / generic listings. Never gates
+// approval — Vishal still decides. Empty when the scorer didn't emit one.
+function LegitimacyPill({
+  legitimacy,
+  reasoning,
+}: {
+  legitimacy: Job["legitimacy"];
+  reasoning: string | null;
+}) {
+  if (!legitimacy) return null;
+  const styles: Record<NonNullable<Job["legitimacy"]>, string> = {
+    high_confidence: "border-emerald-800/60 bg-emerald-900/30 text-emerald-300",
+    proceed_with_caution: "border-amber-800/60 bg-amber-900/30 text-amber-300",
+    suspicious: "border-red-800/60 bg-red-900/30 text-red-300",
+  };
+  const labels: Record<NonNullable<Job["legitimacy"]>, string> = {
+    high_confidence: "Legitimacy: high confidence",
+    proceed_with_caution: "Legitimacy: proceed with caution",
+    suspicious: "Legitimacy: suspicious",
+  };
+  return (
+    <div className="space-y-1">
+      <span
+        className={`inline-block text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full border ${styles[legitimacy]}`}
+        title={reasoning ?? undefined}
+      >
+        {labels[legitimacy]}
+      </span>
+      {reasoning && (
+        <p className="text-xs text-neutral-400 leading-relaxed">{reasoning}</p>
+      )}
+    </div>
+  );
+}
+
 function parseResumeTailoring(raw: string | null): ResumeTailoring | null {
   if (!raw) return null;
   try {
@@ -82,6 +117,19 @@ export default function ReviewPanel({
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto p-4 space-y-6 text-sm">
+          {/* Posting Legitimacy (J-2) — soft signal, never gates approval */}
+          {job.legitimacy && (
+            <div>
+              <div className="text-[10px] uppercase tracking-widest text-neutral-600 mb-1">
+                Posting Legitimacy
+              </div>
+              <LegitimacyPill
+                legitimacy={job.legitimacy}
+                reasoning={job.legitimacy_reasoning}
+              />
+            </div>
+          )}
+
           {/* Application URL */}
           {job.application_url && (
             <div>
