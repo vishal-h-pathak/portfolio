@@ -130,6 +130,23 @@ export default function ReviewPanel({
             </div>
           )}
 
+          {/* Archetype (J-4) — which lane the tailor framed this JD as */}
+          {job.archetype && (
+            <div>
+              <div className="text-[10px] uppercase tracking-widest text-neutral-600 mb-1">
+                Archetype
+              </div>
+              <span className="inline-block text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full border border-violet-800/60 bg-violet-900/30 text-violet-300">
+                {job.archetype}
+                {typeof job.archetype_confidence === "number" && (
+                  <span className="text-violet-400/70 ml-1.5 font-mono normal-case">
+                    {job.archetype_confidence.toFixed(2)}
+                  </span>
+                )}
+              </span>
+            </div>
+          )}
+
           {/* Application URL */}
           {job.application_url && (
             <div>

@@ -86,6 +86,11 @@ export type Job = {
   // as a colored pill in the review panel — soft warning, not a gate.
   legitimacy: "high_confidence" | "proceed_with_caution" | "suspicious" | null;
   legitimacy_reasoning: string | null;
+  // Archetype routing (J-4). Tailor classifies each JD into one of the
+  // archetypes defined in profile.yml; persisted here for analytics
+  // (/dashboard/insights) and to show the reviewer which lane was used.
+  archetype: string | null;
+  archetype_confidence: number | null;
 };
 
 export const supabase = createClient(
