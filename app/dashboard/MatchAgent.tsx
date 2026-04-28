@@ -5,6 +5,15 @@ import { supabase, type Job } from "../lib/supabase";
 
 type Message = { role: "user" | "assistant"; content: string };
 
+// J-11: classifier verdict for the most recent exchange. When
+// `generalizable === true`, the UI surfaces a "Save to profile" button
+// that appends the summary to the user-layer learned-insights.md.
+type InsightCandidate = {
+  generalizable: boolean;
+  summary: string;
+  reasoning: string;
+};
+
 export default function MatchAgent({ job, onClose }: { job: Job; onClose: () => void }) {
   const intro = `I'm looking at **${job.title}** at **${job.company}**. Before I start tailoring your application, I have a few questions.`;
 
@@ -21,6 +30,13 @@ export default function MatchAgent({ job, onClose }: { job: Job; onClose: () => 
   const kickedOff = useRef(false);
   // True conversation history sent to the API (may include hidden turns).
   const apiHistoryRef = useRef<Message[]>([]);
+  // J-11 state — most recent classifier verdict + UI status of the save.
+  const [insight, setInsight] = useState<InsightCandidate | null>(null);
+  const [insightSaving, setInsightSaving] = useState(false);
+  const [insightStatus, setInsightStatus] = useState<"idle" | "saved" | "error">(
+    "idle",
+  );
+  const [insightError, setInsightError] = useState<string | null>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
@@ -75,6 +91,10 @@ export default function MatchAgent({ job, onClose }: { job: Job; onClose: () => 
       // captures everything up to the most recent exchange even if the
       // user closes the panel mid-conversation.
       void persistChat(apiHistoryRef.current);
+      // J-11 — fire-and-forget classifier on the recent turns. If the
+      // model thinks Vishal revealed a generalizable preference, the
+      // "Save to profile" button appears.
+      void classifyForInsight(apiHistoryRef.current);
     } catch (err) {
       setMessages((m) => {
         const copy = [...m];
@@ -86,6 +106,66 @@ export default function MatchAgent({ job, onClose }: { job: Job; onClose: () => 
       });
     } finally {
       setStreaming(false);
+    }
+  }
+
+  // J-11 — Run the classifier. Only update state if the most recent
+  // user message has actually arrived (skip on the kick-off turn before
+  // Vishal has said anything substantive).
+  async function classifyForInsight(history: Message[]) {
+    const cleaned = history.filter(
+      (m) => !(m.role === "user" && m.content.startsWith("(begin interview")),
+    );
+    // Need at least one user-content turn after the kickoff to bother.
+    const hasRealUserTurn = cleaned.some((m) => m.role === "user");
+    if (!hasRealUserTurn) return;
+    try {
+      const res = await fetch("/api/dashboard/profile-insight", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "classify", history: cleaned }),
+      });
+      if (!res.ok) return;
+      const verdict = (await res.json()) as InsightCandidate;
+      // Only flip the button on if the verdict is positive AND the
+      // summary string is non-empty. Reset to null on a negative
+      // verdict so a fresh-but-non-generalizable turn clears stale UI.
+      if (verdict.generalizable && verdict.summary.trim()) {
+        setInsight(verdict);
+        setInsightStatus("idle");
+        setInsightError(null);
+      } else {
+        setInsight(null);
+      }
+    } catch {
+      // Classification failures are non-fatal; the chat still works.
+    }
+  }
+
+  async function saveInsight() {
+    if (!insight || insightSaving) return;
+    setInsightSaving(true);
+    setInsightError(null);
+    try {
+      const res = await fetch("/api/dashboard/profile-insight", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "save",
+          summary: insight.summary,
+          source_job_id: job.id,
+        }),
+      });
+      if (!res.ok) {
+        const msg = await res.text().catch(() => "");
+        throw new Error(msg || `save failed: ${res.status}`);
+      }
+      setInsightStatus("saved");
+    } catch (err) {
+      setInsightStatus("error");
+      setInsightError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setInsightSaving(false);
     }
   }
 
@@ -162,6 +242,50 @@ export default function MatchAgent({ job, onClose }: { job: Job; onClose: () => 
             </div>
           ))}
         </div>
+
+        {insight && (
+          <div className="border-t border-neutral-800 px-4 py-3 bg-amber-950/20">
+            <div className="text-[10px] uppercase tracking-widest text-amber-400 mb-1">
+              Generalizable preference detected
+            </div>
+            <p className="text-sm text-amber-100 mb-2">
+              <span className="text-amber-300">“</span>
+              {insight.summary}
+              <span className="text-amber-300">”</span>
+            </p>
+            {insight.reasoning && (
+              <p className="text-[11px] text-amber-200/70 mb-2 italic">
+                {insight.reasoning}
+              </p>
+            )}
+            <div className="flex items-center gap-2">
+              {insightStatus === "saved" ? (
+                <span className="text-xs text-emerald-400">
+                  ✓ Saved to learned-insights.md
+                </span>
+              ) : (
+                <>
+                  <button
+                    onClick={saveInsight}
+                    disabled={insightSaving}
+                    className="text-xs px-3 py-1.5 rounded border border-amber-700 bg-amber-900/40 hover:bg-amber-800/60 text-amber-100 disabled:opacity-40"
+                  >
+                    {insightSaving ? "Saving…" : "Save to profile"}
+                  </button>
+                  <button
+                    onClick={() => setInsight(null)}
+                    className="text-xs px-3 py-1.5 rounded border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 text-neutral-400"
+                  >
+                    Dismiss
+                  </button>
+                </>
+              )}
+              {insightStatus === "error" && insightError && (
+                <span className="text-xs text-red-400">{insightError}</span>
+              )}
+            </div>
+          </div>
+        )}
 
         <form
           onSubmit={(e) => {
