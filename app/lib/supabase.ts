@@ -1,17 +1,71 @@
 import { createClient } from "@supabase/supabase-js";
 
 export type JobStatus =
+  // M-2 canonical lifecycle (career-ops alignment).
+  | "discovered"
   | "new"
   | "approved"
   | "preparing"
+  | "ready_for_review"
+  | "prefilling"
+  | "awaiting_human_submit"
+  | "applied"
+  | "failed"
+  | "skipped"
+  | "expired"
+  | "ignored"
+  // Legacy union members kept for back-compat with older dashboard
+  // code that hasn't been updated to the new lifecycle yet. Migration
+  // 007 collapsed every existing row in these states to ready_for_review,
+  // and the CHECK constraint will reject any new write to them — so
+  // these are read-only at this point.
   | "ready_to_submit"
   | "submit_confirmed"
   | "submitting"
   | "needs_review"
-  | "submitted"
-  | "applied"
-  | "failed"
-  | "ignored";
+  | "submitted";
+
+
+/**
+ * M-1 form-answer drafts. Identity / contact / location / comp / work-auth
+ * / current-employment fields are filled from profile.yml in Python; only
+ * the four narrative fields below (and additional_questions) are LLM-
+ * drafted. The cockpit (M-6) renders these as copy-paste drafts the
+ * human can paste into form fields the per-ATS handler couldn't reach.
+ */
+export type FormAnswerQuestion = {
+  question: string;
+  draft_answer: string;
+};
+
+export type FormAnswers = {
+  // Identity (pulled from profile.yml; never LLM-generated)
+  first_name?: string;
+  last_name?: string;
+  full_name?: string;
+  email?: string;
+  phone?: string | null;
+  linkedin_url?: string;
+  github_url?: string | null;
+  portfolio_url?: string;
+  // Location & comp
+  current_location?: string;
+  willing_to_relocate?: string;
+  remote_preference?: string;
+  salary_expectation?: string;
+  work_authorization?: string;
+  notice_period?: string;
+  availability_to_start?: string;
+  // Current employment
+  current_company?: string;
+  current_title?: string;
+  years_of_experience?: number;
+  // Narrative (LLM-drafted; constrained word counts)
+  why_this_role?: string;
+  why_this_company?: string;
+  additional_info?: string | null;
+  additional_questions?: FormAnswerQuestion[];
+};
 
 /**
  * Shape of the `submission_log` JSONB column written by job-submitter's
@@ -91,6 +145,16 @@ export type Job = {
   // (/dashboard/insights) and to show the reviewer which lane was used.
   archetype: string | null;
   archetype_confidence: number | null;
+  // M-1: form-answer drafts (career-ops Block H). Authoritative source
+  // for both the per-ATS DOM handlers and the cockpit's copy-paste UI.
+  // Null when score < 6 or the generation step failed.
+  form_answers: FormAnswers | null;
+  // M-3: stop-at-submit support columns.
+  submission_url: string | null;          // resolved real ATS apply URL
+  prefill_screenshot_path: string | null; // job-materials/{job_id}/prefill.png
+  prefill_completed_at: string | null;    // when the per-ATS handler finished
+  submitted_at: string | null;            // when the HUMAN clicked Mark Applied
+  submission_notes: string | null;        // free-text notes from the cockpit modal
 };
 
 export const supabase = createClient(
