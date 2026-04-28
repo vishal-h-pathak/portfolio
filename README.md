@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# portfolio
 
-## Getting Started
+Personal site at [vishal.pa.thak.io](https://vishal.pa.thak.io) plus
+the dashboard for the job-hunter / job-applicant pipeline that lives
+in companion repos.
 
-First, run the development server:
+Stack: Next.js 16, React 19, Tailwind 4, Supabase JS, Anthropic SDK,
+Recharts.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## What's here
+
+```
+app/
+  page.tsx                      # Public landing
+  layout.tsx, globals.css       # Shell + styles
+  api/
+    chat/route.ts               # Claude streaming chat (Match Agent + general)
+    materials/[jobId]/[kind]/route.ts  # Signed URLs for job PDFs
+    dashboard/jobs/[job_id]/    # approve / dismiss endpoints
+    dashboard/profile-insight/  # Classify + save learned insights (J-11)
+    dashboard-login/            # Session cookie issuer
+    meridian/                   # Trading-agent telemetry
+  dashboard/
+    page.tsx                    # Triage + browse view
+    MatchAgent.tsx              # Per-job chat → tailor framing (+J-11 writeback)
+    ReviewPanel.tsx             # Approve packet (+J-2 legitimacy pill, +J-4 archetype pill)
+    review/[job_id]/page.tsx    # Submission packet detail
+    insights/page.tsx           # Hunter charts + Pattern Analysis section (J-6)
+    stories/page.tsx            # STAR+R bank — browse + curate + export (J-3)
+    login/page.tsx              # Cookie-gated entry point
+lib/
+  supabase.ts                   # Client + Job / Packet / StarStory types
+middleware.ts                   # dashboard_auth cookie guard
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The job-hunter writes Supabase rows; the dashboard reads them and
+provides the human-in-the-loop interfaces (approve, match-chat,
+confirm-submit, story curation).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Local dev
 
-## Learn More
+```bash
+npm install
+cp .env.example .env.local   # populate Supabase + Anthropic keys
+npm run dev                  # http://localhost:3000
+```
 
-To learn more about Next.js, take a look at the following resources:
+Type-check without building:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npx tsc --noEmit
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Environment variables
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=     # signed URLs + admin writes
+ANTHROPIC_API_KEY=
+DASHBOARD_PASSWORD=            # gates /dashboard
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## What changed (career-ops integration, 2026-04-27)
+
+- **J-2**: `legitimacy` + `legitimacy_reasoning` columns surfaced as a
+  pill on `ReviewPanel.tsx` and `review/[job_id]/page.tsx`. Soft
+  warning — never gates approval.
+- **J-3**: New `/dashboard/stories` page reads from `star_stories`,
+  filters by archetype + tag, multi-select export to markdown brief.
+- **J-4**: `archetype` + `archetype_confidence` columns surfaced on
+  the review panel.
+- **J-6**: `PatternAnalysisSection` on `/dashboard/insights` reads the
+  most recent `pattern_analyses` row (written by the applicant cron
+  script) and renders flagged groups + a horizontal bar chart.
+- **J-11**: `MatchAgent.tsx` calls a new `/api/dashboard/profile-insight`
+  classifier after each turn. When a generalizable preference is
+  detected, an amber panel surfaces a "Save to profile" button that
+  appends to `../job-hunter/profile/learned-insights.md`.
+
+---
+
+## Companion repos
+
+- `../job-hunter` — discovery + scoring
+- `../job-applicant` — tailoring + submission
