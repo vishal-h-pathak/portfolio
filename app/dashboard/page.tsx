@@ -43,6 +43,9 @@ function StatusBadge({ status }: { status: JobStatus | null }) {
     new: { bg: "bg-neutral-800 text-neutral-300 border-neutral-700", label: "New" },
     approved: { bg: "bg-blue-900/40 text-blue-300 border-blue-800/60", label: "Approved" },
     preparing: { bg: "bg-violet-900/40 text-violet-300 border-violet-800/60", label: "Preparing", icon: "spinner" },
+    ready_for_review: { bg: "bg-orange-900/40 text-orange-300 border-orange-800/60", label: "Ready for Review", icon: "orange" },
+    prefilling: { bg: "bg-violet-900/40 text-violet-300 border-violet-800/60", label: "Pre-filling", icon: "spinner" },
+    awaiting_human_submit: { bg: "bg-amber-900/40 text-amber-300 border-amber-800/60", label: "Awaiting Submit", icon: "orange" },
     ready_to_submit: { bg: "bg-orange-900/40 text-orange-300 border-orange-800/60", label: "Ready", icon: "orange" },
     submit_confirmed: { bg: "bg-yellow-900/40 text-yellow-300 border-yellow-800/60", label: "Confirmed" },
     submitting: { bg: "bg-violet-900/40 text-violet-300 border-violet-800/60", label: "Submitting", icon: "spinner" },
@@ -50,6 +53,7 @@ function StatusBadge({ status }: { status: JobStatus | null }) {
     submitted: { bg: "bg-emerald-900/40 text-emerald-300 border-emerald-800/60", label: "Submitted", icon: "check" },
     applied: { bg: "bg-emerald-900/40 text-emerald-300 border-emerald-800/60", label: "Applied", icon: "check" },
     failed: { bg: "bg-red-900/40 text-red-300 border-red-800/60", label: "Failed", icon: "x" },
+    skipped: { bg: "bg-neutral-900/40 text-neutral-500 border-neutral-800", label: "Skipped" },
     ignored: { bg: "bg-neutral-900/40 text-neutral-500 border-neutral-800", label: "Ignored" },
   };
   const c = config[s] ?? config.new;
@@ -633,13 +637,30 @@ function BrowseView({
       if (statusFilter !== "all") {
         const js = j.status ?? "new";
         if (statusFilter === "unreviewed" && js !== "new") return false;
-        if (statusFilter === "in_progress" && !["approved", "preparing", "submitting"].includes(js)) return false;
         if (
-          statusFilter === "needs_action" &&
-          !["ready_to_submit", "submit_confirmed", "needs_review"].includes(js)
+          statusFilter === "in_progress" &&
+          // M-2 in-flight system work + legacy 'submitting'
+          !["approved", "preparing", "prefilling", "submitting"].includes(js)
         )
           return false;
-        if (statusFilter === "done" && !["applied", "submitted", "failed", "ignored"].includes(js)) return false;
+        if (
+          statusFilter === "needs_action" &&
+          // M-2 reviewer-attention states + legacy aliases
+          ![
+            "ready_for_review",
+            "awaiting_human_submit",
+            "ready_to_submit",
+            "submit_confirmed",
+            "needs_review",
+          ].includes(js)
+        )
+          return false;
+        if (
+          statusFilter === "done" &&
+          // M-2 terminal states + legacy 'submitted'
+          !["applied", "submitted", "failed", "ignored", "skipped", "expired"].includes(js)
+        )
+          return false;
       }
       if (locationFilter !== "all" && locationBucket(j.location) !== locationFilter) return false;
       return true;
@@ -657,7 +678,14 @@ function BrowseView({
   }, [filtered]);
 
   const needsReviewCount = useMemo(
-    () => jobs.filter((j) => (j.status ?? "new") === "needs_review").length,
+    () =>
+      jobs.filter((j) => {
+        const s = j.status ?? "new";
+        // ready_for_review is the new "needs reviewer attention" state under
+        // the M-2 lifecycle; needs_review is the legacy alias kept for any
+        // stragglers that haven't been migrated.
+        return s === "ready_for_review" || s === "needs_review";
+      }).length,
     [jobs],
   );
 
@@ -852,21 +880,38 @@ function ActionButtons({
         </div>
       );
 
-    case "ready_to_submit":
+    case "ready_for_review":
+      // M-2/M-6: tailored materials are ready. Hand off to the cockpit at
+      // /dashboard/review/[job_id] which is the new source of truth for
+      // pre-fill + Mark Applied.
       return (
         <div className="flex items-center gap-2">
-          <button
-            onClick={onOpen}
+          <Link
+            href={`/dashboard/review/${job.id}`}
             className="text-xs px-3 py-1.5 rounded border border-orange-700 bg-orange-900/40 hover:bg-orange-800/60 text-orange-200 transition-colors"
           >
             Review Materials
-          </button>
+          </Link>
           <button
-            onClick={() => onStatus("submit_confirmed")}
-            className="text-xs px-3 py-1.5 rounded border border-emerald-800 bg-emerald-900/40 hover:bg-emerald-800/60 text-emerald-300 transition-colors"
+            onClick={() => onStatus("new")}
+            className="text-xs px-2 py-1 rounded border border-neutral-800 text-neutral-600 hover:text-neutral-400 transition-colors"
           >
-            Confirm Submit
+            Reject
           </button>
+        </div>
+      );
+
+    case "ready_to_submit":
+      // Legacy state — migration 007 collapsed all rows out of this. Kept
+      // for safety in case a stray row turns up; route to the new cockpit.
+      return (
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/dashboard/review/${job.id}`}
+            className="text-xs px-3 py-1.5 rounded border border-orange-700 bg-orange-900/40 hover:bg-orange-800/60 text-orange-200 transition-colors"
+          >
+            Review Materials
+          </Link>
           <button
             onClick={() => onStatus("new")}
             className="text-xs px-2 py-1 rounded border border-neutral-800 text-neutral-600 hover:text-neutral-400 transition-colors"
