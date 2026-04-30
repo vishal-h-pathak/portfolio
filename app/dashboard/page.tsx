@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase, type Job, type JobStatus } from "../lib/supabase";
 import MatchAgent from "./MatchAgent";
 import ReviewPanel from "./ReviewPanel";
+import RunsPanel from "./RunsPanel";
 
 type TierFilter = "all" | 1 | 2 | 3;
 type ViewMode = "swipe" | "browse";
@@ -723,6 +724,8 @@ function BrowseView({
           {viewToggle}
         </div>
       </header>
+
+      <RunsPanel />
 
       <section className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-8 text-sm">
         <label className="flex flex-col gap-1">
