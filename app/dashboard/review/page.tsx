@@ -3,15 +3,23 @@
 /**
  * /dashboard/review — Review queue list.
  *
- * Shows every job whose status is `needs_review`, sorted by when the submitter
- * last touched them (most recent first). Each card links to
- * /dashboard/review/[job_id] for the full packet detail view. Approve /
- * dismiss actions are deliberately kept on the detail page — a one-line row
- * doesn't show enough context to make that call.
+ * Shows every job awaiting human review. Under the M-2 lifecycle a row
+ * lands here in two ways:
  *
- * Wired to the same Supabase client + dashboard_auth cookie that protects the
- * rest of /dashboard/*. No new API calls on this page; the detail page does
- * the transitions.
+ *   - `ready_for_review` — the tailor finished generating materials
+ *     (resume + cover letter + form-answer drafts) and the human needs
+ *     to inspect before pre-filling. This is the common path.
+ *   - `needs_review` — legacy alias for the same state, kept for any
+ *     straggler rows that haven't been migrated.
+ *
+ * Sorted by `status_updated_at` (most recent first). Each card links to
+ * /dashboard/review/[job_id] for the full packet detail view. Approve /
+ * dismiss actions are deliberately kept on the detail page — a one-line
+ * row doesn't show enough context to make that call.
+ *
+ * Wired to the same Supabase client + dashboard_auth cookie that
+ * protects the rest of /dashboard/*. No new API calls on this page;
+ * the detail page does the transitions.
  */
 
 import Link from "next/link";
@@ -66,12 +74,16 @@ export default function ReviewQueuePage() {
 
   useEffect(() => {
     (async () => {
-      // status_updated_at is more useful than created_at here — it reflects
-      // when the submitter last pushed the row into needs_review.
+      // status_updated_at is more useful than created_at here — it
+      // reflects when the row last transitioned, which under the M-2
+      // flow is when the tailor finished materials (`ready_for_review`)
+      // OR when the submitter legitimately couldn't finish (legacy
+      // `needs_review`). Either way the human review owner is now on
+      // the hook, so we want most-recently-updated first.
       const { data, error } = await supabase
         .from("jobs")
         .select("*")
-        .eq("status", "needs_review")
+        .in("status", ["ready_for_review", "needs_review"])
         .order("status_updated_at", { ascending: false });
       if (error) setError(error.message);
       else setJobs((data ?? []) as Job[]);
@@ -122,9 +134,9 @@ export default function ReviewQueuePage() {
 
       {jobs.length === 0 && !error && (
         <div className="rounded-lg border border-neutral-800 bg-neutral-950 p-8 text-center text-sm text-neutral-500">
-          The review queue is empty. When the submitter can&apos;t confidently
-          finish a form, the application will land here with a Browserbase
-          replay you can audit before approving.
+          The review queue is empty. When the tailor finishes materials
+          for an approved job, it&apos;ll land here with the resume +
+          cover letter ready to inspect.
         </div>
       )}
 
