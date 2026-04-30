@@ -40,3 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 PROMPT_*.md
+
+# playwright + design-system audit artifacts (local-only)
+.playwright-mcp/
+design-system/

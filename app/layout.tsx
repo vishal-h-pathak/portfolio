@@ -1,29 +1,77 @@
-import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Source_Serif_4, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-sans",
+const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
+  variable: "--font-source-serif",
+  weight: ["400", "500"],
+  style: ["normal", "italic"],
+  display: "swap",
 });
 
-const mono = JetBrains_Mono({
-  variable: "--font-mono",
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
+  variable: "--font-jetbrains",
+  weight: ["400", "500"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Vishal Pathak",
+  title: "Vishal Pathak — Notebook & Bench",
   description:
-    "Electrical engineer working on neuromorphic hardware, spiking networks, and brain-inspired computing.",
+    "Electrical engineer in Atlanta. Ten years on neuromorphic hardware. Currently embedded ML / CV at GTRI, with off-hours bench builds in agentic AI.",
+  metadataBase: new URL("https://vishal.pa.thak.io"),
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "Vishal Pathak — Notebook & Bench",
+    description:
+      "Electrical engineer in Atlanta. Ten years on neuromorphic hardware. Currently embedded ML / CV at GTRI, with off-hours bench builds in agentic AI.",
+    url: "https://vishal.pa.thak.io",
+    siteName: "Vishal Pathak",
+    type: "website",
+  },
+  robots: { index: true, follow: true },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0B0B0C",
+  colorScheme: "dark",
+};
+
+const personJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Vishal Pathak",
+  url: "https://vishal.pa.thak.io",
+  email: "mailto:vishalp@thak.io",
+  jobTitle: "Research Engineer",
+  worksFor: {
+    "@type": "Organization",
+    name: "Georgia Tech Research Institute",
+  },
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Atlanta",
+    addressRegion: "GA",
+    addressCountry: "US",
+  },
+  sameAs: ["https://github.com/vishal-h-pathak"],
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${mono.variable}`}>
-      <body className="min-h-screen bg-neutral-950 text-neutral-200 antialiased">
+    <html
+      lang="en"
+      className={`${sourceSerif.variable} ${jetbrainsMono.variable}`}
+    >
+      <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+        />
         {children}
       </body>
     </html>

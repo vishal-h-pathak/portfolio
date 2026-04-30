@@ -26,4 +26,4 @@ FlyGym, MuJoCo, Brian2, Gymnasium API, VHDL SNN implementation, Intel Kapoho Bay
 vishal.pa.thak.io should feel like a person with a specific long-running obsession, not a generated candidate page. The thread from Hodgkin-Huxley to memristors to spiking networks to connectomics should be legible. Prioritize personality and genuine content over polish.
 
 ## Personal
-From Cape Canaveral, FL. Moved to Atlanta April 2022. Runs a book club (papercuts.org). Into cooking, audiobooks, agentic AI projects.
+From Cape Canaveral, FL. Moved to Atlanta April 2022. Runs a book club (papercuts.cc). Into cooking, audiobooks, agentic AI projects.
