@@ -3,6 +3,17 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase, type Job, type JobStatus } from "../lib/supabase";
+import { AdapterBadge } from "./components/AdapterBadge";
+import {
+  DestructiveButton,
+  GhostButton,
+  InflightButton,
+  PrimaryButton,
+  SecondaryButton,
+  type InflightState,
+} from "./components/Button";
+import DashboardNav from "./components/DashboardNav";
+import { isActionNeeded, statusTone, toneStripeHex } from "./lib/lifecycle";
 import MatchAgent from "./MatchAgent";
 import ReviewPanel from "./ReviewPanel";
 import RunsPanel from "./RunsPanel";
@@ -174,13 +185,15 @@ export default function DashboardPage() {
 
   return (
     <>
+      <DashboardNav
+        rightSlot={<ViewToggle view={view} onChange={chooseView} />}
+      />
       {view === "swipe" ? (
         <SwipeView
           jobs={jobs}
           error={error}
           updateStatus={updateStatus}
           openMatch={openJobPanel}
-          viewToggle={<ViewToggle view={view} onChange={chooseView} />}
         />
       ) : (
         <BrowseView
@@ -188,7 +201,6 @@ export default function DashboardPage() {
           error={error}
           updateStatus={updateStatus}
           openMatch={openJobPanel}
-          viewToggle={<ViewToggle view={view} onChange={chooseView} />}
         />
       )}
       {matchJob && <MatchAgent job={matchJob} onClose={() => setMatchJob(null)} />}
@@ -236,13 +248,11 @@ function SwipeView({
   error,
   updateStatus,
   openMatch,
-  viewToggle,
 }: {
   jobs: Job[];
   error: string | null;
   updateStatus: (j: Job, s: JobStatus) => void;
   openMatch: (j: Job) => void;
-  viewToggle: React.ReactNode;
 }) {
   const [tierFilter, setTierFilter] = useState<TierFilter | null>(null);
   const [index, setIndex] = useState(0);
@@ -288,10 +298,7 @@ function SwipeView({
     return (
       <main className="min-h-screen flex flex-col items-center justify-center px-6 py-10 bg-black text-neutral-100">
         <div className="w-full max-w-sm">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-semibold">Job swipe</h1>
-            {viewToggle}
-          </div>
+          <h1 className="text-2xl font-semibold mb-6">Job swipe</h1>
           <p className="text-sm text-neutral-500 mb-4">Pick a tier to start.</p>
           <div className="mb-6">
             <BucketToggle bucket={locationBucketFilter} onChange={changeBucket} />
@@ -337,12 +344,9 @@ function SwipeView({
         >
           ← tiers
         </button>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-neutral-500 font-mono">
-            {current ? `${index + 1} / ${queue.length}` : `${queue.length} done`}
-          </span>
-          {viewToggle}
-        </div>
+        <span className="text-xs text-neutral-500 font-mono">
+          {current ? `${index + 1} / ${queue.length}` : `${queue.length} done`}
+        </span>
       </header>
 
       <div className="px-4 pb-2 shrink-0">
@@ -610,13 +614,11 @@ function BrowseView({
   error,
   updateStatus,
   openMatch,
-  viewToggle,
 }: {
   jobs: Job[];
   error: string | null;
   updateStatus: (j: Job, s: JobStatus) => void;
   openMatch: (j: Job) => void;
-  viewToggle: React.ReactNode;
 }) {
   const [tierFilter, setTierFilter] = useState<"all" | 1 | 2 | 3>("all");
   const [minScore, setMinScore] = useState(0);
@@ -668,9 +670,19 @@ function BrowseView({
     });
   }, [jobs, tierFilter, minScore, sourceFilter, statusFilter, locationFilter]);
 
+  // PR-23 — split the filtered list into rows that need the user's
+  // attention vs. everything else. Action-needed rows render in a
+  // dedicated section at the top regardless of tier; they are
+  // intentionally NOT duplicated into the tier groupings below.
+  const actionNeededList = useMemo(
+    () => filtered.filter((j) => isActionNeeded(j.status)),
+    [filtered],
+  );
+
   const grouped = useMemo(() => {
     const g: Record<string, Job[]> = { "1": [], "2": [], "3": [], other: [] };
     filtered.forEach((j) => {
+      if (isActionNeeded(j.status)) return;
       const k = j.tier ? String(j.tier) : "other";
       if (!g[k]) g[k] = [];
       g[k].push(j);
@@ -678,51 +690,15 @@ function BrowseView({
     return g;
   }, [filtered]);
 
-  const needsReviewCount = useMemo(
-    () =>
-      jobs.filter((j) => {
-        const s = j.status ?? "new";
-        // ready_for_review is the new "needs reviewer attention" state under
-        // the M-2 lifecycle; needs_review is the legacy alias kept for any
-        // stragglers that haven't been migrated.
-        return s === "ready_for_review" || s === "needs_review";
-      }).length,
-    [jobs],
-  );
-
   return (
     <main className="min-h-screen px-4 py-8 sm:px-8 sm:py-12 max-w-6xl mx-auto bg-black text-neutral-100">
-      <header className="mb-8 flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-semibold text-neutral-100">
-            Job dashboard
-          </h1>
-          <p className="text-sm text-neutral-500 mt-1">
-            {`${filtered.length} of ${jobs.length} jobs`}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link
-            href="/dashboard/insights"
-            className="text-xs px-3 py-1.5 rounded border border-neutral-800 bg-neutral-950 text-neutral-400 hover:text-neutral-100 hover:border-neutral-700"
-          >
-            Insights
-          </Link>
-          <Link
-            href="/dashboard/review"
-            className={`text-xs px-3 py-1.5 rounded border transition ${
-              needsReviewCount > 0
-                ? "border-amber-700 bg-amber-900/40 text-amber-200 hover:bg-amber-800/60"
-                : "border-neutral-800 bg-neutral-950 text-neutral-400 hover:text-neutral-100 hover:border-neutral-700"
-            }`}
-          >
-            Review queue
-            {needsReviewCount > 0 && (
-              <span className="ml-1 font-mono">({needsReviewCount})</span>
-            )}
-          </Link>
-          {viewToggle}
-        </div>
+      <header className="mb-8">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-neutral-100">
+          Job dashboard
+        </h1>
+        <p className="text-sm text-neutral-500 mt-1">
+          {`${filtered.length} of ${jobs.length} jobs`}
+        </p>
       </header>
 
       <RunsPanel />
@@ -811,6 +787,36 @@ function BrowseView({
         </div>
       )}
 
+      {/* PR-23 add (b) — Action needed section is always rendered, even
+          when empty, so the dashboard's vertical rhythm doesn't shift
+          as rows transition through this state. */}
+      <section className="mb-10">
+        <h2 className="text-sm font-medium text-neutral-200 uppercase tracking-wide mb-3 flex items-center gap-2">
+          Action needed
+          {actionNeededList.length > 0 && (
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded border border-amber-700 bg-amber-900/40 text-amber-200">
+              {actionNeededList.length}
+            </span>
+          )}
+        </h2>
+        {actionNeededList.length === 0 ? (
+          <p className="text-sm text-neutral-500 italic">
+            All caught up — no actions waiting.
+          </p>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {actionNeededList.map((job) => (
+              <BrowseCard
+                key={job.id}
+                job={job}
+                onStatus={(s) => updateStatus(job, s)}
+                onApply={() => openMatch(job)}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+
       {(["1", "2", "3", "other"] as const).map((k) => {
         const list = grouped[k];
         if (!list || list.length === 0) return null;
@@ -837,6 +843,17 @@ function BrowseView({
   );
 }
 
+// Review Materials Link — styled like an InflightButton-warn since the
+// surrounding lifecycle stripe is amber on `ready_for_review` rows. We
+// don't use the Button primitive here because Next.js Link renders its
+// own anchor and we want to preserve client-side navigation semantics.
+const REVIEW_LINK_CLASS =
+  "inline-flex items-center justify-center gap-1.5 rounded border " +
+  "transition-colors text-xs px-3 py-1.5 " +
+  "border-amber-700 bg-amber-900/40 text-amber-100 hover:bg-amber-800/60 " +
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 " +
+  "focus-visible:ring-offset-black focus-visible:ring-amber-500";
+
 function ActionButtons({
   job,
   onStatus,
@@ -853,9 +870,20 @@ function ActionButtons({
   // real "preparing" status the moment the GHA workflow picks up the
   // row. Error state is surfaced inline so a 400 (e.g. row no longer
   // approved, GHA dispatch 404) is visible without opening DevTools.
-  const [tailorState, setTailorState] =
-    useState<"idle" | "queueing" | "queued" | "error">("idle");
+  const [tailorState, setTailorState] = useState<
+    "idle" | "queueing" | "queued" | "error"
+  >("idle");
   const [tailorError, setTailorError] = useState<string | null>(null);
+
+  // PR-23 add (a) — Reject is destructive (the row was already
+  // approved + tailored, so reverting wipes that work). Confirm before
+  // firing so an accidental click doesn't lose materials.
+  const handleReject = () => {
+    const ok = window.confirm(
+      "Reject this row? Tailored materials will be discarded.",
+    );
+    if (ok) onStatus("new");
+  };
 
   const handleTailor = async () => {
     setTailorState("queueing");
@@ -889,18 +917,17 @@ function ActionButtons({
     case "new":
       return (
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => { onStatus("approved"); onOpen(); }}
-            className="text-xs px-3 py-1.5 rounded border border-emerald-800 bg-emerald-900/40 hover:bg-emerald-800/60 text-emerald-300 transition-colors"
+          <PrimaryButton
+            onClick={() => {
+              onStatus("approved");
+              onOpen();
+            }}
           >
             Approve
-          </button>
-          <button
-            onClick={() => onStatus("ignored")}
-            className="text-xs px-3 py-1.5 rounded border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 text-neutral-500 transition-colors"
-          >
+          </PrimaryButton>
+          <SecondaryButton onClick={() => onStatus("ignored")}>
             Ignore
-          </button>
+          </SecondaryButton>
         </div>
       );
 
@@ -916,34 +943,21 @@ function ActionButtons({
             <span className="text-[11px] text-violet-400 italic">
               Tailor queued…
             </span>
-            <button
-              onClick={() => onStatus("new")}
-              className="text-xs px-2 py-1 rounded border border-neutral-800 text-neutral-600 hover:text-neutral-400 transition-colors"
-            >
-              Undo
-            </button>
+            <GhostButton onClick={() => onStatus("new")}>Undo</GhostButton>
           </div>
         );
       }
+      const inflightState: InflightState =
+        tailorState === "queueing" ? "queueing" : "idle";
       return (
         <div className="flex items-center gap-2 flex-wrap">
-          <button
+          <InflightButton
             onClick={handleTailor}
-            disabled={tailorState === "queueing"}
-            className={`text-xs px-3 py-1.5 rounded border transition-colors ${
-              tailorState === "queueing"
-                ? "border-neutral-800 bg-neutral-900 text-neutral-600 cursor-not-allowed"
-                : "border-violet-800 bg-violet-900/40 hover:bg-violet-800/60 text-violet-200"
-            }`}
-          >
-            {tailorState === "queueing" ? "Queueing…" : "Tailor"}
-          </button>
-          <button
-            onClick={() => onStatus("new")}
-            className="text-xs px-2 py-1 rounded border border-neutral-800 text-neutral-600 hover:text-neutral-400 transition-colors"
-          >
-            Undo
-          </button>
+            state={inflightState}
+            idleLabel="Tailor"
+            queueingLabel="Queueing…"
+          />
+          <GhostButton onClick={() => onStatus("new")}>Undo</GhostButton>
           {tailorState === "error" && tailorError && (
             <span
               className="text-[11px] text-red-400 truncate max-w-xs"
@@ -961,89 +975,55 @@ function ActionButtons({
           <span className="text-[11px] text-neutral-500 italic">
             Agent is tailoring materials…
           </span>
-          <button
-            onClick={() => onStatus("new")}
-            className="text-xs px-2 py-1 rounded border border-neutral-800 text-neutral-600 hover:text-neutral-400 transition-colors"
-          >
-            Undo
-          </button>
+          <GhostButton onClick={() => onStatus("new")}>Undo</GhostButton>
         </div>
       );
 
     case "ready_for_review":
+    case "ready_to_submit":
       // M-2/M-6: tailored materials are ready. Hand off to the cockpit at
       // /dashboard/review/[job_id] which is the new source of truth for
-      // pre-fill + Mark Applied.
+      // pre-fill + Mark Applied. ready_to_submit is a legacy alias kept
+      // for safety after migration 007 collapsed it.
       return (
         <div className="flex items-center gap-2">
-          <Link
-            href={`/dashboard/review/${job.id}`}
-            className="text-xs px-3 py-1.5 rounded border border-orange-700 bg-orange-900/40 hover:bg-orange-800/60 text-orange-200 transition-colors"
-          >
+          <Link href={`/dashboard/review/${job.id}`} className={REVIEW_LINK_CLASS}>
             Review Materials
           </Link>
-          <button
-            onClick={() => onStatus("new")}
-            className="text-xs px-2 py-1 rounded border border-neutral-800 text-neutral-600 hover:text-neutral-400 transition-colors"
-          >
-            Reject
-          </button>
-        </div>
-      );
-
-    case "ready_to_submit":
-      // Legacy state — migration 007 collapsed all rows out of this. Kept
-      // for safety in case a stray row turns up; route to the new cockpit.
-      return (
-        <div className="flex items-center gap-2">
-          <Link
-            href={`/dashboard/review/${job.id}`}
-            className="text-xs px-3 py-1.5 rounded border border-orange-700 bg-orange-900/40 hover:bg-orange-800/60 text-orange-200 transition-colors"
-          >
-            Review Materials
-          </Link>
-          <button
-            onClick={() => onStatus("new")}
-            className="text-xs px-2 py-1 rounded border border-neutral-800 text-neutral-600 hover:text-neutral-400 transition-colors"
-          >
-            Reject
-          </button>
+          <DestructiveButton onClick={handleReject}>Reject</DestructiveButton>
         </div>
       );
 
     case "submit_confirmed":
       return (
-        <span className="text-[11px] text-yellow-400/70 italic">Awaiting submission…</span>
+        <span className="text-[11px] text-yellow-400/70 italic">
+          Awaiting submission…
+        </span>
       );
 
     case "applied":
       return (
-        <span className="text-[11px] text-emerald-400/70">Applied {relativeTime(job.applied_at) ?? ""}</span>
+        <span className="text-[11px] text-emerald-400/70">
+          Applied {relativeTime(job.applied_at) ?? ""}
+        </span>
       );
 
     case "failed":
       return (
         <div className="flex items-center gap-2">
           <span className="text-[11px] text-red-400/70">
-            Failed{job.failure_reason ? `: ${job.failure_reason.slice(0, 60)}` : ""}
+            Failed
+            {job.failure_reason ? `: ${job.failure_reason.slice(0, 60)}` : ""}
           </span>
-          <button
-            onClick={() => onStatus("approved")}
-            className="text-xs px-2 py-1 rounded border border-neutral-800 text-neutral-600 hover:text-neutral-400 transition-colors"
-          >
+          <SecondaryButton onClick={() => onStatus("approved")}>
             Retry
-          </button>
+          </SecondaryButton>
         </div>
       );
 
     case "ignored":
       return (
-        <button
-          onClick={() => onStatus("new")}
-          className="text-xs px-2 py-1 rounded border border-neutral-800 text-neutral-600 hover:text-neutral-400 transition-colors"
-        >
-          Restore
-        </button>
+        <GhostButton onClick={() => onStatus("new")}>Restore</GhostButton>
       );
 
     default:
@@ -1062,12 +1042,21 @@ function BrowseCard({
 }) {
   const bucket = locationBucket(job.location);
   const age = relativeTime(job.created_at);
+  const tone = statusTone(job.status);
+  const stripe = toneStripeHex(tone);
+  // Muted lifecycle states (skipped / ignored / expired) fade so the
+  // active rows dominate the visual hierarchy without disappearing
+  // entirely — the user can still see them when scanning history.
+  const cardOpacity = tone === "muted" ? "opacity-60" : "";
 
   return (
-    <article className="rounded-lg border border-neutral-800 bg-neutral-900/40 p-4 flex flex-col gap-2">
+    <article
+      className={`rounded-lg border border-neutral-800 bg-neutral-900/40 p-4 flex flex-col gap-2 ${cardOpacity}`}
+      style={stripe ? { borderLeft: `3px solid ${stripe}` } : undefined}
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="mb-1 flex items-center gap-2">
+          <div className="mb-1 flex items-center gap-2 flex-wrap">
             <LocationBadge bucket={bucket} />
             <StatusBadge status={job.status} />
             {age && (
@@ -1094,7 +1083,7 @@ function BrowseCard({
         </p>
       )}
 
-      <div className="flex items-center justify-between mt-1">
+      <div className="flex items-center justify-between mt-1 gap-2 flex-wrap">
         <ActionButtons job={job} onStatus={onStatus} onOpen={onApply} />
         <div className="flex items-center gap-2 ml-auto">
           {job.source && (
@@ -1102,6 +1091,7 @@ function BrowseCard({
               {job.source}
             </span>
           )}
+          <AdapterBadge atsKind={job.ats_kind} />
           {job.url && (
             <a
               href={job.url}

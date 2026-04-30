@@ -122,6 +122,20 @@ export type Job = {
   cover_letter_pdf_path: string | null;
   application_url: string | null;
   application_notes: string | null;
+  // ATS handler the submitter will route to. Deterministic adapters
+  // (greenhouse / lever / ashby) are fast and zero-LLM; the rest fall
+  // back to the universal agent path. Surfaced on browse cards so the
+  // user can predict cost before approving a row.
+  ats_kind:
+    | "greenhouse"
+    | "lever"
+    | "ashby"
+    | "workday"
+    | "icims"
+    | "smartrecruiters"
+    | "linkedin"
+    | "generic"
+    | null;
   applied_at: string | null;
   failure_reason: string | null;
   description: string | null;
