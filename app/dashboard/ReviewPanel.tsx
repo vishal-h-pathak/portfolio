@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Job, JobStatus } from "../lib/supabase";
+import { PrimaryButton, SecondaryButton } from "./components/Button";
 
 type ResumeTailoring = {
   tailored_summary?: string;
@@ -338,18 +339,20 @@ export default function ReviewPanel({
 
         {/* Action buttons */}
         <div className="border-t border-neutral-800 p-4 flex gap-3 shrink-0">
-          <button
+          <SecondaryButton
+            size="md"
+            className="flex-1"
             onClick={handleBackToNew}
-            className="flex-1 px-4 py-2.5 text-sm rounded border border-neutral-700 bg-neutral-800 hover:bg-neutral-700 text-neutral-300"
           >
             Back to New
-          </button>
-          <button
+          </SecondaryButton>
+          <PrimaryButton
+            size="md"
+            className="flex-1"
             onClick={handleConfirm}
-            className="flex-1 px-4 py-2.5 text-sm rounded border border-emerald-700 bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium"
           >
             Confirm Submit
-          </button>
+          </PrimaryButton>
         </div>
       </aside>
     </div>

@@ -1,6 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  GhostButton,
+  InflightButton,
+  SecondaryButton,
+} from "./components/Button";
 
 /**
  * RunsPanel — dashboard "Run hunt" / "Run tailor" buttons + recent
@@ -19,6 +24,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
  * "Run submit" is intentionally absent — visible-browser pre-fill needs
  * a human at the keyboard, so the per-row "Pre-fill" button at
  * /dashboard/review/[job_id] remains the only entry to the submit phase.
+ *
+ * PR-23 — UX polish:
+ *   - Per-row dismiss + panel-level "Clear completed", with dismissed
+ *     ids persisted to localStorage (see DISMISSED_LS_KEY note below).
+ *   - Animated spinner in the `running` status badge.
+ *   - Chevron expand for failure rows revealing failure_reason and the
+ *     `log_excerpt` column (already fetched, previously unrendered).
+ *   - Buttons unified through the dashboard Button primitives.
  */
 
 type RunKind = "hunt" | "tailor";
@@ -40,6 +53,18 @@ type Run = {
 
 const POLL_INTERVAL_MS = 5000;
 const LIST_LIMIT = 10;
+
+/**
+ * Dismissed-run ids are stored device-locally in localStorage so a
+ * stale completed/failed row stays out of the user's sight on this
+ * browser. This is INTENTIONALLY not synced across devices or
+ * browsers — runs are an ephemeral operational signal, not a user
+ * setting, and a row dismissed on the laptop should reappear on the
+ * phone if the user opens the dashboard there. Don't "fix" this by
+ * persisting to Supabase; if multi-device sync is wanted, that's a
+ * deliberate scope expansion, not a bug.
+ */
+const DISMISSED_LS_KEY = "dashboard:runs:dismissed";
 
 function relativeTime(iso: string | null): string {
   if (!iso) return "";
@@ -76,10 +101,73 @@ function isOptimisticId(id: string): boolean {
   return id.startsWith("optimistic-");
 }
 
+function loadDismissed(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = window.localStorage.getItem(DISMISSED_LS_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw) as unknown;
+    if (!Array.isArray(arr)) return new Set();
+    return new Set(arr.filter((x): x is string => typeof x === "string"));
+  } catch {
+    return new Set();
+  }
+}
+
+function saveDismissed(s: Set<string>) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(DISMISSED_LS_KEY, JSON.stringify([...s]));
+  } catch {
+    // localStorage can be full or disabled (private browsing, etc.).
+    // Silent failure is fine — the user can dismiss again next session.
+  }
+}
+
+function StatusBadge({ status }: { status: RunStatus }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1 text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border ${statusBadgeClass(status)}`}
+    >
+      {status === "running" && (
+        <svg
+          className="animate-spin h-3 w-3"
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden="true"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+          />
+        </svg>
+      )}
+      {status}
+    </span>
+  );
+}
+
 export default function RunsPanel() {
   const [runs, setRuns] = useState<Run[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [dismissed, setDismissed] = useState<Set<string>>(() => new Set());
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const inFlight = useRef(false);
+
+  // Hydrate dismissed set from localStorage after mount (avoids SSR
+  // hydration mismatch — the server can't read window.localStorage).
+  useEffect(() => {
+    setDismissed(loadDismissed());
+  }, []);
 
   const refresh = async () => {
     if (inFlight.current) return;
@@ -94,9 +182,6 @@ export default function RunsPanel() {
       }
       const json = (await res.json()) as { runs?: Run[] };
       const serverRuns = json.runs ?? [];
-      // Preserve any optimistic temp rows that don't yet appear on the
-      // server (the POST is still in flight). Once the server returns
-      // the real id we replace the temp row in dispatchRun().
       setRuns((prev) => {
         const optimistic = prev.filter((r) => isOptimisticId(r.id));
         return [...optimistic, ...serverRuns];
@@ -115,7 +200,11 @@ export default function RunsPanel() {
   }, []);
 
   // Conditional polling — only while something is in flight.
-  const hasActive = useMemo(() => runs.some(isActive), [runs]);
+  const visibleRuns = useMemo(
+    () => runs.filter((r) => !dismissed.has(r.id)),
+    [runs, dismissed],
+  );
+  const hasActive = useMemo(() => visibleRuns.some(isActive), [visibleRuns]);
   useEffect(() => {
     if (!hasActive) return;
     const t = window.setInterval(refresh, POLL_INTERVAL_MS);
@@ -152,8 +241,6 @@ export default function RunsPanel() {
         error?: string;
       };
       if (res.ok && json.run_id) {
-        // Swap optimistic id for the real one; next poll will fill in
-        // the rest of the columns.
         setRuns((prev) =>
           prev.map((r) =>
             r.id === tempId ? { ...r, id: json.run_id as string } : r,
@@ -194,44 +281,75 @@ export default function RunsPanel() {
     }
   };
 
-  const huntBusy = runs.some((r) => r.kind === "hunt" && isActive(r));
-  const tailorBusy = runs.some((r) => r.kind === "tailor" && isActive(r));
+  const dismissRow = (id: string) => {
+    if (isOptimisticId(id)) return;
+    setDismissed((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      saveDismissed(next);
+      return next;
+    });
+  };
+
+  const clearCompleted = () => {
+    setDismissed((prev) => {
+      const next = new Set(prev);
+      for (const r of visibleRuns) {
+        if (r.status === "completed" || r.status === "failed") {
+          if (!isOptimisticId(r.id)) next.add(r.id);
+        }
+      }
+      saveDismissed(next);
+      return next;
+    });
+  };
+
+  const toggleExpand = (id: string) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  };
+
+  const huntBusy = visibleRuns.some(
+    (r) => r.kind === "hunt" && isActive(r),
+  );
+  const tailorBusy = visibleRuns.some(
+    (r) => r.kind === "tailor" && isActive(r),
+  );
+  const hasDismissibleCompleted = visibleRuns.some(
+    (r) =>
+      (r.status === "completed" || r.status === "failed") &&
+      !isOptimisticId(r.id),
+  );
 
   return (
     <section className="mb-8 rounded border border-neutral-800 bg-neutral-950/60 p-4">
-      <div className="flex items-center justify-between gap-3 mb-3">
+      <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
         <h2 className="text-xs uppercase tracking-widest text-neutral-500">
           Pipeline runs
         </h2>
         <div className="flex items-center gap-2">
-          <button
+          {hasDismissibleCompleted && (
+            <GhostButton
+              onClick={clearCompleted}
+              aria-label="Clear completed runs from this device"
+            >
+              Clear completed
+            </GhostButton>
+          )}
+          <SecondaryButton
             type="button"
             onClick={() => dispatchRun("hunt")}
             disabled={huntBusy}
-            className={`text-xs px-3 py-1.5 rounded border transition ${
-              huntBusy
-                ? "border-neutral-800 bg-neutral-900 text-neutral-600 cursor-not-allowed"
-                : "border-blue-800/60 bg-blue-900/30 text-blue-200 hover:bg-blue-800/50"
-            }`}
           >
             {huntBusy ? "Hunt running…" : "Run hunt"}
-          </button>
-          <button
+          </SecondaryButton>
+          <InflightButton
             type="button"
             onClick={() => dispatchRun("tailor")}
-            disabled={tailorBusy}
+            state={tailorBusy ? "running" : "idle"}
+            idleLabel="Run tailor — all approved"
+            runningLabel="Tailor running…"
             title="Bulk action — tailors every row in 'approved'. The per-row Tailor button on each card is the common case."
-            className={`text-xs px-3 py-1.5 rounded border transition leading-tight ${
-              tailorBusy
-                ? "border-neutral-800 bg-neutral-900 text-neutral-600 cursor-not-allowed"
-                : "border-violet-800/60 bg-violet-900/30 text-violet-200 hover:bg-violet-800/50"
-            }`}
-          >
-            <div>{tailorBusy ? "Tailor running…" : "Run tailor"}</div>
-            <div className="text-[9px] text-violet-400/70 normal-case tracking-normal">
-              all approved
-            </div>
-          </button>
+          />
         </div>
       </div>
 
@@ -239,50 +357,112 @@ export default function RunsPanel() {
         <p className="text-xs text-red-400 mb-2 font-mono">{error}</p>
       )}
 
-      {runs.length === 0 ? (
-        <p className="text-xs text-neutral-600">No runs yet.</p>
+      {visibleRuns.length === 0 ? (
+        <p className="text-xs text-neutral-600">
+          {runs.length === 0
+            ? "No runs yet."
+            : "All runs cleared from this view."}
+        </p>
       ) : (
-        <ul className="max-h-48 overflow-y-auto divide-y divide-neutral-900 text-sm">
-          {runs.map((r) => (
-            <li
-              key={r.id}
-              className="flex items-center justify-between gap-3 py-1.5"
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="text-xs font-mono text-neutral-400 uppercase tracking-wide w-12">
-                  {r.kind}
-                </span>
-                <span
-                  className={`text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border ${statusBadgeClass(r.status)}`}
-                >
-                  {r.status}
-                </span>
-                {r.failure_reason && (
-                  <span
-                    className="text-[10px] text-red-400 truncate"
-                    title={r.failure_reason}
-                  >
-                    {r.failure_reason}
-                  </span>
+        <ul className="max-h-72 overflow-y-auto divide-y divide-neutral-900 text-sm">
+          {visibleRuns.map((r) => {
+            const expanded = expandedId === r.id;
+            const canExpand = !!(r.failure_reason || r.log_excerpt);
+            const isDismissible = !isOptimisticId(r.id);
+            const timeIso =
+              r.status === "running" && r.started_at
+                ? r.started_at
+                : r.created_at;
+            const timeLabel =
+              r.status === "running" && r.started_at
+                ? `started ${relativeTime(timeIso)}`
+                : relativeTime(timeIso);
+
+            return (
+              <li key={r.id} className="py-1.5">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-xs font-mono text-neutral-400 uppercase tracking-wide w-12">
+                      {r.kind}
+                    </span>
+                    <StatusBadge status={r.status} />
+                    {r.failure_reason && !expanded && (
+                      <span
+                        className="text-[10px] text-red-400 truncate"
+                        title={r.failure_reason}
+                      >
+                        {r.failure_reason}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-neutral-500 shrink-0">
+                    <span className="font-mono">{timeLabel}</span>
+                    {r.github_run_url ? (
+                      <a
+                        href={r.github_run_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-neutral-400 hover:text-neutral-100 underline-offset-2 hover:underline"
+                      >
+                        GHA &rarr;
+                      </a>
+                    ) : (
+                      <span className="text-neutral-700">—</span>
+                    )}
+                    {canExpand && (
+                      <button
+                        type="button"
+                        onClick={() => toggleExpand(r.id)}
+                        aria-expanded={expanded}
+                        aria-label={
+                          expanded ? "Collapse run details" : "Expand run details"
+                        }
+                        className="text-neutral-500 hover:text-neutral-100 px-1 transition-colors"
+                      >
+                        {expanded ? "▴" : "▾"}
+                      </button>
+                    )}
+                    {isDismissible && (
+                      <button
+                        type="button"
+                        onClick={() => dismissRow(r.id)}
+                        aria-label="Dismiss this run"
+                        title="Dismiss (device-local)"
+                        className="text-neutral-600 hover:text-neutral-100 px-1 transition-colors"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {expanded && canExpand && (
+                  <div className="mt-2 ml-14 mr-2 space-y-2">
+                    {r.failure_reason && (
+                      <div className="rounded border border-red-900/60 bg-red-950/30 px-3 py-2">
+                        <div className="text-[10px] uppercase tracking-widest text-red-400 mb-1">
+                          Failure reason
+                        </div>
+                        <p className="text-xs text-red-200 leading-relaxed whitespace-pre-wrap break-words">
+                          {r.failure_reason}
+                        </p>
+                      </div>
+                    )}
+                    {r.log_excerpt && (
+                      <div className="rounded border border-neutral-800 bg-neutral-900/60 px-3 py-2">
+                        <div className="text-[10px] uppercase tracking-widest text-neutral-500 mb-1">
+                          Log excerpt
+                        </div>
+                        <pre className="text-[11px] text-neutral-300 leading-relaxed whitespace-pre-wrap break-words font-mono max-h-48 overflow-y-auto">
+                          {r.log_excerpt}
+                        </pre>
+                      </div>
+                    )}
+                  </div>
                 )}
-              </div>
-              <div className="flex items-center gap-3 text-xs text-neutral-500 shrink-0">
-                <span>{relativeTime(r.created_at)}</span>
-                {r.github_run_url ? (
-                  <a
-                    href={r.github_run_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-neutral-400 hover:text-neutral-100 underline-offset-2 hover:underline"
-                  >
-                    GHA &rarr;
-                  </a>
-                ) : (
-                  <span className="text-neutral-700">—</span>
-                )}
-              </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       )}
     </section>

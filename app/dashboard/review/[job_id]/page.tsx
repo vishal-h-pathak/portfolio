@@ -31,6 +31,13 @@ import {
   type Job,
   type JobStatus,
 } from "../../../lib/supabase";
+import {
+  DestructiveButton,
+  PrimaryButton,
+  SecondaryAnchor,
+  SecondaryButton,
+} from "../../components/Button";
+import DashboardNav from "../../components/DashboardNav";
 import MatchAgent from "../../MatchAgent";
 
 // ── Status banner copy ─────────────────────────────────────────────────────
@@ -480,25 +487,31 @@ export default function ReviewDetailPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-black text-neutral-500 text-sm">
-        loading…
-      </main>
+      <>
+        <DashboardNav />
+        <main className="min-h-[60vh] flex items-center justify-center bg-black text-neutral-500 text-sm">
+          loading…
+        </main>
+      </>
     );
   }
 
   if (!job || error) {
     return (
-      <main className="min-h-screen px-6 py-10 max-w-3xl mx-auto bg-black text-neutral-100">
-        <Link
-          href="/dashboard/review"
-          className="text-sm text-neutral-500 hover:text-neutral-200"
-        >
-          ← Review queue
-        </Link>
-        <div className="mt-6 rounded border border-red-900/60 bg-red-950/40 px-4 py-3 text-sm text-red-300">
-          {error ?? "Job not found"}
-        </div>
-      </main>
+      <>
+        <DashboardNav />
+        <main className="min-h-screen px-6 py-10 max-w-3xl mx-auto bg-black text-neutral-100">
+          <Link
+            href="/dashboard/review"
+            className="text-sm text-neutral-500 hover:text-neutral-200"
+          >
+            ← Review queue
+          </Link>
+          <div className="mt-6 rounded border border-red-900/60 bg-red-950/40 px-4 py-3 text-sm text-red-300">
+            {error ?? "Job not found"}
+          </div>
+        </main>
+      </>
     );
   }
 
@@ -510,13 +523,19 @@ export default function ReviewDetailPage() {
   const canPrefill = status === "ready_for_review";
 
   return (
-    <main className="min-h-screen pb-32 px-4 py-8 sm:px-8 sm:py-12 max-w-5xl mx-auto bg-black text-neutral-100">
-      <Link
-        href="/dashboard/review"
-        className="text-xs text-neutral-500 hover:text-neutral-200"
-      >
-        ← Review queue
-      </Link>
+    <>
+      <DashboardNav />
+      <main className="min-h-screen pb-32 px-4 py-8 sm:px-8 sm:py-12 max-w-5xl mx-auto bg-black text-neutral-100">
+        {/* PR-23 add (c) — back-link to /dashboard/review STAYS here
+            permanently. Even with a global nav above, the breadcrumb
+            context matters when users deep-link straight into a
+            specific cockpit and want a fast "back to queue" path. */}
+        <Link
+          href="/dashboard/review"
+          className="text-xs text-neutral-500 hover:text-neutral-200"
+        >
+          ← Review queue
+        </Link>
 
       {/* ── Header ───────────────────────────────────────────────────── */}
       <header className="mt-4 mb-6">
@@ -710,79 +729,95 @@ export default function ReviewDetailPage() {
         )}
       </section>
 
-      {/* ── Action bar (sticky) ─────────────────────────────────────── */}
-      <section className="fixed inset-x-0 bottom-0 z-20 border-t border-neutral-800 bg-black/95 backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-3 flex items-center gap-2 flex-wrap">
-          {actionError && (
-            <div className="w-full mb-2 rounded border border-red-900/60 bg-red-950/40 px-3 py-2 text-xs text-red-300 break-words">
-              {actionError}
+      {/* ── Action bar (sticky) ─────────────────────────────────────── *
+       * State-aware primary CTA: when the row is in ready_for_review
+       * the primary action is Pre-fill Form; once the user has
+       * pre-filled and the row sits in awaiting_human_submit the
+       * primary action shifts to Mark Applied. The other CTA
+       * downgrades to secondary so the screen always has exactly one
+       * primary at any moment. */}
+      {(() => {
+        const prefillIsPrimary = status === "ready_for_review";
+        const markIsPrimary = status === "awaiting_human_submit";
+        const PrefillBtn = prefillIsPrimary ? PrimaryButton : SecondaryButton;
+        const MarkBtn = markIsPrimary ? PrimaryButton : SecondaryButton;
+        return (
+          <section className="fixed inset-x-0 bottom-0 z-20 border-t border-neutral-800 bg-black/95 backdrop-blur-sm">
+            <div className="max-w-5xl mx-auto px-4 sm:px-8 py-3 flex items-center gap-2 flex-wrap">
+              {actionError && (
+                <div className="w-full mb-2 rounded border border-red-900/60 bg-red-950/40 px-3 py-2 text-xs text-red-300 break-words">
+                  {actionError}
+                </div>
+              )}
+              <PrefillBtn
+                size="md"
+                onClick={() => postAction("prefill")}
+                disabled={!canPrefill || actionBusy !== null}
+                title={
+                  canPrefill
+                    ? "Pre-fill the application form in a visible browser window"
+                    : `Pre-fill is only available from ready_for_review (current: ${status})`
+                }
+              >
+                {actionBusy === "prefill" ? "Pre-filling…" : "Pre-fill Form"}
+              </PrefillBtn>
+              <MarkBtn
+                size="md"
+                onClick={() => setShowMarkApplied(true)}
+                disabled={status === "applied" || actionBusy !== null}
+              >
+                Mark Applied
+              </MarkBtn>
+              {submissionUrl && (
+                <SecondaryAnchor
+                  size="md"
+                  href={submissionUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Open Application Manually ↗
+                </SecondaryAnchor>
+              )}
+              <SecondaryButton
+                size="md"
+                onClick={() =>
+                  postAction("skip", { reason: "skipped from cockpit" })
+                }
+                disabled={actionBusy !== null}
+              >
+                Skip
+              </SecondaryButton>
+              <DestructiveButton
+                size="md"
+                className="ml-auto"
+                onClick={() =>
+                  postAction("mark-failed", {
+                    reason: "marked failed from cockpit",
+                  })
+                }
+                disabled={actionBusy !== null}
+              >
+                Mark Failed
+              </DestructiveButton>
             </div>
-          )}
-          <button
-            onClick={() => postAction("prefill")}
-            disabled={!canPrefill || actionBusy !== null}
-            className="px-4 py-2 rounded border border-emerald-700 bg-emerald-900/40 text-sm text-emerald-200 hover:bg-emerald-800/60 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            title={
-              canPrefill
-                ? "Flip status to prefilling; main.py picks it up next cycle"
-                : `Pre-fill is only available from ready_for_review (current: ${status})`
-            }
-          >
-            {actionBusy === "prefill" ? "Pre-filling…" : "Pre-fill Form"}
-          </button>
-          <button
-            onClick={() => setShowMarkApplied(true)}
-            disabled={status === "applied" || actionBusy !== null}
-            className="px-4 py-2 rounded border border-emerald-700 bg-emerald-900/40 text-sm text-emerald-200 hover:bg-emerald-800/60 transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Mark Applied
-          </button>
-          {submissionUrl && (
-            <a
-              href={submissionUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="px-4 py-2 rounded border border-neutral-700 bg-neutral-900 text-sm text-neutral-300 hover:border-neutral-500"
-            >
-              Open Application Manually ↗
-            </a>
-          )}
-          <button
-            onClick={() =>
-              postAction("skip", { reason: "skipped from cockpit" })
-            }
-            disabled={actionBusy !== null}
-            className="px-4 py-2 rounded border border-neutral-700 bg-neutral-900 text-sm text-neutral-300 hover:border-neutral-500 disabled:opacity-50"
-          >
-            Skip
-          </button>
-          <button
-            onClick={() =>
-              postAction("mark-failed", {
-                reason: "marked failed from cockpit",
-              })
-            }
-            disabled={actionBusy !== null}
-            className="px-4 py-2 rounded border border-red-800/60 bg-red-950/40 text-sm text-red-200 hover:bg-red-900/60 transition disabled:opacity-50 ml-auto"
-          >
-            Mark Failed
-          </button>
-        </div>
-      </section>
+          </section>
+        );
+      })()}
 
-      {showMarkApplied && (
-        <MarkAppliedModal
-          jobId={job.id}
-          onClose={() => setShowMarkApplied(false)}
-          onApplied={async () => {
-            setShowMarkApplied(false);
-            await refresh();
-            // M-6: after marking applied, navigate back to the queue so the
-            // user moves to the next job; they're done with this one.
-            router.push("/dashboard/review");
-          }}
-        />
-      )}
-    </main>
+        {showMarkApplied && (
+          <MarkAppliedModal
+            jobId={job.id}
+            onClose={() => setShowMarkApplied(false)}
+            onApplied={async () => {
+              setShowMarkApplied(false);
+              await refresh();
+              // M-6: after marking applied, navigate back to the queue so the
+              // user moves to the next job; they're done with this one.
+              router.push("/dashboard/review");
+            }}
+          />
+        )}
+      </main>
+    </>
   );
 }

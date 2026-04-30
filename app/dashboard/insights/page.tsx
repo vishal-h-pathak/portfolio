@@ -24,8 +24,8 @@
  *     table that records search counts per invocation.
  */
 
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import DashboardNav from "../components/DashboardNav";
 import {
   Bar,
   BarChart,
@@ -74,18 +74,29 @@ const TIER_COLORS: Record<string, string> = {
 // tab is hidden — see the visibilitychange listener in InsightsPage.
 const REFRESH_INTERVAL_MS = 30_000;
 
+// Canonical M-2 lifecycle order, top-to-bottom. Legacy buckets land
+// at the bottom — migration 007 collapsed every existing row out of
+// them, but stragglers can still appear when an older client writes a
+// row before being upgraded, and the tiles need to surface them.
 const STATUS_LABEL: Record<string, string> = {
+  discovered: "Discovered",
   new: "New",
   approved: "Approved",
   preparing: "Preparing",
-  ready_to_submit: "Ready",
-  submit_confirmed: "Confirmed",
-  submitting: "Submitting",
-  needs_review: "Needs review",
-  submitted: "Submitted",
+  ready_for_review: "Ready for review",
+  prefilling: "Pre-filling",
+  awaiting_human_submit: "Awaiting submit",
   applied: "Applied",
   failed: "Failed",
+  skipped: "Skipped",
+  expired: "Expired",
   ignored: "Ignored",
+  // Legacy (read-only post-migration 007)
+  ready_to_submit: "Ready (legacy)",
+  submit_confirmed: "Confirmed (legacy)",
+  submitting: "Submitting (legacy)",
+  needs_review: "Needs review (legacy)",
+  submitted: "Submitted (legacy)",
 };
 
 
@@ -628,16 +639,28 @@ export default function InsightsPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-black text-neutral-500 text-sm">
-        loading insights…
-      </main>
+      <>
+        <DashboardNav />
+        <main className="min-h-[60vh] flex items-center justify-center bg-black text-neutral-500 text-sm">
+          loading insights…
+        </main>
+      </>
     );
   }
 
   return (
-    <main className="min-h-screen px-4 py-8 sm:px-8 sm:py-12 max-w-6xl mx-auto bg-black text-neutral-100">
-      <header className="mb-8 flex items-start justify-between gap-4">
-        <div>
+    <>
+      <DashboardNav
+        rightSlot={
+          <RefreshIndicator
+            lastUpdated={lastUpdated}
+            refreshing={refreshing}
+            onRefresh={loadJobs}
+          />
+        }
+      />
+      <main className="min-h-screen px-4 py-8 sm:px-8 sm:py-12 max-w-6xl mx-auto bg-black text-neutral-100">
+        <header className="mb-8">
           <h1 className="text-2xl sm:text-3xl font-semibold text-neutral-100">
             Hunter insights
           </h1>
@@ -645,21 +668,7 @@ export default function InsightsPage() {
             How the job-hunter is behaving — sources, tier yield, scoring,
             inflow, and the application funnel.
           </p>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <RefreshIndicator
-            lastUpdated={lastUpdated}
-            refreshing={refreshing}
-            onRefresh={loadJobs}
-          />
-          <Link
-            href="/dashboard"
-            className="text-xs px-3 py-1.5 rounded border border-neutral-800 bg-neutral-950 text-neutral-400 hover:text-neutral-100 hover:border-neutral-700"
-          >
-            ← Dashboard
-          </Link>
-        </div>
-      </header>
+        </header>
 
       {error && (
         <div className="mb-6 rounded border border-red-900/60 bg-red-950/40 px-3 py-2 text-sm text-red-300">
@@ -883,10 +892,11 @@ export default function InsightsPage() {
         </div>
       </Panel>
 
-      <p className="text-[10px] uppercase tracking-widest text-neutral-700 mt-8 text-center">
-        Live from Supabase · {jobs.length} rows · charts deferred for v2:
-        dead-link rate, SerpAPI budget meter
-      </p>
-    </main>
+        <p className="text-[10px] uppercase tracking-widest text-neutral-700 mt-8 text-center">
+          Live from Supabase · {jobs.length} rows · charts deferred for v2:
+          dead-link rate, SerpAPI budget meter
+        </p>
+      </main>
+    </>
   );
 }

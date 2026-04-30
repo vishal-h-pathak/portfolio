@@ -17,6 +17,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { supabase, type Job } from "../../lib/supabase";
+import DashboardNav from "../components/DashboardNav";
 
 function relativeTime(iso: string | null): string | null {
   if (!iso) return null;
@@ -91,30 +92,27 @@ export default function ReviewQueuePage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-black text-neutral-500 text-sm">
-        loading…
-      </main>
+      <>
+        <DashboardNav />
+        <main className="min-h-[60vh] flex items-center justify-center bg-black text-neutral-500 text-sm">
+          loading…
+        </main>
+      </>
     );
   }
 
   return (
-    <main className="min-h-screen px-4 py-8 sm:px-8 sm:py-12 max-w-5xl mx-auto bg-black text-neutral-100">
-      <header className="mb-8 flex items-start justify-between gap-4">
-        <div>
+    <>
+      <DashboardNav />
+      <main className="min-h-screen px-4 py-8 sm:px-8 sm:py-12 max-w-5xl mx-auto bg-black text-neutral-100">
+        <header className="mb-8">
           <h1 className="text-2xl sm:text-3xl font-semibold">Review queue</h1>
           <p className="text-sm text-neutral-500 mt-1">
             {jobs.length === 0
               ? "Nothing waiting — every submission either cleared or was dismissed."
               : `${jobs.length} submission${jobs.length === 1 ? "" : "s"} waiting on human review`}
           </p>
-        </div>
-        <Link
-          href="/dashboard"
-          className="text-xs px-3 py-1.5 rounded border border-neutral-800 bg-neutral-950 text-neutral-400 hover:text-neutral-100 hover:border-neutral-700"
-        >
-          ← Dashboard
-        </Link>
-      </header>
+        </header>
 
       {error && (
         <div className="mb-6 rounded border border-red-900/60 bg-red-950/40 px-3 py-2 text-sm text-red-300">
@@ -179,9 +177,10 @@ export default function ReviewQueuePage() {
                 </Link>
               </li>
             ))}
-          </ul>
-        </section>
-      ))}
-    </main>
+            </ul>
+          </section>
+        ))}
+      </main>
+    </>
   );
 }
