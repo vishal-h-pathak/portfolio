@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase, type Job, type JobStatus } from "../lib/supabase";
 import MatchAgent from "./MatchAgent";
 import ReviewPanel from "./ReviewPanel";
+import RunsPanel from "./RunsPanel";
 
 type TierFilter = "all" | 1 | 2 | 3;
 type ViewMode = "swipe" | "browse";
@@ -724,6 +725,8 @@ function BrowseView({
         </div>
       </header>
 
+      <RunsPanel />
+
       <section className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-8 text-sm">
         <label className="flex flex-col gap-1">
           <span className="text-neutral-500 text-xs uppercase tracking-wide">Location</span>
@@ -845,6 +848,43 @@ function ActionButtons({
 }) {
   const s = job.status ?? "new";
 
+  // PR-14 — per-row tailor dispatch state. Local to this card; the
+  // parent's poll will replace the optimistic "queued" state with the
+  // real "preparing" status the moment the GHA workflow picks up the
+  // row. Error state is surfaced inline so a 400 (e.g. row no longer
+  // approved, GHA dispatch 404) is visible without opening DevTools.
+  const [tailorState, setTailorState] =
+    useState<"idle" | "queueing" | "queued" | "error">("idle");
+  const [tailorError, setTailorError] = useState<string | null>(null);
+
+  const handleTailor = async () => {
+    setTailorState("queueing");
+    setTailorError(null);
+    try {
+      const res = await fetch("/api/dashboard/runs/tailor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ job_id: job.id }),
+      });
+      const json = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        run_id?: string;
+        error?: string;
+      };
+      if (res.ok && json.run_id) {
+        setTailorState("queued");
+      } else {
+        setTailorState("error");
+        setTailorError(
+          json.error ?? `Failed to dispatch tailor (${res.status})`,
+        );
+      }
+    } catch (e) {
+      setTailorState("error");
+      setTailorError(e instanceof Error ? e.message : String(e));
+    }
+  };
+
   switch (s) {
     case "new":
       return (
@@ -864,12 +904,62 @@ function ActionButtons({
         </div>
       );
 
-    case "approved":
+    case "approved": {
+      // PR-14: per-row Tailor button. While the row is still 'approved'
+      // (i.e. the GHA workflow hasn't picked it up yet), show a button
+      // that POSTs job_id to /api/dashboard/runs/tailor. Once the
+      // workflow flips the row to 'preparing', the parent re-renders
+      // and the 'preparing' branch below takes over.
+      if (tailorState === "queued") {
+        return (
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] text-violet-400 italic">
+              Tailor queued…
+            </span>
+            <button
+              onClick={() => onStatus("new")}
+              className="text-xs px-2 py-1 rounded border border-neutral-800 text-neutral-600 hover:text-neutral-400 transition-colors"
+            >
+              Undo
+            </button>
+          </div>
+        );
+      }
+      return (
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={handleTailor}
+            disabled={tailorState === "queueing"}
+            className={`text-xs px-3 py-1.5 rounded border transition-colors ${
+              tailorState === "queueing"
+                ? "border-neutral-800 bg-neutral-900 text-neutral-600 cursor-not-allowed"
+                : "border-violet-800 bg-violet-900/40 hover:bg-violet-800/60 text-violet-200"
+            }`}
+          >
+            {tailorState === "queueing" ? "Queueing…" : "Tailor"}
+          </button>
+          <button
+            onClick={() => onStatus("new")}
+            className="text-xs px-2 py-1 rounded border border-neutral-800 text-neutral-600 hover:text-neutral-400 transition-colors"
+          >
+            Undo
+          </button>
+          {tailorState === "error" && tailorError && (
+            <span
+              className="text-[11px] text-red-400 truncate max-w-xs"
+              title={tailorError}
+            >
+              {tailorError.slice(0, 80)}
+            </span>
+          )}
+        </div>
+      );
+    }
     case "preparing":
       return (
         <div className="flex items-center gap-2">
           <span className="text-[11px] text-neutral-500 italic">
-            {s === "preparing" ? "Agent is tailoring materials…" : "Queued for agent processing"}
+            Agent is tailoring materials…
           </span>
           <button
             onClick={() => onStatus("new")}
