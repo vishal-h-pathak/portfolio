@@ -220,13 +220,17 @@ export default function RunsPanel() {
             type="button"
             onClick={() => dispatchRun("tailor")}
             disabled={tailorBusy}
-            className={`text-xs px-3 py-1.5 rounded border transition ${
+            title="Bulk action — tailors every row in 'approved'. The per-row Tailor button on each card is the common case."
+            className={`text-xs px-3 py-1.5 rounded border transition leading-tight ${
               tailorBusy
                 ? "border-neutral-800 bg-neutral-900 text-neutral-600 cursor-not-allowed"
                 : "border-violet-800/60 bg-violet-900/30 text-violet-200 hover:bg-violet-800/50"
             }`}
           >
-            {tailorBusy ? "Tailor running…" : "Run tailor"}
+            <div>{tailorBusy ? "Tailor running…" : "Run tailor"}</div>
+            <div className="text-[9px] text-violet-400/70 normal-case tracking-normal">
+              all approved
+            </div>
           </button>
         </div>
       </div>
