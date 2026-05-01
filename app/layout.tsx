@@ -56,7 +56,10 @@ const personJsonLd = {
     addressRegion: "GA",
     addressCountry: "US",
   },
-  sameAs: ["https://github.com/vishal-h-pathak"],
+  sameAs: [
+    "https://github.com/vishal-h-pathak",
+    "https://www.linkedin.com/in/vishalhpathak/",
+  ],
 };
 
 export default function RootLayout({

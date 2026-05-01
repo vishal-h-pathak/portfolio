@@ -34,14 +34,16 @@ export function Contact() {
         >
           github
         </a>
-        <a href="#" aria-label="LinkedIn">
+        <a
+          href="https://www.linkedin.com/in/vishalhpathak/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="LinkedIn"
+        >
           linkedin
         </a>
         <a href="#" aria-label="Google Scholar">
           scholar
-        </a>
-        <a href="/resume.pdf" aria-label="Resume PDF">
-          resume.pdf
         </a>
       </div>
     </Section>
