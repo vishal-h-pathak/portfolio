@@ -52,7 +52,7 @@ export const PROJECTS: Project[] = [
     ],
     actions: [
       { label: "→ open meridian", href: "/meridian", primary: true },
-      { label: "readme", href: "#" },
+      { label: "readme", href: "https://github.com/vishal-h-pathak/trading-agent" },
     ],
   },
   {
