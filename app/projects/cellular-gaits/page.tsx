@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     "Evolved neural cellular automata as decentralized motor controllers for a simulated fruit fly.",
 };
 
-const GITHUB_URL = "#"; // TODO: paste cellular-gaits repo URL when public
+const GITHUB_URL = "https://github.com/vishal-h-pathak/cellular-gaits";
 
 export default function CellularGaitsPage() {
   return (
