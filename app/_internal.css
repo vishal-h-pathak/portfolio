@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+.internal-surface,
+.internal-surface h1,
+.internal-surface h2,
+.internal-surface h3,
+.internal-surface h4,
+.internal-surface h5,
+.internal-surface h6 {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
