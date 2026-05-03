@@ -687,6 +687,18 @@ footer {
   letter-spacing: 0.16em;
   display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
 }
+.footer-appendix {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.footer-appendix .label { color: var(--ink-faint); }
+.footer-appendix a {
+  color: var(--ink-dim);
+  transition: color 0.2s;
+}
+.footer-appendix a:hover { color: var(--ink); }
+.footer-appendix .sep { color: var(--ink-faint); }
 @media (max-width: 700px) { footer { padding: 22px 20px; flex-direction: column; gap: 6px; } }
 
 /* ===== SECTION ENTRANCE FADE ===== */
