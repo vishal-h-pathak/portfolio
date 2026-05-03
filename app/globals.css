@@ -719,3 +719,190 @@ a:focus-visible, button:focus-visible {
   outline-offset: 2px;
 }
 .project-head:focus-visible { outline-color: var(--amber); }
+
+/* ===== CELLULAR GAITS PROJECT PAGE ===== */
+.cg-topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(11, 11, 12, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--rule);
+  display: flex; align-items: center; gap: 16px;
+  padding: 12px 40px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+}
+.cg-back {
+  color: var(--ink-dim);
+  transition: color 0.15s;
+}
+.cg-back:hover { color: var(--green); }
+.cg-topbar-brand {
+  margin-left: auto;
+  color: var(--ink-faint);
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.cg-topbar-brand-name { color: var(--ink); }
+.cg-topbar-sep { color: var(--ink-faint); }
+@media (max-width: 700px) {
+  .cg-topbar { padding: 10px 16px; font-size: 10px; }
+  .cg-topbar-brand { gap: 6px; }
+}
+
+.cg-page {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 56px 40px 40px;
+}
+@media (max-width: 700px) {
+  .cg-page { padding: 32px 20px 24px; }
+}
+
+.cg-eyebrow,
+.cg-section-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--green);
+  margin: 0 0 16px;
+}
+.cg-section-eyebrow { color: var(--amber); }
+
+.cg-title {
+  font-family: var(--serif);
+  font-size: 64px;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+}
+@media (max-width: 700px) { .cg-title { font-size: 38px; } }
+
+.cg-pitch {
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--ink-dim);
+  font-style: italic;
+  max-width: 640px;
+  margin: 0 0 32px;
+}
+
+.cg-hero-video {
+  border: 1px solid var(--rule);
+  background: var(--bg-raised);
+  overflow: hidden;
+}
+.cg-hero-video video {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.cg-section {
+  margin-top: 72px;
+  padding-top: 32px;
+  border-top: 1px solid var(--rule);
+}
+.cg-section-lead {
+  margin: 0 0 24px;
+  color: var(--ink-dim);
+  font-size: 15px;
+  line-height: 1.62;
+  max-width: 640px;
+}
+
+.cg-player {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.cg-player-video,
+.cg-player-canvas {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.cg-player-video video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--rule);
+  background: var(--bg-raised);
+}
+.cg-player-canvas { align-items: center; }
+.cg-ca-canvas {
+  display: block;
+  border: 1px solid var(--rule);
+  background: var(--bg);
+  max-width: 100%;
+  height: auto;
+}
+.cg-player-cap {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--ink-faint);
+}
+.cg-player-err {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--amber);
+  letter-spacing: 0.06em;
+  padding: 12px;
+  border: 1px dashed var(--amber-dim);
+  background: rgba(232, 155, 61, 0.04);
+}
+.cg-player-err span {
+  color: var(--ink-dim);
+  font-style: italic;
+  letter-spacing: 0;
+}
+@media (max-width: 800px) {
+  .cg-player {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .cg-player-canvas { align-items: stretch; }
+}
+
+.cg-writeup .cg-h2 {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-style: italic;
+  letter-spacing: -0.005em;
+  margin: 28px 0 6px;
+  color: var(--ink);
+}
+.cg-writeup .cg-h2:first-of-type { margin-top: 4px; }
+.cg-writeup p {
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.62;
+  margin: 0 0 14px;
+  max-width: 640px;
+}
+
+.cg-footer {
+  margin-top: 64px;
+  padding-top: 22px;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 0.16em;
+}
+.cg-footer-links {
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.cg-footer-links a {
+  color: var(--ink-dim);
+  transition: color 0.15s;
+}
+.cg-footer-links a:hover { color: var(--green); }
+@media (max-width: 700px) {
+  .cg-footer { flex-direction: column; gap: 6px; }
+}
