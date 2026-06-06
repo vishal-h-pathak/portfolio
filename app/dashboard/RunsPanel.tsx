@@ -34,7 +34,12 @@ import {
  *   - Buttons unified through the dashboard Button primitives.
  */
 
-type RunKind = "hunt" | "tailor";
+// 'tailor_manual' added by PR-tailor-manual-url — the paste-a-URL flow
+// inserts runs rows of this kind; they show up in this list alongside
+// hunt + tailor runs. The per-kind busy gating below intentionally
+// ignores tailor_manual so the bulk "Run tailor" button isn't
+// disabled by an in-flight paste-a-URL run.
+type RunKind = "hunt" | "tailor" | "tailor_manual";
 type RunStatus = "pending" | "running" | "completed" | "failed";
 
 type Run = {
@@ -48,6 +53,17 @@ type Run = {
   log_excerpt: string | null;
   failure_reason: string | null;
   github_run_url: string | null;
+  // PR-tailor-manual-url — back-channel payload from
+  // jobpipe-tailor-one. NULL on hunt + plain-tailor runs.
+  result: {
+    job_id?: string;
+    status?: string;
+    confidence?: "high" | "low";
+    title?: string;
+    company?: string | null;
+    review_url?: string | null;
+    materials_url?: string | null;
+  } | null;
   created_at: string;
 };
 
@@ -224,6 +240,7 @@ export default function RunsPanel() {
       log_excerpt: null,
       failure_reason: null,
       github_run_url: null,
+      result: null,
       created_at: new Date().toISOString(),
     };
     setRuns((prev) => [optimistic, ...prev]);

@@ -37,8 +37,11 @@ export async function GET(req: NextRequest) {
   const { data, error } = await admin
     .from("runs")
     .select(
+      // `result` (jsonb, migration 009) carries the manual-tailor flow's
+      // back-channel payload: { job_id, status, confidence, title,
+      // company, review_url|materials_url }. NULL on hunt/tailor runs.
       "id, kind, status, triggered_by, args, started_at, ended_at, " +
-        "log_excerpt, failure_reason, github_run_url, created_at",
+        "log_excerpt, failure_reason, github_run_url, result, created_at",
     )
     .order("created_at", { ascending: false })
     .limit(limit);

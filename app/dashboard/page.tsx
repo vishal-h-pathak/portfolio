@@ -14,6 +14,7 @@ import {
 } from "./components/Button";
 import DashboardNav from "./components/DashboardNav";
 import { isActionNeeded, statusTone, toneStripeHex } from "./lib/lifecycle";
+import ManualTailorPanel from "./ManualTailorPanel";
 import MatchAgent from "./MatchAgent";
 import ReviewPanel from "./ReviewPanel";
 import RunsPanel from "./RunsPanel";
@@ -701,6 +702,7 @@ function BrowseView({
         </p>
       </header>
 
+      <ManualTailorPanel />
       <RunsPanel />
 
       <section className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-8 text-sm">
