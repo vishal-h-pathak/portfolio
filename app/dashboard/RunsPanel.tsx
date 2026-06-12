@@ -1,44 +1,38 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  GhostButton,
-  InflightButton,
-  SecondaryButton,
-} from "./components/Button";
+import { Btn } from "./components/Button";
+import { RunStatusBadge } from "./components/JobBadges";
+import { SkeletonRows } from "./components/Skeleton";
+import { useToast } from "./components/Toast";
+import { relativeTime } from "./lib/format";
 
 /**
- * RunsPanel — dashboard "Run hunt" / "Run tailor" buttons + recent
- * runs list (Phase 3 dashboard run-buttons).
+ * RunsPanel — pipeline-run dispatch + recent runs ledger.
  *
- * Mounted in app/dashboard/page.tsx between the header row and the
- * filters section. Reads/writes go through:
+ * Reads/writes go through:
  *   GET  /api/dashboard/runs?limit=10
- *   POST /api/dashboard/runs/hunt
- *   POST /api/dashboard/runs/tailor
+ *   POST /api/dashboard/runs/hunt | /tailor | /tailor-manual
  *
- * Polls the GET endpoint every 5s while any visible row is pending or
- * running; stops otherwise. Per-kind buttons are disabled while a run
- * of that kind is pending or running.
+ * Refresh strategy (the v2 responsiveness contract):
+ *   - dispatches insert an optimistic row immediately (replaced by the
+ *     real row id on the server ack, converged by the next poll)
+ *   - after any dispatch the poll tightens to 5s for 30s so state
+ *     converges fast, then backs off to 15s while runs are active
+ *   - idle (no active rows) → no polling at all
+ *   - dispatch failures toast AND mark the optimistic row failed
  *
  * "Run submit" is intentionally absent — visible-browser pre-fill needs
  * a human at the keyboard, so the per-row "Pre-fill" button at
  * /dashboard/review/[job_id] remains the only entry to the submit phase.
  *
- * PR-23 — UX polish:
- *   - Per-row dismiss + panel-level "Clear completed", with dismissed
- *     ids persisted to localStorage (see DISMISSED_LS_KEY note below).
- *   - Animated spinner in the `running` status badge.
- *   - Chevron expand for failure rows revealing failure_reason and the
- *     `log_excerpt` column (already fetched, previously unrendered).
- *   - Buttons unified through the dashboard Button primitives.
+ * Dismissed-run ids are stored device-locally in localStorage so a
+ * stale completed/failed row stays out of the user's sight on this
+ * browser. This is INTENTIONALLY not synced across devices — runs are
+ * an ephemeral operational signal, not a user setting. Don't "fix"
+ * this by persisting to Supabase.
  */
 
-// 'tailor_manual' added by PR-tailor-manual-url — the paste-a-URL flow
-// inserts runs rows of this kind; they show up in this list alongside
-// hunt + tailor runs. The per-kind busy gating below intentionally
-// ignores tailor_manual so the bulk "Run tailor" button isn't
-// disabled by an in-flight paste-a-URL run.
 type RunKind = "hunt" | "tailor" | "tailor_manual";
 type RunStatus = "pending" | "running" | "completed" | "failed";
 
@@ -53,8 +47,6 @@ type Run = {
   log_excerpt: string | null;
   failure_reason: string | null;
   github_run_url: string | null;
-  // PR-tailor-manual-url — back-channel payload from
-  // jobpipe-tailor-one. NULL on hunt + plain-tailor runs.
   result: {
     job_id?: string;
     status?: string;
@@ -67,7 +59,9 @@ type Run = {
   created_at: string;
 };
 
-const POLL_INTERVAL_MS = 5000;
+const POLL_BASE_MS = 15_000;
+const POLL_BOOST_MS = 5_000;
+const BOOST_WINDOW_MS = 30_000;
 const LIST_LIMIT = 10;
 
 // kind → dispatch endpoint. Not string-interpolated from kind because
@@ -79,44 +73,7 @@ const RUN_ENDPOINT: Record<RunKind, string> = {
   tailor_manual: "/api/dashboard/runs/tailor-manual",
 };
 
-/**
- * Dismissed-run ids are stored device-locally in localStorage so a
- * stale completed/failed row stays out of the user's sight on this
- * browser. This is INTENTIONALLY not synced across devices or
- * browsers — runs are an ephemeral operational signal, not a user
- * setting, and a row dismissed on the laptop should reappear on the
- * phone if the user opens the dashboard there. Don't "fix" this by
- * persisting to Supabase; if multi-device sync is wanted, that's a
- * deliberate scope expansion, not a bug.
- */
 const DISMISSED_LS_KEY = "dashboard:runs:dismissed";
-
-function relativeTime(iso: string | null): string {
-  if (!iso) return "";
-  const then = new Date(iso).getTime();
-  if (Number.isNaN(then)) return "";
-  const secs = Math.max(0, Math.floor((Date.now() - then) / 1000));
-  if (secs < 60) return "just now";
-  const mins = Math.floor(secs / 60);
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
-}
-
-function statusBadgeClass(status: RunStatus): string {
-  switch (status) {
-    case "pending":
-      return "bg-neutral-800 text-neutral-300 border-neutral-700";
-    case "running":
-      return "bg-violet-900/40 text-violet-300 border-violet-800/60";
-    case "completed":
-      return "bg-emerald-900/40 text-emerald-300 border-emerald-800/60";
-    case "failed":
-      return "bg-red-900/40 text-red-300 border-red-800/60";
-  }
-}
 
 function isActive(r: Run): boolean {
   return r.status === "pending" || r.status === "running";
@@ -144,52 +101,20 @@ function saveDismissed(s: Set<string>) {
   try {
     window.localStorage.setItem(DISMISSED_LS_KEY, JSON.stringify([...s]));
   } catch {
-    // localStorage can be full or disabled (private browsing, etc.).
-    // Silent failure is fine — the user can dismiss again next session.
+    // localStorage can be full or disabled — the user can re-dismiss.
   }
-}
-
-function StatusBadge({ status }: { status: RunStatus }) {
-  return (
-    <span
-      className={`inline-flex items-center gap-1 text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border ${statusBadgeClass(status)}`}
-    >
-      {status === "running" && (
-        <svg
-          className="animate-spin h-3 w-3"
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-        >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          />
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-          />
-        </svg>
-      )}
-      {status}
-    </span>
-  );
 }
 
 export default function RunsPanel() {
   const [runs, setRuns] = useState<Run[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const [dismissed, setDismissed] = useState<Set<string>>(() => new Set());
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const inFlight = useRef(false);
+  const boostUntil = useRef(0);
+  const [pollEpoch, setPollEpoch] = useState(0);
+  const toast = useToast();
 
-  // Hydrate dismissed set from localStorage after mount (avoids SSR
-  // hydration mismatch — the server can't read window.localStorage).
   useEffect(() => {
     setDismissed(loadDismissed());
   }, []);
@@ -201,40 +126,50 @@ export default function RunsPanel() {
       const res = await fetch(`/api/dashboard/runs?limit=${LIST_LIMIT}`, {
         cache: "no-store",
       });
-      if (!res.ok) {
-        setError(`GET /api/dashboard/runs failed: ${res.status}`);
-        return;
-      }
+      if (!res.ok) return;
       const json = (await res.json()) as { runs?: Run[] };
       const serverRuns = json.runs ?? [];
       setRuns((prev) => {
         const optimistic = prev.filter((r) => isOptimisticId(r.id));
         return [...optimistic, ...serverRuns];
       });
-      setError(null);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+    } catch {
+      // Poll failures are transient; the next tick retries.
     } finally {
       inFlight.current = false;
+      setLoaded(true);
     }
   };
 
-  // Initial load.
   useEffect(() => {
-    refresh();
+    void refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Conditional polling — only while something is in flight.
   const visibleRuns = useMemo(
     () => runs.filter((r) => !dismissed.has(r.id)),
     [runs, dismissed],
   );
   const hasActive = useMemo(() => visibleRuns.some(isActive), [visibleRuns]);
+
+  // Conditional polling: 5s inside the post-dispatch boost window, 15s
+  // while anything is active, off otherwise. pollEpoch retriggers the
+  // effect when a dispatch opens a boost window.
   useEffect(() => {
-    if (!hasActive) return;
-    const t = window.setInterval(refresh, POLL_INTERVAL_MS);
+    const boosted = Date.now() < boostUntil.current;
+    if (!hasActive && !boosted) return;
+    const interval = boosted ? POLL_BOOST_MS : POLL_BASE_MS;
+    const t = window.setInterval(() => {
+      void refresh();
+      // Fall out of the boost cadence once the window closes.
+      if (boostUntil.current !== 0 && Date.now() >= boostUntil.current) {
+        boostUntil.current = 0;
+        setPollEpoch((n) => n + 1);
+      }
+    }, interval);
     return () => window.clearInterval(t);
-  }, [hasActive]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasActive, pollEpoch]);
 
   const dispatchRun = async (
     kind: RunKind,
@@ -256,7 +191,8 @@ export default function RunsPanel() {
       created_at: new Date().toISOString(),
     };
     setRuns((prev) => [optimistic, ...prev]);
-    setError(null);
+    boostUntil.current = Date.now() + BOOST_WINDOW_MS;
+    setPollEpoch((n) => n + 1);
 
     try {
       const res = await fetch(RUN_ENDPOINT[kind], {
@@ -290,7 +226,7 @@ export default function RunsPanel() {
               : r,
           ),
         );
-        setError(reason);
+        toast.push("error", `${kind} dispatch failed — ${reason}`);
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -306,15 +242,13 @@ export default function RunsPanel() {
             : r,
         ),
       );
-      setError(msg);
+      toast.push("error", `${kind} dispatch failed — ${msg}`);
     }
   };
 
-  // Re-dispatch a failed run with its original args ({job_id} for
-  // per-row tailor, {url} for tailor_manual, null for hunt/bulk).
-  // Optimistic failed rows (dispatch never reached the server) are
-  // removed from local state; server rows stay as history and can be
-  // dismissed by hand.
+  // Re-dispatch a failed run with its original args. Optimistic failed
+  // rows (dispatch never reached the server) are removed from local
+  // state; server rows stay as history and can be dismissed by hand.
   const retryRun = (r: Run) => {
     if (isOptimisticId(r.id)) {
       setRuns((prev) => prev.filter((x) => x.id !== r.id));
@@ -345,13 +279,7 @@ export default function RunsPanel() {
     });
   };
 
-  const toggleExpand = (id: string) => {
-    setExpandedId((prev) => (prev === id ? null : id));
-  };
-
-  const huntBusy = visibleRuns.some(
-    (r) => r.kind === "hunt" && isActive(r),
-  );
+  const huntBusy = visibleRuns.some((r) => r.kind === "hunt" && isActive(r));
   const tailorBusy = visibleRuns.some(
     (r) => r.kind === "tailor" && isActive(r),
   );
@@ -362,50 +290,51 @@ export default function RunsPanel() {
   );
 
   return (
-    <section className="mb-8 rounded border border-neutral-800 bg-neutral-950/60 p-4">
-      <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
-        <h2 className="text-xs uppercase tracking-widest text-neutral-500">
+    <section className="mb-6 border border-rule bg-bg-raised p-3.5">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
           Pipeline runs
         </h2>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {hasDismissibleCompleted && (
-            <GhostButton
+            <Btn
+              variant="ghost"
               onClick={clearCompleted}
               aria-label="Clear completed runs from this device"
             >
-              Clear completed
-            </GhostButton>
+              clear completed
+            </Btn>
           )}
-          <SecondaryButton
-            type="button"
-            onClick={() => dispatchRun("hunt")}
+          <Btn
+            variant="secondary"
+            onClick={() => void dispatchRun("hunt")}
+            pending={huntBusy}
             disabled={huntBusy}
           >
-            {huntBusy ? "Hunt running…" : "Run hunt"}
-          </SecondaryButton>
-          <InflightButton
-            type="button"
-            onClick={() => dispatchRun("tailor")}
-            state={tailorBusy ? "running" : "idle"}
-            idleLabel="Run tailor — all approved"
-            runningLabel="Tailor running…"
+            run hunt
+          </Btn>
+          <Btn
+            variant="secondary"
+            onClick={() => void dispatchRun("tailor")}
+            pending={tailorBusy}
+            disabled={tailorBusy}
             title="Bulk action — tailors every row in 'approved'. The per-row Tailor button on each card is the common case."
-          />
+          >
+            tailor all approved
+          </Btn>
         </div>
       </div>
 
-      {error && (
-        <p className="text-xs text-red-400 mb-2 font-mono">{error}</p>
-      )}
-
-      {visibleRuns.length === 0 ? (
-        <p className="text-xs text-neutral-600">
+      {!loaded ? (
+        <SkeletonRows rows={3} rowClassName="h-7" />
+      ) : visibleRuns.length === 0 ? (
+        <p className="text-[11px] text-ink-faint">
           {runs.length === 0
-            ? "No runs yet."
+            ? "No runs yet — run hunt to start."
             : "All runs cleared from this view."}
         </p>
       ) : (
-        <ul className="max-h-72 overflow-y-auto divide-y divide-neutral-900 text-sm">
+        <ul className="max-h-72 divide-y divide-rule-soft overflow-y-auto text-xs">
           {visibleRuns.map((r) => {
             const expanded = expandedId === r.id;
             const canExpand = !!(r.failure_reason || r.log_excerpt);
@@ -422,51 +351,54 @@ export default function RunsPanel() {
             return (
               <li key={r.id} className="py-1.5">
                 <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-xs font-mono text-neutral-400 uppercase tracking-wide w-12">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className="w-14 shrink-0 font-mono text-[10px] uppercase tracking-[0.12em] text-ink-dim">
                       {r.kind}
                     </span>
-                    <StatusBadge status={r.status} />
+                    <RunStatusBadge status={r.status} />
                     {r.failure_reason && !expanded && (
                       <span
-                        className="text-[10px] text-red-400 truncate"
+                        className="truncate text-[10px] text-red"
                         title={r.failure_reason}
                       >
                         {r.failure_reason}
                       </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-neutral-500 shrink-0">
+                  <div className="flex shrink-0 items-center gap-2 text-[11px] text-ink-faint">
                     {r.status === "failed" && (
-                      <GhostButton
+                      <Btn
+                        variant="ghost"
                         onClick={() => retryRun(r)}
                         aria-label={`Retry failed ${r.kind} run`}
                       >
-                        Retry
-                      </GhostButton>
+                        retry
+                      </Btn>
                     )}
-                    <span className="font-mono">{timeLabel}</span>
+                    <span className="tabular-nums">{timeLabel}</span>
                     {r.github_run_url ? (
                       <a
                         href={r.github_run_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-neutral-400 hover:text-neutral-100 underline-offset-2 hover:underline"
+                        className="text-ink-dim underline-offset-2 transition-colors duration-150 hover:text-ink hover:underline"
                       >
-                        GHA &rarr;
+                        GHA →
                       </a>
                     ) : (
-                      <span className="text-neutral-700">—</span>
+                      <span className="text-ink-faint">—</span>
                     )}
                     {canExpand && (
                       <button
                         type="button"
-                        onClick={() => toggleExpand(r.id)}
+                        onClick={() =>
+                          setExpandedId((prev) => (prev === r.id ? null : r.id))
+                        }
                         aria-expanded={expanded}
                         aria-label={
                           expanded ? "Collapse run details" : "Expand run details"
                         }
-                        className="text-neutral-500 hover:text-neutral-100 px-1 transition-colors"
+                        className="px-1 text-ink-faint transition-colors duration-150 hover:text-ink"
                       >
                         {expanded ? "▴" : "▾"}
                       </button>
@@ -477,7 +409,7 @@ export default function RunsPanel() {
                         onClick={() => dismissRow(r.id)}
                         aria-label="Dismiss this run"
                         title="Dismiss (device-local)"
-                        className="text-neutral-600 hover:text-neutral-100 px-1 transition-colors"
+                        className="px-1 text-ink-faint transition-colors duration-150 hover:text-ink"
                       >
                         ×
                       </button>
@@ -486,23 +418,23 @@ export default function RunsPanel() {
                 </div>
 
                 {expanded && canExpand && (
-                  <div className="mt-2 ml-14 mr-2 space-y-2">
+                  <div className="ml-16 mr-2 mt-2 space-y-2">
                     {r.failure_reason && (
-                      <div className="rounded border border-red-900/60 bg-red-950/30 px-3 py-2">
-                        <div className="text-[10px] uppercase tracking-widest text-red-400 mb-1">
+                      <div className="border border-red-dim px-3 py-2">
+                        <div className="mb-1 text-[10px] uppercase tracking-[0.18em] text-red">
                           Failure reason
                         </div>
-                        <p className="text-xs text-red-200 leading-relaxed whitespace-pre-wrap break-words">
+                        <p className="whitespace-pre-wrap break-words text-[11px] leading-relaxed text-ink-dim">
                           {r.failure_reason}
                         </p>
                       </div>
                     )}
                     {r.log_excerpt && (
-                      <div className="rounded border border-neutral-800 bg-neutral-900/60 px-3 py-2">
-                        <div className="text-[10px] uppercase tracking-widest text-neutral-500 mb-1">
+                      <div className="border border-rule bg-bg px-3 py-2">
+                        <div className="mb-1 text-[10px] uppercase tracking-[0.18em] text-ink-faint">
                           Log excerpt
                         </div>
-                        <pre className="text-[11px] text-neutral-300 leading-relaxed whitespace-pre-wrap break-words font-mono max-h-48 overflow-y-auto">
+                        <pre className="max-h-48 overflow-y-auto whitespace-pre-wrap break-words text-[11px] leading-relaxed text-ink-dim">
                           {r.log_excerpt}
                         </pre>
                       </div>

@@ -207,36 +207,36 @@ export default function MatchAgent({ job, onClose }: { job: Job; onClose: () => 
     >
       <aside
         onClick={(e) => e.stopPropagation()}
-        className="w-full sm:max-w-md h-full bg-neutral-950 border-l border-neutral-800 flex flex-col"
+        className="flex h-full w-full flex-col border-l border-rule bg-bg-raised sm:max-w-md"
       >
-        <header className="p-4 border-b border-neutral-800 flex items-start justify-between gap-3">
+        <header className="flex items-start justify-between gap-3 border-b border-rule p-4">
           <div className="min-w-0">
-            <div className="text-[10px] uppercase tracking-widest text-emerald-400 mb-0.5">
+            <div className="mb-0.5 text-[10px] uppercase tracking-[0.18em] text-green">
               Match Agent
             </div>
-            <h2 className="font-medium text-neutral-100 truncate">{job.title}</h2>
-            <p className="text-xs text-neutral-500 truncate">
+            <h2 className="truncate text-[13px] font-medium text-ink">{job.title}</h2>
+            <p className="truncate text-xs text-ink-faint">
               {job.company}
               {job.location ? ` · ${job.location}` : ""}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-neutral-500 hover:text-neutral-200 text-2xl leading-none px-2"
+            className="px-2 text-2xl leading-none text-ink-faint transition-colors duration-150 hover:text-ink"
             aria-label="Close"
           >
             ×
           </button>
         </header>
 
-        <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 text-sm">
+        <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto p-4 text-xs">
           {messages.map((m, i) => (
             <div
               key={i}
               className={
                 m.role === "user"
-                  ? "ml-6 rounded-lg bg-neutral-800/70 text-neutral-100 px-3 py-2 whitespace-pre-wrap"
-                  : "mr-6 rounded-lg bg-neutral-900/60 border border-neutral-800 text-neutral-200 px-3 py-2 whitespace-pre-wrap"
+                  ? "ml-8 whitespace-pre-wrap border border-rule bg-bg px-3 py-2 leading-relaxed text-ink"
+                  : "mr-4 whitespace-pre-wrap border-l-2 border-green-dim pl-3 leading-relaxed text-ink-dim"
               }
             >
               {m.content || (streaming && i === messages.length - 1 ? "…" : "")}
@@ -245,23 +245,23 @@ export default function MatchAgent({ job, onClose }: { job: Job; onClose: () => 
         </div>
 
         {insight && (
-          <div className="border-t border-neutral-800 px-4 py-3 bg-amber-950/20">
-            <div className="text-[10px] uppercase tracking-widest text-amber-400 mb-1">
+          <div className="border-t border-rule bg-bg-card px-4 py-3">
+            <div className="mb-1 text-[10px] uppercase tracking-[0.18em] text-amber">
               Generalizable preference detected
             </div>
-            <p className="text-sm text-amber-100 mb-2">
-              <span className="text-amber-300">“</span>
+            <p className="mb-2 text-xs text-ink">
+              <span className="text-amber">“</span>
               {insight.summary}
-              <span className="text-amber-300">”</span>
+              <span className="text-amber">”</span>
             </p>
             {insight.reasoning && (
-              <p className="text-[11px] text-amber-200/70 mb-2 italic">
+              <p className="mb-2 text-[11px] italic text-ink-dim">
                 {insight.reasoning}
               </p>
             )}
             <div className="flex items-center gap-2">
               {insightStatus === "saved" ? (
-                <span className="text-xs text-emerald-400">
+                <span className="text-xs text-green">
                   ✓ Saved to learned-insights.md
                 </span>
               ) : (
@@ -269,20 +269,20 @@ export default function MatchAgent({ job, onClose }: { job: Job; onClose: () => 
                   <button
                     onClick={saveInsight}
                     disabled={insightSaving}
-                    className="text-xs px-3 py-1.5 rounded border border-amber-700 bg-amber-900/40 hover:bg-amber-800/60 text-amber-100 disabled:opacity-40"
+                    className="border border-amber px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-amber transition-colors duration-150 hover:bg-amber hover:text-bg active:duration-0 disabled:opacity-40"
                   >
-                    {insightSaving ? "Saving…" : "Save to profile"}
+                    {insightSaving ? "saving…" : "save to profile"}
                   </button>
                   <button
                     onClick={() => setInsight(null)}
-                    className="text-xs px-3 py-1.5 rounded border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 text-neutral-400"
+                    className="border border-rule px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-ink-dim transition-colors duration-150 hover:border-amber hover:text-amber active:duration-0"
                   >
-                    Dismiss
+                    dismiss
                   </button>
                 </>
               )}
               {insightStatus === "error" && insightError && (
-                <span className="text-xs text-red-400">{insightError}</span>
+                <span className="text-xs text-red">{insightError}</span>
               )}
             </div>
           </div>
@@ -293,21 +293,21 @@ export default function MatchAgent({ job, onClose }: { job: Job; onClose: () => 
             e.preventDefault();
             send();
           }}
-          className="border-t border-neutral-800 p-3 flex gap-2"
+          className="flex gap-2 border-t border-rule p-3"
         >
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Answer…"
-            className="flex-1 bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600"
+            className="flex-1 border border-rule bg-bg px-3 py-2 text-xs text-ink placeholder:text-ink-faint focus:border-amber focus:outline-none"
             disabled={streaming}
           />
           <button
             type="submit"
             disabled={streaming || !input.trim()}
-            className="px-3 py-2 text-sm rounded border border-neutral-700 bg-neutral-800 hover:bg-neutral-700 text-neutral-100 disabled:opacity-40"
+            className="border border-rule px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] text-ink-dim transition-colors duration-150 hover:border-amber hover:text-amber active:duration-0 disabled:opacity-40"
           >
-            Send
+            send
           </button>
         </form>
       </aside>
