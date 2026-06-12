@@ -1,11 +1,119 @@
 @import "tailwindcss";
 
-.internal-surface,
+/*
+  Dashboard surface — Notebook & Bench token bridge.
+
+  The marketing surface owns the tokens (:root in app/globals.css);
+  this file only maps them into Tailwind 4 utilities so the dashboard
+  speaks the same visual language without duplicating a single hex.
+  `@theme inline` keeps the var() references live instead of snapshotting
+  values at build time.
+
+  Accent semantics carry over from the notebook (see MASTER.md):
+    green = research / live      amber = bench / build / needs-human
+  Red exists only on this surface — the cockpit needs a "failed" tone
+  the notebook never does. It is defined here, NOT in globals.css, so
+  the marketing palette stays two-accent.
+*/
+
+:root {
+  --red: #e0655b; /* darkest warm red that clears 4.5:1 on --bg */
+  --red-dim: rgba(224, 101, 91, 0.4);
+}
+
+@theme inline {
+  --color-*: initial;
+  --color-bg: var(--bg);
+  --color-bg-raised: var(--bg-raised);
+  --color-bg-card: var(--bg-card);
+  --color-ink: var(--ink);
+  --color-ink-dim: var(--ink-dim);
+  --color-ink-faint: var(--ink-faint);
+  --color-rule: var(--rule);
+  --color-rule-soft: var(--rule-soft);
+  --color-green: var(--green);
+  --color-green-dim: var(--green-dim);
+  --color-amber: var(--amber);
+  --color-amber-dim: var(--amber-dim);
+  --color-red: var(--red);
+  --color-red-dim: var(--red-dim);
+  --color-black: #000;
+  --color-white: #fff;
+  --color-transparent: transparent;
+
+  --font-mono: var(--mono);
+  --font-serif: var(--serif);
+}
+
+/*
+  Register base — "lab instrument": utilitarian, dense, quiet.
+  Mono is the working voice; serif is reserved for page titles and
+  long-form prose (job reasoning, cover letters) via explicit classes.
+*/
+.internal-surface {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
 .internal-surface h1,
 .internal-surface h2,
 .internal-surface h3,
-.internal-surface h4,
-.internal-surface h5,
-.internal-surface h6 {
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+.internal-surface h4 {
+  font-weight: 400;
+}
+
+/* Single focus language for the whole register. */
+.internal-surface :focus-visible {
+  outline: 1px solid var(--amber);
+  outline-offset: 2px;
+}
+
+.internal-surface button:not(:disabled),
+.internal-surface [role="button"],
+.internal-surface label[for],
+.internal-surface summary,
+.internal-surface input[type="checkbox"]:not(:disabled),
+.internal-surface select:not(:disabled) {
+  cursor: pointer;
+}
+
+/* Skeleton blocks — first-load placeholders (no spinners). */
+.skeleton {
+  background: var(--bg-raised);
+  border: 1px solid var(--rule-soft);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .skeleton {
+    animation: skeleton-breathe 1.6s ease-in-out infinite;
+  }
+}
+@keyframes skeleton-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* Toast rail enter motion — gated for reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .toast-enter {
+    animation: toast-in 180ms ease-out;
+  }
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

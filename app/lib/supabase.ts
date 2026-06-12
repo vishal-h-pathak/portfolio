@@ -116,8 +116,15 @@ export type Job = {
   title: string;
   company: string;
   location: string | null;
-  score: number | null;
-  tier: 1 | 2 | 3 | null;
+  // score and tier are TEXT columns in Postgres (the hunter writes
+  // strings; tier now includes "1.5"). PostgREST returns them as
+  // strings, but older rows / older clients may surface numbers — use
+  // the normalizers in app/dashboard/lib/format.ts, never compare raw.
+  score: number | string | null;
+  tier: number | string | null;
+  // Optional hunter column (degree-gate detection). Feature-detected by
+  // the list route — absent from the schema means "not gated".
+  degree_gated?: boolean | null;
   reasoning: string | null;
   url: string | null;
   source: string | null;
