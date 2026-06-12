@@ -42,9 +42,6 @@ export function Contact() {
         >
           linkedin
         </a>
-        <a href="#" aria-label="Google Scholar">
-          scholar
-        </a>
       </div>
     </Section>
   );
