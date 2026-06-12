@@ -725,15 +725,33 @@ footer {
 .footer-appendix .sep { color: var(--ink-faint); }
 @media (max-width: 700px) { footer { padding: 22px 20px; flex-direction: column; gap: 6px; } }
 
-/* ===== SECTION ENTRANCE FADE ===== */
-section.nb {
-  opacity: 0; transform: translateY(8px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+/* ===== SECTION ENTRANCE REVEAL =====
+   Staggered: the section frame (hairlines) renders immediately; marginalia
+   leads, then content children follow at 70ms steps. Triggered by
+   IntersectionObserver in components/Section.tsx adding `.visible`. */
+section.nb .margin,
+section.nb .row > div > * {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
 }
-section.nb.visible { opacity: 1; transform: none; }
+section.nb.visible .margin,
+section.nb.visible .row > div > * {
+  opacity: 1;
+  transform: none;
+}
+section.nb.visible .row > div > *:nth-child(2) { transition-delay: 70ms; }
+section.nb.visible .row > div > *:nth-child(3) { transition-delay: 140ms; }
+section.nb.visible .row > div > *:nth-child(4) { transition-delay: 210ms; }
+section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
 
 @media (prefers-reduced-motion: reduce) {
-  section.nb { opacity: 1; transform: none; transition: none; }
+  section.nb .margin,
+  section.nb .row > div > * {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
   html { scroll-behavior: auto; }
 }
 
