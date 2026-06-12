@@ -113,16 +113,14 @@ export default function ManualTailorPanel() {
     };
   }, [runId, run, fetchRun]);
 
-  const submit = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (!canSubmit) return;
+  const dispatch = async (target: string) => {
     setSubmitting(true);
     setSubmitError(null);
     try {
       const res = await fetch("/api/dashboard/runs/tailor-manual", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: trimmedUrl }),
+        body: JSON.stringify({ url: target }),
       });
       const json = (await res.json().catch(() => ({}))) as {
         ok?: boolean;
@@ -142,6 +140,22 @@ export default function ManualTailorPanel() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const submit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!canSubmit) return;
+    await dispatch(trimmedUrl);
+  };
+
+  // Re-dispatch the same URL after a failed run. The url input state
+  // survives the whole run lifecycle (reset() is the only thing that
+  // clears it), so the failed run's target is still in `url`.
+  const retry = async () => {
+    if (submitting || !looksLikeUrl(trimmedUrl)) return;
+    setRunId(null);
+    setRun(null);
+    await dispatch(trimmedUrl);
   };
 
   const reset = () => {
@@ -222,6 +236,15 @@ export default function ManualTailorPanel() {
           className="text-xs text-red-400 mt-2 font-mono"
         >
           {submitError}
+          {looksLikeUrl(trimmedUrl) && !submitting && (
+            <button
+              type="button"
+              onClick={() => void retry()}
+              className="ml-2 text-red-300 hover:text-red-100 underline underline-offset-2"
+            >
+              Retry
+            </button>
+          )}
         </p>
       )}
 
@@ -279,16 +302,26 @@ export default function ManualTailorPanel() {
           <p className="text-xs text-red-200 leading-relaxed whitespace-pre-wrap break-words">
             {run.failure_reason ?? "Unknown error. Check the GHA log."}
           </p>
-          {run.github_run_url && (
-            <a
-              href={run.github_run_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-red-300 hover:text-red-100 underline-offset-2 hover:underline mt-1 inline-block"
+          <div className="flex items-center gap-3 mt-1">
+            <button
+              type="button"
+              onClick={() => void retry()}
+              disabled={submitting || !looksLikeUrl(trimmedUrl)}
+              className="text-xs text-red-300 hover:text-red-100 underline underline-offset-2 disabled:opacity-50"
             >
-              View GHA run &rarr;
-            </a>
-          )}
+              {submitting ? "Retrying…" : "Retry this URL"}
+            </button>
+            {run.github_run_url && (
+              <a
+                href={run.github_run_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-red-300 hover:text-red-100 underline-offset-2 hover:underline"
+              >
+                View GHA run &rarr;
+              </a>
+            )}
+          </div>
         </div>
       )}
     </section>

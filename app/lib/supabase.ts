@@ -1,4 +1,12 @@
-import { createClient } from "@supabase/supabase-js";
+/**
+ * Shared dashboard types. This module used to also export a browser
+ * Supabase client built on NEXT_PUBLIC_SUPABASE_ANON_KEY; that client
+ * was removed in the RLS lockdown — all dashboard data access now goes
+ * through /api/dashboard/* routes (service role, dashboard_auth
+ * middleware), and the jobs / star_stories / pattern_analyses /
+ * application_attempts tables have RLS enabled with no anon policies.
+ * Don't reintroduce a client-side Supabase client here.
+ */
 
 export type JobStatus =
   // M-2 canonical lifecycle (career-ops alignment).
@@ -170,8 +178,3 @@ export type Job = {
   submitted_at: string | null;            // when the HUMAN clicked Mark Applied
   submission_notes: string | null;        // free-text notes from the cockpit modal
 };
-
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ""
-);
