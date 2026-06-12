@@ -18,7 +18,7 @@
   /* Ink */
   --ink: #E8E6DF;
   --ink-dim: #8C8B83;
-  --ink-faint: #5C594E;
+  --ink-faint: #7E7A6D; /* lightest ink that still clears 4.5:1 on --bg */
 
   /* Rules */
   --rule: rgba(232, 230, 223, 0.12);
@@ -118,6 +118,8 @@ a { color: inherit; text-decoration: none; }
 }
 
 @media (max-width: 900px) {
+  /* Nav wraps to two rows here (~106px); keep anchors clear of it. */
+  html { scroll-padding-top: 112px; }
   .nav-inner { padding: 10px 16px; flex-wrap: wrap; gap: 8px; }
   .nav-links {
     gap: 14px; font-size: 10px; flex-wrap: wrap;
@@ -650,7 +652,7 @@ h2 {
 }
 .now-playing .body { color: var(--ink); }
 .now-playing .meta {
-  color: var(--ink-faint);
+  color: var(--ink-dim); /* faint misses 4.5:1 on the amber-tinted card */
   margin-top: 8px; font-size: 10px;
   letter-spacing: 0.1em;
 }
@@ -688,7 +690,6 @@ h2 {
   border: 1px solid var(--rule);
   padding: 6px 10px;
   pointer-events: none;
-  opacity: 0.7;
   z-index: 40;
 }
 .kbd-hint kbd {
