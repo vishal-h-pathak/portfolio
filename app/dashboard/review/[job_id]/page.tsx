@@ -9,16 +9,19 @@
  * machine; the user reviews, clicks Submit themselves, then comes back
  * here and clicks Mark Applied.
  *
+ * Responsiveness contract (v2): every action applies its status
+ * transition optimistically (banner + action bar react instantly),
+ * then a silent targeted refetch converges the row — the page-level
+ * loading state only exists for first load (skeleton, no spinner).
+ *
  * Sections:
- *   - Header (title / company / score / tier / archetype pill / legitimacy pill)
+ *   - Header (title / company / score / tier / archetype / legitimacy)
  *   - Status banner (per-state message describing what to do next)
- *   - Materials accordions (resume PDF, cover letter PDF + text, form-answer
- *     drafts with copy buttons)
- *   - Pre-fill screenshot (when status >= awaiting_human_submit and
- *     prefill_screenshot_path is set)
- *   - Match Agent panel (J-11 — unchanged by this refactor)
- *   - Action bar: Pre-fill Form, Mark Applied (modal with notes),
- *     Open Application Manually, Skip, Mark Failed
+ *   - Materials accordions (resume PDF, cover letter, form-answer drafts)
+ *   - Pre-fill screenshot (when set)
+ *   - Match Agent panel (J-11 — unchanged)
+ *   - Action bar: Pre-fill, Mark Applied (modal), Open Manually,
+ *     Skip (reason quick-pick), Mark Failed (reason modal)
  */
 
 import Link from "next/link";
@@ -30,13 +33,16 @@ import type {
   Job,
   JobStatus,
 } from "../../../lib/supabase";
-import {
-  DestructiveButton,
-  PrimaryButton,
-  SecondaryAnchor,
-  SecondaryButton,
-} from "../../components/Button";
+import { Btn, BtnLink } from "../../components/Button";
 import DashboardNav from "../../components/DashboardNav";
+import { Pill, TierPill } from "../../components/JobBadges";
+import { Modal, ModalTitle } from "../../components/Modal";
+import { ReasonPick } from "../../components/ReasonPick";
+import { Skeleton, SkeletonRows } from "../../components/Skeleton";
+import { useToast } from "../../components/Toast";
+import { requestJSON } from "../../lib/api";
+import { relativeTime, scoreOf } from "../../lib/format";
+import { useOptimisticAction } from "../../lib/useOptimisticAction";
 import MatchAgent from "../../MatchAgent";
 
 // ── Status banner copy ─────────────────────────────────────────────────────
@@ -75,49 +81,30 @@ const STATUS_BANNER: Partial<
   skipped: { tone: "info", message: "Skipped." },
 };
 
-const TONE_STYLES: Record<"info" | "warn" | "ok" | "danger", string> = {
-  info: "border-neutral-700 bg-neutral-900/60 text-neutral-200",
-  warn: "border-amber-800/60 bg-amber-950/30 text-amber-200",
-  ok: "border-emerald-800/60 bg-emerald-950/30 text-emerald-200",
-  danger: "border-red-800/60 bg-red-950/30 text-red-200",
+const BANNER_TONE: Record<"info" | "warn" | "ok" | "danger", string> = {
+  info: "border-rule text-ink-dim",
+  warn: "border-amber-dim text-amber",
+  ok: "border-green-dim text-green",
+  danger: "border-red-dim text-red",
 };
-
-// ── Helpers ────────────────────────────────────────────────────────────────
-
-function relativeTime(iso: string | null): string | null {
-  if (!iso) return null;
-  const then = new Date(iso).getTime();
-  if (Number.isNaN(then)) return null;
-  const secs = Math.floor((Date.now() - then) / 1000);
-  if (secs < 60) return "just now";
-  const mins = Math.floor(secs / 60);
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.floor(hours / 24)}d ago`;
-}
 
 function LegitimacyPill({ job }: { job: Job }) {
   if (!job.legitimacy) return null;
-  const styles: Record<NonNullable<Job["legitimacy"]>, string> = {
-    high_confidence:
-      "border-emerald-800/60 bg-emerald-900/30 text-emerald-300",
-    proceed_with_caution:
-      "border-amber-800/60 bg-amber-900/30 text-amber-300",
-    suspicious: "border-red-800/60 bg-red-900/30 text-red-300",
-  };
+  const tone =
+    job.legitimacy === "high_confidence"
+      ? ("live" as const)
+      : job.legitimacy === "proceed_with_caution"
+        ? ("attention" as const)
+        : ("failed" as const);
   const labels: Record<NonNullable<Job["legitimacy"]>, string> = {
     high_confidence: "legit: high confidence",
     proceed_with_caution: "legit: proceed with caution",
     suspicious: "legit: suspicious",
   };
   return (
-    <span
-      className={`px-2 py-0.5 rounded border text-[10px] uppercase tracking-widest ${styles[job.legitimacy]}`}
-      title={job.legitimacy_reasoning ?? undefined}
-    >
+    <Pill tone={tone} title={job.legitimacy_reasoning ?? undefined}>
       {labels[job.legitimacy]}
-    </span>
+    </Pill>
   );
 }
 
@@ -157,10 +144,23 @@ function CopyButton({ text }: { text: string }) {
           setCopied(false);
         }
       }}
-      className="text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border border-neutral-700 bg-neutral-900 hover:border-neutral-500 text-neutral-400 hover:text-neutral-100 transition shrink-0"
+      className={
+        "shrink-0 border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors duration-150 active:duration-0 " +
+        (copied
+          ? "border-green-dim text-green"
+          : "border-rule text-ink-dim hover:border-amber hover:text-amber")
+      }
     >
       {copied ? "copied" : "copy"}
     </button>
+  );
+}
+
+function DraftLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+      {children}
+    </div>
   );
 }
 
@@ -171,7 +171,7 @@ function FormAnswersBlock({
 }) {
   if (!formAnswers) {
     return (
-      <div className="text-sm text-neutral-500 italic">
+      <div className="text-xs italic text-ink-faint">
         Form-answer drafts not generated for this score band (gated on
         score &ge; 6 in the tailoring step).
       </div>
@@ -186,23 +186,36 @@ function FormAnswersBlock({
   const questions: FormAnswerQuestion[] =
     formAnswers.additional_questions ?? [];
 
+  const narrative: Array<{ label: string; text: string }> = [
+    formAnswers.why_this_role && {
+      label: "Why this role",
+      text: formAnswers.why_this_role,
+    },
+    formAnswers.why_this_company && {
+      label: "Why this company",
+      text: formAnswers.why_this_company,
+    },
+    formAnswers.additional_info && {
+      label: "Additional info",
+      text: formAnswers.additional_info,
+    },
+  ].filter(Boolean) as Array<{ label: string; text: string }>;
+
   return (
     <div className="space-y-6">
       <div>
-        <div className="text-[10px] uppercase tracking-widest text-neutral-500 mb-2">
-          Identity / Contact / Comp (from profile.yml)
+        <div className="mb-2">
+          <DraftLabel>Identity / Contact / Comp (from profile.yml)</DraftLabel>
         </div>
-        <div className="rounded border border-neutral-800 overflow-hidden">
-          <dl className="divide-y divide-neutral-900">
+        <div className="border border-rule">
+          <dl className="divide-y divide-rule-soft">
             {identityRows.map((row) => (
               <div
                 key={row.label}
-                className="grid grid-cols-[180px_1fr_auto] gap-3 items-center px-3 py-2"
+                className="grid grid-cols-[160px_1fr_auto] items-center gap-3 px-3 py-1.5"
               >
-                <dt className="text-xs text-neutral-500">{row.label}</dt>
-                <dd className="text-sm text-neutral-200 font-mono break-all">
-                  {row.value}
-                </dd>
+                <dt className="text-[11px] text-ink-faint">{row.label}</dt>
+                <dd className="break-all text-xs text-ink">{row.value}</dd>
                 <CopyButton text={row.value} />
               </div>
             ))}
@@ -210,64 +223,31 @@ function FormAnswersBlock({
         </div>
       </div>
 
-      {formAnswers.why_this_role && (
-        <div>
-          <div className="flex items-center justify-between mb-2 gap-3">
-            <div className="text-[10px] uppercase tracking-widest text-neutral-500">
-              Why this role
-            </div>
-            <CopyButton text={formAnswers.why_this_role} />
+      {narrative.map(({ label, text }) => (
+        <div key={label}>
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <DraftLabel>{label}</DraftLabel>
+            <CopyButton text={text} />
           </div>
-          <p className="rounded border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-neutral-200 leading-relaxed whitespace-pre-wrap">
-            {formAnswers.why_this_role}
+          <p className="whitespace-pre-wrap border border-rule bg-bg px-3 py-2 text-xs leading-relaxed text-ink-dim">
+            {text}
           </p>
         </div>
-      )}
-
-      {formAnswers.why_this_company && (
-        <div>
-          <div className="flex items-center justify-between mb-2 gap-3">
-            <div className="text-[10px] uppercase tracking-widest text-neutral-500">
-              Why this company
-            </div>
-            <CopyButton text={formAnswers.why_this_company} />
-          </div>
-          <p className="rounded border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-neutral-200 leading-relaxed whitespace-pre-wrap">
-            {formAnswers.why_this_company}
-          </p>
-        </div>
-      )}
-
-      {formAnswers.additional_info && (
-        <div>
-          <div className="flex items-center justify-between mb-2 gap-3">
-            <div className="text-[10px] uppercase tracking-widest text-neutral-500">
-              Additional info
-            </div>
-            <CopyButton text={formAnswers.additional_info} />
-          </div>
-          <p className="rounded border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-neutral-200 leading-relaxed whitespace-pre-wrap">
-            {formAnswers.additional_info}
-          </p>
-        </div>
-      )}
+      ))}
 
       {questions.length > 0 && (
         <div>
-          <div className="text-[10px] uppercase tracking-widest text-neutral-500 mb-2">
-            Role-specific questions ({questions.length})
+          <div className="mb-2">
+            <DraftLabel>Role-specific questions ({questions.length})</DraftLabel>
           </div>
           <ol className="space-y-3">
             {questions.map((q, i) => (
-              <li
-                key={i}
-                className="rounded border border-neutral-800 bg-neutral-950 p-3"
-              >
-                <div className="text-xs text-neutral-400 font-medium mb-1">
+              <li key={i} className="border border-rule bg-bg p-3">
+                <div className="mb-1 text-[11px] font-medium text-ink">
                   Q{i + 1}: {q.question}
                 </div>
                 <div className="flex items-start justify-between gap-3">
-                  <p className="text-sm text-neutral-200 leading-relaxed whitespace-pre-wrap flex-1">
+                  <p className="flex-1 whitespace-pre-wrap text-xs leading-relaxed text-ink-dim">
                     {q.draft_answer}
                   </p>
                   <CopyButton text={q.draft_answer} />
@@ -309,40 +289,40 @@ function PrefillScreenshot({ storagePath }: { storagePath: string }) {
 
   return (
     <section className="mb-8">
-      <h2 className="text-sm font-medium text-neutral-400 uppercase tracking-wide mb-3">
+      <h2 className="mb-2.5 border-b border-rule-soft pb-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
         Pre-fill screenshot
       </h2>
-      <div className="rounded border border-neutral-800 bg-neutral-950 p-3">
+      <div className="border border-rule bg-bg-raised p-3">
         {signedUrl ? (
           <>
             <a
               href={signedUrl}
               target="_blank"
               rel="noreferrer"
-              className="block rounded border border-neutral-800 overflow-hidden hover:border-neutral-600"
+              className="block overflow-hidden border border-rule transition-colors duration-150 hover:border-amber"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={signedUrl}
                 alt="Pre-fill screenshot"
-                className="w-full max-h-[600px] object-contain bg-neutral-900"
+                className="max-h-[600px] w-full bg-bg object-contain"
               />
             </a>
-            <div className="mt-2 flex items-center justify-between text-[11px] font-mono text-neutral-600">
+            <div className="mt-2 flex items-center justify-between text-[11px] text-ink-faint">
               <span className="truncate">{storagePath}</span>
               <a
                 href={signedUrl}
                 download
-                className="text-neutral-400 hover:text-neutral-100"
+                className="text-ink-dim transition-colors duration-150 hover:text-ink"
               >
                 download
               </a>
             </div>
           </>
         ) : err ? (
-          <div className="text-xs text-red-400/70">could not load: {err}</div>
+          <div className="text-xs text-red">could not load: {err}</div>
         ) : (
-          <div className="text-xs text-neutral-600">signing…</div>
+          <Skeleton className="h-40 w-full" />
         )}
       </div>
     </section>
@@ -369,14 +349,9 @@ function MarkAppliedModal({
     setBusy(true);
     setErr(null);
     try {
-      const res = await fetch(`/api/dashboard/jobs/${jobId}/mark-applied`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ submission_notes: notes }),
+      await requestJSON("POST", `/api/dashboard/jobs/${jobId}/mark-applied`, {
+        submission_notes: notes,
       });
-      if (!res.ok) {
-        throw new Error((await res.text()) || `mark-applied: ${res.status}`);
-      }
       onApplied();
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e));
@@ -385,46 +360,77 @@ function MarkAppliedModal({
   }
 
   return (
-    <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/70 p-4">
-      <div className="w-full max-w-lg rounded-lg border border-neutral-800 bg-neutral-950 p-5">
-        <h3 className="text-lg font-medium mb-2">Mark Applied</h3>
-        <p className="text-sm text-neutral-400 mb-4">
-          Confirms you submitted the application yourself in the visible
-          browser. Stamps <code className="font-mono">submitted_at</code> and
-          (optionally) attaches notes about anything that needed manual
-          fixing.
-        </p>
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          rows={4}
-          placeholder={
-            "Optional notes (e.g. 'salary field rejected $130k, " +
-            "had to enter $129,999')"
-          }
-          className="w-full rounded border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600 focus:outline-none focus:border-neutral-600"
-        />
-        {err && (
-          <div className="mt-2 text-xs text-red-300 break-words">{err}</div>
-        )}
-        <div className="mt-4 flex items-center justify-end gap-2">
-          <button
-            onClick={onClose}
-            disabled={busy}
-            className="px-3 py-1.5 rounded border border-neutral-800 bg-neutral-900 text-sm text-neutral-300 hover:border-neutral-600 disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={submit}
-            disabled={busy}
-            className="px-3 py-1.5 rounded border border-emerald-700 bg-emerald-900/40 text-sm text-emerald-200 hover:bg-emerald-800/60 disabled:opacity-50"
-          >
-            {busy ? "Saving…" : "Mark Applied"}
-          </button>
-        </div>
+    <Modal label="Mark applied" onClose={onClose} maxWidth="max-w-lg">
+      <ModalTitle>Mark applied</ModalTitle>
+      <p className="mb-4 text-xs leading-relaxed text-ink-dim">
+        Confirms you submitted the application yourself in the visible
+        browser. Stamps <code>submitted_at</code> and (optionally)
+        attaches notes about anything that needed manual fixing.
+      </p>
+      <textarea
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+        rows={4}
+        placeholder={
+          "Optional notes (e.g. 'salary field rejected $130k, " +
+          "had to enter $129,999')"
+        }
+        className="w-full border border-rule bg-bg px-3 py-2 text-xs text-ink placeholder:text-ink-faint focus:border-amber focus:outline-none"
+      />
+      {err && <div className="mt-2 break-words text-xs text-red">{err}</div>}
+      <div className="mt-4 flex items-center justify-end gap-2">
+        <Btn variant="ghost" onClick={onClose} disabled={busy}>
+          cancel
+        </Btn>
+        <Btn variant="approve" onClick={submit} pending={busy}>
+          mark applied
+        </Btn>
       </div>
-    </div>
+    </Modal>
+  );
+}
+
+// ── Mark-Failed modal (free-text reason → failure_reason) ─────────────────
+
+function MarkFailedModal({
+  onConfirm,
+  onClose,
+}: {
+  onConfirm: (reason: string | null) => void;
+  onClose: () => void;
+}) {
+  const [reason, setReason] = useState("");
+  return (
+    <Modal label="Mark failed" onClose={onClose}>
+      <ModalTitle>Mark failed — what broke?</ModalTitle>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          onConfirm(reason.trim() || null);
+        }}
+      >
+        <input
+          autoFocus
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="e.g. ATS rejected the resume upload"
+          className="w-full border border-rule bg-bg px-3 py-2 font-mono text-xs text-ink placeholder:text-ink-faint focus:border-amber focus:outline-none"
+        />
+        <div className="mt-4 flex items-center justify-between gap-2">
+          <Btn type="button" variant="ghost" onClick={() => onConfirm(null)}>
+            mark failed without reason
+          </Btn>
+          <div className="flex items-center gap-2">
+            <Btn type="button" variant="ghost" onClick={onClose}>
+              cancel
+            </Btn>
+            <Btn type="submit" variant="danger">
+              mark failed
+            </Btn>
+          </div>
+        </div>
+      </form>
+    </Modal>
   );
 }
 
@@ -434,24 +440,28 @@ export default function ReviewDetailPage() {
   const params = useParams<{ job_id: string }>();
   const router = useRouter();
   const jobId = params?.job_id;
+  const toast = useToast();
+  const act = useOptimisticAction();
 
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [actionBusy, setActionBusy] = useState<string | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
   const [showMarkApplied, setShowMarkApplied] = useState(false);
+  const [showSkipPick, setShowSkipPick] = useState(false);
+  const [showMarkFailed, setShowMarkFailed] = useState(false);
   const [showMatchAgent, setShowMatchAgent] = useState(false);
 
   useEffect(() => {
     if (!jobId) return;
-    refresh();
+    void refresh(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobId]);
 
-  async function refresh() {
+  /** silent=true converges state after an action without flashing the
+   *  skeleton — the optimistic update already painted the new state. */
+  async function refresh(silent: boolean) {
     if (!jobId) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
     try {
       const res = await fetch(`/api/dashboard/jobs/${jobId}`, {
         cache: "no-store",
@@ -468,30 +478,32 @@ export default function ReviewDetailPage() {
         setError(null);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      if (!silent) setError(e instanceof Error ? e.message : String(e));
     }
-    setLoading(false);
+    if (!silent) setLoading(false);
   }
 
-  async function postAction(path: string, body?: object) {
-    if (!job || actionBusy) return;
-    setActionBusy(path);
-    setActionError(null);
-    try {
-      const res = await fetch(`/api/dashboard/jobs/${job.id}/${path}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: body ? JSON.stringify(body) : undefined,
-      });
-      if (!res.ok) {
-        throw new Error((await res.text()) || `${path}: ${res.status}`);
-      }
-      await refresh();
-    } catch (e) {
-      setActionError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setActionBusy(null);
-    }
+  /** Optimistic cockpit action: flips status locally, POSTs, converges
+   *  with a silent refetch. */
+  function postAction(
+    path: "prefill" | "skip" | "mark-failed",
+    optimisticStatus: JobStatus,
+    body?: object,
+    successToast?: string,
+  ) {
+    if (!job) return;
+    void act.run(`cockpit:${path}`, {
+      optimistic: () => {
+        const before = job;
+        setJob({ ...job, status: optimisticStatus });
+        return () => setJob(before);
+      },
+      perform: () =>
+        requestJSON("POST", `/api/dashboard/jobs/${job.id}/${path}`, body ?? {}),
+      errorLabel: path.replace("-", " "),
+      successToast,
+      onSuccess: () => void refresh(true),
+    });
   }
 
   const banner = useMemo(() => {
@@ -503,8 +515,11 @@ export default function ReviewDetailPage() {
     return (
       <>
         <DashboardNav />
-        <main className="min-h-[60vh] flex items-center justify-center bg-black text-neutral-500 text-sm">
-          loading…
+        <main className="mx-auto min-h-screen max-w-5xl px-4 py-8 sm:px-8 sm:py-10">
+          <Skeleton className="mb-6 h-3 w-28" />
+          <Skeleton className="mb-2 h-8 w-2/3" />
+          <Skeleton className="mb-8 h-4 w-1/3" />
+          <SkeletonRows rows={3} rowClassName="h-14" />
         </main>
       </>
     );
@@ -514,14 +529,14 @@ export default function ReviewDetailPage() {
     return (
       <>
         <DashboardNav />
-        <main className="min-h-screen px-6 py-10 max-w-3xl mx-auto bg-black text-neutral-100">
+        <main className="mx-auto min-h-screen max-w-3xl px-6 py-10">
           <Link
             href="/dashboard/review"
-            className="text-sm text-neutral-500 hover:text-neutral-200"
+            className="text-xs text-ink-faint transition-colors duration-150 hover:text-ink"
           >
             ← Review queue
           </Link>
-          <div className="mt-6 rounded border border-red-900/60 bg-red-950/40 px-4 py-3 text-sm text-red-300">
+          <div className="mt-6 border border-red-dim px-4 py-3 text-xs text-red">
             {error ?? "Job not found"}
           </div>
         </main>
@@ -535,298 +550,292 @@ export default function ReviewDetailPage() {
   const coverLetterPdfUrl = `/api/materials/${job.id}/cover_letter`;
   const coverLetterText = job.cover_letter_path ?? "";
   const canPrefill = status === "ready_for_review";
+  const score = scoreOf(job.score);
 
   return (
     <>
       <DashboardNav />
-      <main className="min-h-screen pb-32 px-4 py-8 sm:px-8 sm:py-12 max-w-5xl mx-auto bg-black text-neutral-100">
-        {/* PR-23 add (c) — back-link to /dashboard/review STAYS here
-            permanently. Even with a global nav above, the breadcrumb
-            context matters when users deep-link straight into a
-            specific cockpit and want a fast "back to queue" path. */}
+      <main className="mx-auto min-h-screen max-w-5xl px-4 py-8 pb-32 sm:px-8 sm:py-10">
+        {/* Back-link STAYS here permanently — breadcrumb context matters
+            when users deep-link straight into a specific cockpit. */}
         <Link
           href="/dashboard/review"
-          className="text-xs text-neutral-500 hover:text-neutral-200"
+          className="text-xs text-ink-faint transition-colors duration-150 hover:text-ink"
         >
           ← Review queue
         </Link>
 
-      {/* ── Header ───────────────────────────────────────────────────── */}
-      <header className="mt-4 mb-6">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="min-w-0 flex-1">
-            <h1 className="text-2xl sm:text-3xl font-semibold">{job.title}</h1>
-            <p className="text-sm text-neutral-400 mt-1">
-              {job.company}
-              {job.location ? ` · ${job.location}` : ""}
-            </p>
-            {relativeTime(job.status_updated_at) && (
-              <p className="text-[11px] text-neutral-600 font-mono mt-1">
-                Status updated {relativeTime(job.status_updated_at)}
+        {/* ── Header ─────────────────────────────────────────────── */}
+        <header className="mb-6 mt-4">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <h1 className="font-serif text-[26px] leading-tight tracking-tight text-ink">
+                {job.title}
+              </h1>
+              <p className="mt-1 text-xs text-ink-dim">
+                {job.company}
+                {job.location ? ` · ${job.location}` : ""}
               </p>
-            )}
+              {relativeTime(job.status_updated_at) && (
+                <p className="mt-1 text-[11px] text-ink-faint tabular-nums">
+                  status updated {relativeTime(job.status_updated_at)}
+                </p>
+              )}
+            </div>
+            <div className="flex shrink-0 items-center gap-3">
+              {score !== null && (
+                <div className="text-right">
+                  <div className="text-[10px] uppercase tracking-[0.16em] text-ink-faint">
+                    Score
+                  </div>
+                  <div className="text-2xl text-ink tabular-nums">
+                    {score}
+                    <span className="text-xs text-ink-faint">/10</span>
+                  </div>
+                </div>
+              )}
+              {job.url && (
+                <BtnLink href={job.url} target="_blank" rel="noreferrer">
+                  posting ↗
+                </BtnLink>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-3 shrink-0">
-            {job.score !== null && job.score !== undefined && (
-              <div className="text-right">
-                <div className="text-[10px] uppercase tracking-widest text-neutral-500">
-                  Score
-                </div>
-                <div className="font-mono text-2xl text-neutral-200">
-                  {job.score}/10
-                </div>
-              </div>
-            )}
-            {job.url && (
-              <a
-                href={job.url}
-                target="_blank"
-                rel="noreferrer"
-                className="text-xs px-3 py-1.5 rounded border border-neutral-800 bg-neutral-950 text-neutral-400 hover:text-neutral-100 hover:border-neutral-700"
+          <div className="mt-4 flex flex-wrap items-center gap-1.5">
+            <TierPill tier={job.tier} />
+            {job.archetype && (
+              <Pill
+                tone="dim"
+                title={
+                  job.archetype_confidence
+                    ? `confidence ${job.archetype_confidence.toFixed(2)}`
+                    : undefined
+                }
               >
-                Posting ↗
-              </a>
+                {job.archetype}
+              </Pill>
             )}
+            <LegitimacyPill job={job} />
+            <Pill tone="dim" className="ml-auto">
+              status: <span className="text-ink">{status}</span>
+            </Pill>
           </div>
-        </div>
-        <div className="mt-4 flex items-center gap-2 flex-wrap text-[10px] uppercase tracking-widest">
-          {job.tier && (
-            <span className="px-2 py-0.5 rounded border border-neutral-800 bg-neutral-900 text-neutral-300">
-              tier {job.tier}
-            </span>
-          )}
-          {job.archetype && (
-            <span
-              className="px-2 py-0.5 rounded border border-violet-800/60 bg-violet-900/30 text-violet-300"
-              title={
-                job.archetype_confidence
-                  ? `confidence ${job.archetype_confidence.toFixed(2)}`
-                  : undefined
-              }
-            >
-              {job.archetype}
-            </span>
-          )}
-          <LegitimacyPill job={job} />
-          <span className="px-2 py-0.5 rounded border border-neutral-800 bg-neutral-900 text-neutral-400 ml-auto">
-            status: <span className="text-neutral-200">{status}</span>
-          </span>
-        </div>
-      </header>
+        </header>
 
-      {/* ── Status banner ───────────────────────────────────────────── */}
-      {banner && (
-        <section
-          className={`mb-6 rounded-lg border px-4 py-3 text-sm leading-relaxed ${TONE_STYLES[banner.tone]}`}
-        >
-          {banner.message}
-          {status === "applied" && job.submitted_at && (
-            <span className="block mt-1 text-xs opacity-70 font-mono">
-              submitted_at: {new Date(job.submitted_at).toISOString()}
-            </span>
-          )}
-          {status === "failed" && job.failure_reason && (
-            <span className="block mt-1 text-xs opacity-80">
-              {job.failure_reason}
-            </span>
+        {/* ── Status banner ──────────────────────────────────────── */}
+        {banner && (
+          <section
+            className={`mb-6 border border-l-2 px-4 py-3 text-xs leading-relaxed ${BANNER_TONE[banner.tone]}`}
+          >
+            {banner.message}
+            {status === "applied" && job.submitted_at && (
+              <span className="mt-1 block text-[11px] opacity-70 tabular-nums">
+                submitted_at: {new Date(job.submitted_at).toISOString()}
+              </span>
+            )}
+            {status === "failed" && job.failure_reason && (
+              <span className="mt-1 block text-[11px] opacity-80">
+                {job.failure_reason}
+              </span>
+            )}
+          </section>
+        )}
+
+        {/* ── Materials ──────────────────────────────────────────── */}
+        <section className="mb-8 space-y-3">
+          <h2 className="border-b border-rule-soft pb-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+            Materials
+          </h2>
+
+          <details className="group border border-rule bg-bg-raised">
+            <summary className="flex select-none items-center justify-between px-4 py-3 text-xs text-ink transition-colors duration-150 hover:bg-bg-card">
+              <span>Tailored resume (PDF)</span>
+              <span className="text-[10px] text-ink-faint group-open:hidden">
+                click to open
+              </span>
+            </summary>
+            <div className="flex items-center gap-2 border-t border-rule-soft px-4 py-3">
+              <BtnLink href={resumePdfUrl} target="_blank" rel="noreferrer">
+                view
+              </BtnLink>
+              <BtnLink href={`${resumePdfUrl}?download=1`}>download</BtnLink>
+              <span className="ml-auto truncate text-[11px] text-ink-faint">
+                {job.resume_pdf_path ?? "(no storage path)"}
+              </span>
+            </div>
+          </details>
+
+          <details className="group border border-rule bg-bg-raised">
+            <summary className="flex select-none items-center justify-between px-4 py-3 text-xs text-ink transition-colors duration-150 hover:bg-bg-card">
+              <span>Cover letter</span>
+              <span className="text-[10px] text-ink-faint group-open:hidden">
+                click to open
+              </span>
+            </summary>
+            <div className="space-y-3 border-t border-rule-soft px-4 py-3">
+              <div className="flex items-center gap-2">
+                <BtnLink href={coverLetterPdfUrl} target="_blank" rel="noreferrer">
+                  view pdf
+                </BtnLink>
+                {coverLetterText && <CopyButton text={coverLetterText} />}
+              </div>
+              {coverLetterText && (
+                <pre className="max-h-80 overflow-y-auto whitespace-pre-wrap border border-rule bg-bg p-3 text-[11px] leading-relaxed text-ink-dim">
+                  {coverLetterText}
+                </pre>
+              )}
+            </div>
+          </details>
+
+          <details className="group border border-rule bg-bg-raised" open>
+            <summary className="flex select-none items-center justify-between px-4 py-3 text-xs text-ink transition-colors duration-150 hover:bg-bg-card">
+              <span>
+                Form-answer drafts
+                {job.form_answers && (
+                  <span className="ml-2 text-[10px] uppercase tracking-[0.16em] text-ink-faint">
+                    ({(job.form_answers.additional_questions ?? []).length} custom Qs)
+                  </span>
+                )}
+              </span>
+              <span className="text-[10px] text-ink-faint group-open:hidden">
+                click to open
+              </span>
+            </summary>
+            <div className="border-t border-rule-soft px-4 py-4">
+              <FormAnswersBlock formAnswers={job.form_answers} />
+            </div>
+          </details>
+        </section>
+
+        {/* ── Pre-fill screenshot ────────────────────────────────── */}
+        {job.prefill_screenshot_path && (
+          <PrefillScreenshot storagePath={job.prefill_screenshot_path} />
+        )}
+
+        {/* ── Match Agent (J-11, unchanged by this refactor) ─────── */}
+        <section className="mb-8">
+          <button
+            onClick={() => setShowMatchAgent((v) => !v)}
+            className="text-xs text-ink-dim underline-offset-4 transition-colors duration-150 hover:text-ink hover:underline"
+          >
+            {showMatchAgent ? "Hide" : "Open"} Match Agent
+            {Array.isArray(job.match_chat) && job.match_chat.length > 0 && (
+              <span className="ml-2 text-[10px] uppercase tracking-[0.16em] text-green tabular-nums">
+                {job.match_chat.length} turn(s) saved
+              </span>
+            )}
+          </button>
+          {showMatchAgent && (
+            <div className="mt-3 border border-rule bg-bg-raised p-3">
+              <MatchAgent job={job} onClose={() => setShowMatchAgent(false)} />
+            </div>
           )}
         </section>
-      )}
 
-      {/* ── Materials ───────────────────────────────────────────────── */}
-      <section className="mb-8 space-y-4">
-        <h2 className="text-sm font-medium text-neutral-400 uppercase tracking-wide">
-          Materials
-        </h2>
-
-        <details className="rounded border border-neutral-800 bg-neutral-950 group">
-          <summary className="cursor-pointer px-4 py-3 text-sm text-neutral-200 hover:bg-neutral-900/60 select-none flex items-center justify-between">
-            <span>Tailored resume (PDF)</span>
-            <span className="text-neutral-500 text-xs group-open:hidden">
-              click to open
-            </span>
-          </summary>
-          <div className="border-t border-neutral-900 px-4 py-3 flex items-center gap-3">
-            <a
-              href={resumePdfUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="text-xs px-3 py-1.5 rounded border border-neutral-800 bg-neutral-900 text-neutral-300 hover:border-neutral-600"
-            >
-              View
-            </a>
-            <a
-              href={`${resumePdfUrl}?download=1`}
-              className="text-xs px-3 py-1.5 rounded border border-neutral-800 bg-neutral-900 text-neutral-300 hover:border-neutral-600"
-            >
-              Download
-            </a>
-            <span className="text-[11px] text-neutral-600 font-mono ml-auto truncate">
-              {job.resume_pdf_path ?? "(no storage path)"}
-            </span>
-          </div>
-        </details>
-
-        <details className="rounded border border-neutral-800 bg-neutral-950 group">
-          <summary className="cursor-pointer px-4 py-3 text-sm text-neutral-200 hover:bg-neutral-900/60 select-none flex items-center justify-between">
-            <span>Cover letter</span>
-            <span className="text-neutral-500 text-xs group-open:hidden">
-              click to open
-            </span>
-          </summary>
-          <div className="border-t border-neutral-900 px-4 py-3 space-y-3">
-            <div className="flex items-center gap-3">
-              <a
-                href={coverLetterPdfUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="text-xs px-3 py-1.5 rounded border border-neutral-800 bg-neutral-900 text-neutral-300 hover:border-neutral-600"
-              >
-                View PDF
-              </a>
-              {coverLetterText && <CopyButton text={coverLetterText} />}
-            </div>
-            {coverLetterText && (
-              <pre className="rounded border border-neutral-800 bg-neutral-900 p-3 text-xs text-neutral-300 whitespace-pre-wrap leading-relaxed font-mono max-h-80 overflow-y-auto">
-                {coverLetterText}
-              </pre>
-            )}
-          </div>
-        </details>
-
-        <details
-          className="rounded border border-neutral-800 bg-neutral-950 group"
-          open
-        >
-          <summary className="cursor-pointer px-4 py-3 text-sm text-neutral-200 hover:bg-neutral-900/60 select-none flex items-center justify-between">
-            <span>
-              Form-answer drafts
-              {job.form_answers && (
-                <span className="ml-2 text-[10px] uppercase tracking-widest text-neutral-500">
-                  ({(job.form_answers.additional_questions ?? []).length}{" "}
-                  custom Qs)
-                </span>
-              )}
-            </span>
-            <span className="text-neutral-500 text-xs group-open:hidden">
-              click to open
-            </span>
-          </summary>
-          <div className="border-t border-neutral-900 px-4 py-4">
-            <FormAnswersBlock formAnswers={job.form_answers} />
-          </div>
-        </details>
-      </section>
-
-      {/* ── Pre-fill screenshot ─────────────────────────────────────── */}
-      {job.prefill_screenshot_path && (
-        <PrefillScreenshot storagePath={job.prefill_screenshot_path} />
-      )}
-
-      {/* ── Match Agent (J-11, unchanged by this refactor) ──────────── */}
-      <section className="mb-8">
-        <button
-          onClick={() => setShowMatchAgent((v) => !v)}
-          className="text-sm text-neutral-400 hover:text-neutral-100 underline-offset-4 hover:underline"
-        >
-          {showMatchAgent ? "Hide" : "Open"} Match Agent
-          {Array.isArray(job.match_chat) && job.match_chat.length > 0 && (
-            <span className="ml-2 text-[10px] uppercase tracking-widest text-emerald-300">
-              {job.match_chat.length} turn(s) saved
-            </span>
-          )}
-        </button>
-        {showMatchAgent && (
-          <div className="mt-3 rounded border border-neutral-800 bg-neutral-950 p-3">
-            <MatchAgent job={job} onClose={() => setShowMatchAgent(false)} />
-          </div>
-        )}
-      </section>
-
-      {/* ── Action bar (sticky) ─────────────────────────────────────── *
-       * State-aware primary CTA: when the row is in ready_for_review
-       * the primary action is Pre-fill Form; once the user has
-       * pre-filled and the row sits in awaiting_human_submit the
-       * primary action shifts to Mark Applied. The other CTA
-       * downgrades to secondary so the screen always has exactly one
-       * primary at any moment. */}
-      {(() => {
-        const prefillIsPrimary = status === "ready_for_review";
-        const markIsPrimary = status === "awaiting_human_submit";
-        const PrefillBtn = prefillIsPrimary ? PrimaryButton : SecondaryButton;
-        const MarkBtn = markIsPrimary ? PrimaryButton : SecondaryButton;
-        return (
-          <section className="fixed inset-x-0 bottom-0 z-20 border-t border-neutral-800 bg-black/95 backdrop-blur-sm">
-            <div className="max-w-5xl mx-auto px-4 sm:px-8 py-3 flex items-center gap-2 flex-wrap">
-              {actionError && (
-                <div className="w-full mb-2 rounded border border-red-900/60 bg-red-950/40 px-3 py-2 text-xs text-red-300 break-words">
-                  {actionError}
-                </div>
-              )}
-              <PrefillBtn
-                size="md"
-                onClick={() => postAction("prefill")}
-                disabled={!canPrefill || actionBusy !== null}
-                title={
-                  canPrefill
-                    ? "Pre-fill the application form in a visible browser window"
-                    : `Pre-fill is only available from ready_for_review (current: ${status})`
-                }
-              >
-                {actionBusy === "prefill" ? "Pre-filling…" : "Pre-fill Form"}
-              </PrefillBtn>
-              <MarkBtn
-                size="md"
-                onClick={() => setShowMarkApplied(true)}
-                disabled={status === "applied" || actionBusy !== null}
-              >
-                Mark Applied
-              </MarkBtn>
-              {submissionUrl && (
-                <SecondaryAnchor
+        {/* ── Action bar (sticky) ────────────────────────────────── *
+         * State-aware primary CTA: ready_for_review → Pre-fill is the
+         * single primary; awaiting_human_submit → Mark Applied takes
+         * over. Exactly one primary on screen at any moment. */}
+        {(() => {
+          const prefillIsPrimary = status === "ready_for_review";
+          const markIsPrimary = status === "awaiting_human_submit";
+          return (
+            <section className="fixed inset-x-0 bottom-0 z-20 border-t border-rule bg-[rgba(11,11,12,0.92)] backdrop-blur-[8px]">
+              <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-2 px-4 py-3 sm:px-8">
+                <Btn
                   size="md"
-                  href={submissionUrl}
-                  target="_blank"
-                  rel="noreferrer"
+                  variant={prefillIsPrimary ? "primary" : "secondary"}
+                  onClick={() => postAction("prefill", "prefilling")}
+                  pending={act.isPending("cockpit:prefill")}
+                  flash={act.isFlashing("cockpit:prefill")}
+                  disabled={!canPrefill || act.anyPending("cockpit:")}
+                  title={
+                    canPrefill
+                      ? "Pre-fill the application form in a visible browser window"
+                      : `Pre-fill is only available from ready_for_review (current: ${status})`
+                  }
                 >
-                  Open Application Manually ↗
-                </SecondaryAnchor>
-              )}
-              <SecondaryButton
-                size="md"
-                onClick={() =>
-                  postAction("skip", { reason: "skipped from cockpit" })
-                }
-                disabled={actionBusy !== null}
-              >
-                Skip
-              </SecondaryButton>
-              <DestructiveButton
-                size="md"
-                className="ml-auto"
-                onClick={() =>
-                  postAction("mark-failed", {
-                    reason: "marked failed from cockpit",
-                  })
-                }
-                disabled={actionBusy !== null}
-              >
-                Mark Failed
-              </DestructiveButton>
-            </div>
-          </section>
-        );
-      })()}
+                  pre-fill form
+                </Btn>
+                <Btn
+                  size="md"
+                  variant={markIsPrimary ? "approve" : "secondary"}
+                  onClick={() => setShowMarkApplied(true)}
+                  disabled={status === "applied" || act.anyPending("cockpit:")}
+                >
+                  mark applied
+                </Btn>
+                {submissionUrl && (
+                  <BtnLink
+                    size="md"
+                    href={submissionUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    open manually ↗
+                  </BtnLink>
+                )}
+                <Btn
+                  size="md"
+                  variant="secondary"
+                  onClick={() => setShowSkipPick(true)}
+                  pending={act.isPending("cockpit:skip")}
+                  disabled={act.anyPending("cockpit:")}
+                >
+                  skip
+                </Btn>
+                <Btn
+                  size="md"
+                  variant="danger"
+                  className="ml-auto"
+                  onClick={() => setShowMarkFailed(true)}
+                  pending={act.isPending("cockpit:mark-failed")}
+                  disabled={act.anyPending("cockpit:")}
+                >
+                  mark failed
+                </Btn>
+              </div>
+            </section>
+          );
+        })()}
+
+        {showSkipPick && (
+          <ReasonPick
+            title={`Skip — ${job.title} @ ${job.company}`}
+            verb="skip"
+            onPick={(reason) => {
+              setShowSkipPick(false);
+              postAction(
+                "skip",
+                "skipped",
+                reason ? { reason } : { reason: "skipped from cockpit" },
+              );
+            }}
+            onCancel={() => setShowSkipPick(false)}
+          />
+        )}
+
+        {showMarkFailed && (
+          <MarkFailedModal
+            onConfirm={(reason) => {
+              setShowMarkFailed(false);
+              postAction("mark-failed", "failed", {
+                reason: reason ?? "marked failed from cockpit",
+              });
+            }}
+            onClose={() => setShowMarkFailed(false)}
+          />
+        )}
 
         {showMarkApplied && (
           <MarkAppliedModal
             jobId={job.id}
             onClose={() => setShowMarkApplied(false)}
-            onApplied={async () => {
+            onApplied={() => {
               setShowMarkApplied(false);
-              await refresh();
-              // M-6: after marking applied, navigate back to the queue so the
-              // user moves to the next job; they're done with this one.
+              toast.push("ok", `Marked applied — ${job.company}`);
+              // M-6: after marking applied, head back to the queue; the
+              // user is done with this row.
               router.push("/dashboard/review");
             }}
           />
