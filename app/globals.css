@@ -192,6 +192,8 @@ section.nb { border-bottom: 1px solid var(--rule); }
 }
 
 /* ===== TYPE ===== */
+/* Fluid scale: display sizes interpolate between the old mobile/desktop
+   breakpoint values; letter-spacing tightens as size grows. */
 h1, h2, h3 {
   font-family: var(--serif);
   font-weight: 400;
@@ -199,13 +201,16 @@ h1, h2, h3 {
   margin: 0;
 }
 h1 {
-  font-size: 52px;
+  font-size: clamp(32px, 2.6vw + 22px, 52px);
   line-height: 1.08;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.02em;
   text-wrap: pretty;
 }
-@media (max-width: 700px) { h1 { font-size: 32px; } }
-h2 { font-size: 30px; letter-spacing: -0.01em; }
+h2 {
+  font-size: clamp(24px, 1.4vw + 16px, 30px);
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+}
 
 .eyebrow {
   font-family: var(--mono);
@@ -220,6 +225,22 @@ h2 { font-size: 30px; letter-spacing: -0.01em; }
 .accent-g { color: var(--green); }
 .accent-a { color: var(--amber); }
 .dim { color: var(--ink-dim); }
+
+/* Tabular figures wherever digits line up vertically or tick in place:
+   nav clock, rail ledger/status, marginalia dates, experience dates,
+   trace axis labels, project numbers, status pills. */
+.nav-clock,
+.rail,
+.margin,
+.exp-entry .when,
+.exp-entry .tenure,
+.trace-card svg text,
+.trace-cap,
+.project .num,
+.pill,
+.cg-player-cap {
+  font-variant-numeric: tabular-nums;
+}
 
 /* ===== HERO ===== */
 .thesis-cols {
@@ -386,7 +407,11 @@ h2 { font-size: 30px; letter-spacing: -0.01em; }
   border-radius: 50%;
   animation: pulse 2.2s ease-in-out infinite;
 }
-.exp-entry h3 { font-size: 24px; margin: 0 0 4px; }
+.exp-entry h3 {
+  font-size: clamp(20px, 0.8vw + 14px, 24px);
+  margin: 0 0 4px;
+  text-wrap: balance;
+}
 .exp-entry h3 .org { font-style: italic; }
 .exp-entry h3 .sep { color: var(--ink-dim); }
 .exp-entry .tenure {
@@ -399,7 +424,7 @@ h2 { font-size: 30px; letter-spacing: -0.01em; }
 .exp-entry p {
   margin: 0 0 12px;
   font-size: 15.5px; line-height: 1.62;
-  max-width: 640px;
+  max-width: 66ch;
 }
 .exp-meta {
   display: flex; flex-wrap: wrap; gap: 24px;
@@ -415,7 +440,6 @@ h2 { font-size: 30px; letter-spacing: -0.01em; }
 .exp-meta .v { color: var(--ink); }
 @media (max-width: 700px) {
   .exp-entry { grid-template-columns: 1fr; gap: 6px; }
-  .exp-entry h3 { font-size: 20px; }
 }
 
 /* ===== BENCH (workshop register — amber) ===== */
@@ -423,7 +447,7 @@ h2 { font-size: 30px; letter-spacing: -0.01em; }
   margin: 0 0 20px;
   color: var(--ink-dim);
   font-size: 14.5px;
-  max-width: 640px;
+  max-width: 66ch;
 }
 .project {
   border: 1px solid var(--rule);
@@ -506,7 +530,7 @@ h2 { font-size: 30px; letter-spacing: -0.01em; }
 .project-body p {
   font-size: 15px; line-height: 1.62;
   margin: 0 0 12px;
-  max-width: 640px;
+  max-width: 66ch;
 }
 .project-meta {
   display: grid;
@@ -771,12 +795,12 @@ a:focus-visible, button:focus-visible {
 
 .cg-title {
   font-family: var(--serif);
-  font-size: 64px;
+  font-size: clamp(38px, 4.5vw + 22px, 64px);
   line-height: 1.04;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.022em;
+  text-wrap: balance;
   margin: 0 0 14px;
 }
-@media (max-width: 700px) { .cg-title { font-size: 38px; } }
 
 .cg-pitch {
   font-family: var(--serif);
@@ -784,7 +808,7 @@ a:focus-visible, button:focus-visible {
   line-height: 1.55;
   color: var(--ink-dim);
   font-style: italic;
-  max-width: 640px;
+  max-width: 66ch;
   margin: 0 0 32px;
 }
 
@@ -809,7 +833,7 @@ a:focus-visible, button:focus-visible {
   color: var(--ink-dim);
   font-size: 15px;
   line-height: 1.62;
-  max-width: 640px;
+  max-width: 66ch;
 }
 
 .cg-player {
@@ -879,7 +903,7 @@ a:focus-visible, button:focus-visible {
   font-size: 17px;
   line-height: 1.62;
   margin: 0 0 14px;
-  max-width: 640px;
+  max-width: 66ch;
 }
 
 .cg-footer {
