@@ -18,7 +18,7 @@
   /* Ink */
   --ink: #E8E6DF;
   --ink-dim: #8C8B83;
-  --ink-faint: #5C594E;
+  --ink-faint: #7E7A6D; /* lightest ink that still clears 4.5:1 on --bg */
 
   /* Rules */
   --rule: rgba(232, 230, 223, 0.12);
@@ -118,6 +118,8 @@ a { color: inherit; text-decoration: none; }
 }
 
 @media (max-width: 900px) {
+  /* Nav wraps to two rows here (~106px); keep anchors clear of it. */
+  html { scroll-padding-top: 112px; }
   .nav-inner { padding: 10px 16px; flex-wrap: wrap; gap: 8px; }
   .nav-links {
     gap: 14px; font-size: 10px; flex-wrap: wrap;
@@ -128,6 +130,7 @@ a { color: inherit; text-decoration: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .nav-brand .pulse-dot,
+  .loading-screen .pulse-dot,
   .pulse,
   .now::before,
   .pill.live::before,
@@ -192,6 +195,8 @@ section.nb { border-bottom: 1px solid var(--rule); }
 }
 
 /* ===== TYPE ===== */
+/* Fluid scale: display sizes interpolate between the old mobile/desktop
+   breakpoint values; letter-spacing tightens as size grows. */
 h1, h2, h3 {
   font-family: var(--serif);
   font-weight: 400;
@@ -199,13 +204,16 @@ h1, h2, h3 {
   margin: 0;
 }
 h1 {
-  font-size: 52px;
+  font-size: clamp(32px, 2.6vw + 22px, 52px);
   line-height: 1.08;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.02em;
   text-wrap: pretty;
 }
-@media (max-width: 700px) { h1 { font-size: 32px; } }
-h2 { font-size: 30px; letter-spacing: -0.01em; }
+h2 {
+  font-size: clamp(24px, 1.4vw + 16px, 30px);
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+}
 
 .eyebrow {
   font-family: var(--mono);
@@ -220,6 +228,22 @@ h2 { font-size: 30px; letter-spacing: -0.01em; }
 .accent-g { color: var(--green); }
 .accent-a { color: var(--amber); }
 .dim { color: var(--ink-dim); }
+
+/* Tabular figures wherever digits line up vertically or tick in place:
+   nav clock, rail ledger/status, marginalia dates, experience dates,
+   trace axis labels, project numbers, status pills. */
+.nav-clock,
+.rail,
+.margin,
+.exp-entry .when,
+.exp-entry .tenure,
+.trace-card svg text,
+.trace-cap,
+.project .num,
+.pill,
+.cg-player-cap {
+  font-variant-numeric: tabular-nums;
+}
 
 /* ===== HERO ===== */
 .thesis-cols {
@@ -386,7 +410,11 @@ h2 { font-size: 30px; letter-spacing: -0.01em; }
   border-radius: 50%;
   animation: pulse 2.2s ease-in-out infinite;
 }
-.exp-entry h3 { font-size: 24px; margin: 0 0 4px; }
+.exp-entry h3 {
+  font-size: clamp(20px, 0.8vw + 14px, 24px);
+  margin: 0 0 4px;
+  text-wrap: balance;
+}
 .exp-entry h3 .org { font-style: italic; }
 .exp-entry h3 .sep { color: var(--ink-dim); }
 .exp-entry .tenure {
@@ -399,7 +427,7 @@ h2 { font-size: 30px; letter-spacing: -0.01em; }
 .exp-entry p {
   margin: 0 0 12px;
   font-size: 15.5px; line-height: 1.62;
-  max-width: 640px;
+  max-width: 66ch;
 }
 .exp-meta {
   display: flex; flex-wrap: wrap; gap: 24px;
@@ -415,7 +443,6 @@ h2 { font-size: 30px; letter-spacing: -0.01em; }
 .exp-meta .v { color: var(--ink); }
 @media (max-width: 700px) {
   .exp-entry { grid-template-columns: 1fr; gap: 6px; }
-  .exp-entry h3 { font-size: 20px; }
 }
 
 /* ===== BENCH (workshop register — amber) ===== */
@@ -423,7 +450,7 @@ h2 { font-size: 30px; letter-spacing: -0.01em; }
   margin: 0 0 20px;
   color: var(--ink-dim);
   font-size: 14.5px;
-  max-width: 640px;
+  max-width: 66ch;
 }
 .project {
   border: 1px solid var(--rule);
@@ -506,7 +533,7 @@ h2 { font-size: 30px; letter-spacing: -0.01em; }
 .project-body p {
   font-size: 15px; line-height: 1.62;
   margin: 0 0 12px;
-  max-width: 640px;
+  max-width: 66ch;
 }
 .project-meta {
   display: grid;
@@ -625,7 +652,7 @@ h2 { font-size: 30px; letter-spacing: -0.01em; }
 }
 .now-playing .body { color: var(--ink); }
 .now-playing .meta {
-  color: var(--ink-faint);
+  color: var(--ink-dim); /* faint misses 4.5:1 on the amber-tinted card */
   margin-top: 8px; font-size: 10px;
   letter-spacing: 0.1em;
 }
@@ -663,8 +690,12 @@ h2 { font-size: 30px; letter-spacing: -0.01em; }
   border: 1px solid var(--rule);
   padding: 6px 10px;
   pointer-events: none;
-  opacity: 0.7;
   z-index: 40;
+  transition: opacity 0.2s ease;
+}
+.kbd-hint.is-hidden { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .kbd-hint { transition: none; }
 }
 .kbd-hint kbd {
   font: inherit;
@@ -701,24 +732,91 @@ footer {
 .footer-appendix .sep { color: var(--ink-faint); }
 @media (max-width: 700px) { footer { padding: 22px 20px; flex-direction: column; gap: 6px; } }
 
-/* ===== SECTION ENTRANCE FADE ===== */
-section.nb {
-  opacity: 0; transform: translateY(8px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+/* ===== SECTION ENTRANCE REVEAL =====
+   Staggered: the section frame (hairlines) renders immediately; marginalia
+   leads, then content children follow at 70ms steps. Triggered by
+   IntersectionObserver in components/Section.tsx adding `.visible`. */
+section.nb .margin,
+section.nb .row > div > * {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
 }
-section.nb.visible { opacity: 1; transform: none; }
+section.nb.visible .margin,
+section.nb.visible .row > div > * {
+  opacity: 1;
+  transform: none;
+}
+section.nb.visible .row > div > *:nth-child(2) { transition-delay: 70ms; }
+section.nb.visible .row > div > *:nth-child(3) { transition-delay: 140ms; }
+section.nb.visible .row > div > *:nth-child(4) { transition-delay: 210ms; }
+section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
 
 @media (prefers-reduced-motion: reduce) {
-  section.nb { opacity: 1; transform: none; transition: none; }
+  section.nb .margin,
+  section.nb .row > div > * {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
   html { scroll-behavior: auto; }
 }
 
 /* ===== FOCUS RINGS ===== */
-a:focus-visible, button:focus-visible {
-  outline: 2px solid var(--green);
+/* Ink-colored, site-wide — neutral against both accent families. */
+:focus-visible {
+  outline: 2px solid var(--ink);
   outline-offset: 2px;
 }
-.project-head:focus-visible { outline-color: var(--amber); }
+
+/* ===== NOT FOUND ===== */
+.nf {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+.nf-inner { max-width: 560px; }
+.nf-title { margin: 0 0 14px; }
+.nf-body {
+  margin: 0;
+  color: var(--ink-dim);
+  font-size: 16px;
+  max-width: 52ch;
+}
+.nf-link {
+  color: var(--green);
+  border-bottom: 1px solid var(--green-dim);
+  transition: border-color 0.2s;
+}
+.nf-link:hover { border-bottom-color: var(--green); }
+.nf-meta {
+  margin-top: 28px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--ink-faint);
+}
+
+/* ===== LOADING ===== */
+.loading-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--ink-dim);
+}
+.loading-screen .pulse-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: pulse 1.6s ease-in-out infinite;
+}
 
 /* ===== CELLULAR GAITS PROJECT PAGE ===== */
 .cg-topbar {
@@ -771,12 +869,12 @@ a:focus-visible, button:focus-visible {
 
 .cg-title {
   font-family: var(--serif);
-  font-size: 64px;
+  font-size: clamp(38px, 4.5vw + 22px, 64px);
   line-height: 1.04;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.022em;
+  text-wrap: balance;
   margin: 0 0 14px;
 }
-@media (max-width: 700px) { .cg-title { font-size: 38px; } }
 
 .cg-pitch {
   font-family: var(--serif);
@@ -784,7 +882,7 @@ a:focus-visible, button:focus-visible {
   line-height: 1.55;
   color: var(--ink-dim);
   font-style: italic;
-  max-width: 640px;
+  max-width: 66ch;
   margin: 0 0 32px;
 }
 
@@ -809,7 +907,7 @@ a:focus-visible, button:focus-visible {
   color: var(--ink-dim);
   font-size: 15px;
   line-height: 1.62;
-  max-width: 640px;
+  max-width: 66ch;
 }
 
 .cg-player {
@@ -879,7 +977,7 @@ a:focus-visible, button:focus-visible {
   font-size: 17px;
   line-height: 1.62;
   margin: 0 0 14px;
-  max-width: 640px;
+  max-width: 66ch;
 }
 
 .cg-footer {

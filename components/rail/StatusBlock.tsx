@@ -1,8 +1,13 @@
 /**
  * // status — left-column rail block.
- * Six rows, label (dim) / value (ink) — green for live, amber for shipped.
+ * Label (dim) / value (ink) rows — green for live, amber for shipped.
+ * The pipeline row appears only when jobpipe telemetry is available.
  */
-export function StatusBlock() {
+export function StatusBlock({
+  applicationsOut,
+}: {
+  applicationsOut?: number;
+}) {
   return (
     <div className="rail-block">
       <h3>
@@ -12,6 +17,13 @@ export function StatusBlock() {
       <Row label="bench live" value="2 / 4" valueClass="live" />
       <Row label="shipped" value="1 / 4" valueClass="amber" />
       <Row label="WIP" value="1 / 4" />
+      {typeof applicationsOut === "number" && (
+        <Row
+          label="pipeline"
+          value={`${applicationsOut} out`}
+          valueClass="live"
+        />
+      )}
       <Row label="tz" value="EDT (UTC-4)" />
       <Row label="base" value="Atlanta, GA" />
     </div>

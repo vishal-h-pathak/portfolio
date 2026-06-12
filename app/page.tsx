@@ -9,6 +9,10 @@ import { Nav } from "@/components/Nav";
 import { Notebook } from "@/components/Notebook";
 import { WorkshopRail } from "@/components/WorkshopRail";
 
+// ISR: the workshop rail server-renders live jobpipe telemetry; 5 min
+// staleness is acceptable there (matches /api/bench/activity).
+export const revalidate = 300;
+
 export default function Home() {
   return (
     <>

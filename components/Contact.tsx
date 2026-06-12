@@ -20,7 +20,7 @@ export function Contact() {
       <a className="contact-mail" href="mailto:vishalp@thak.io">
         vishalp@thak.io
       </a>
-      <p style={{ margin: "18px 0 0", maxWidth: "600px", fontSize: "15px" }}>
+      <p style={{ margin: "18px 0 0", maxWidth: "66ch", fontSize: "15px" }}>
         Atlanta-based, remote-friendly. Open to neuromorphic / connectomics /
         mission-driven ML, or sales engineering at an AI company doing
         something I&rsquo;d actually use.
@@ -41,9 +41,6 @@ export function Contact() {
           aria-label="LinkedIn"
         >
           linkedin
-        </a>
-        <a href="#" aria-label="Google Scholar">
-          scholar
         </a>
       </div>
     </Section>
