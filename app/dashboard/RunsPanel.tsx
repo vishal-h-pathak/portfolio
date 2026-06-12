@@ -70,6 +70,15 @@ type Run = {
 const POLL_INTERVAL_MS = 5000;
 const LIST_LIMIT = 10;
 
+// kind → dispatch endpoint. Not string-interpolated from kind because
+// 'tailor_manual' (DB enum, underscore) maps to /runs/tailor-manual
+// (route segment, hyphen).
+const RUN_ENDPOINT: Record<RunKind, string> = {
+  hunt: "/api/dashboard/runs/hunt",
+  tailor: "/api/dashboard/runs/tailor",
+  tailor_manual: "/api/dashboard/runs/tailor-manual",
+};
+
 /**
  * Dismissed-run ids are stored device-locally in localStorage so a
  * stale completed/failed row stays out of the user's sight on this
@@ -227,14 +236,17 @@ export default function RunsPanel() {
     return () => window.clearInterval(t);
   }, [hasActive]);
 
-  const dispatchRun = async (kind: RunKind) => {
+  const dispatchRun = async (
+    kind: RunKind,
+    args?: Record<string, unknown> | null,
+  ) => {
     const tempId = `optimistic-${kind}-${Date.now()}`;
     const optimistic: Run = {
       id: tempId,
       kind,
       status: "pending",
       triggered_by: "dashboard",
-      args: null,
+      args: args ?? null,
       started_at: null,
       ended_at: null,
       log_excerpt: null,
@@ -247,10 +259,10 @@ export default function RunsPanel() {
     setError(null);
 
     try {
-      const res = await fetch(`/api/dashboard/runs/${kind}`, {
+      const res = await fetch(RUN_ENDPOINT[kind], {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
+        body: JSON.stringify(args ?? {}),
       });
       const json = (await res.json().catch(() => ({}))) as {
         ok?: boolean;
@@ -296,6 +308,18 @@ export default function RunsPanel() {
       );
       setError(msg);
     }
+  };
+
+  // Re-dispatch a failed run with its original args ({job_id} for
+  // per-row tailor, {url} for tailor_manual, null for hunt/bulk).
+  // Optimistic failed rows (dispatch never reached the server) are
+  // removed from local state; server rows stay as history and can be
+  // dismissed by hand.
+  const retryRun = (r: Run) => {
+    if (isOptimisticId(r.id)) {
+      setRuns((prev) => prev.filter((x) => x.id !== r.id));
+    }
+    void dispatchRun(r.kind, r.args);
   };
 
   const dismissRow = (id: string) => {
@@ -413,6 +437,14 @@ export default function RunsPanel() {
                     )}
                   </div>
                   <div className="flex items-center gap-2 text-xs text-neutral-500 shrink-0">
+                    {r.status === "failed" && (
+                      <GhostButton
+                        onClick={() => retryRun(r)}
+                        aria-label={`Retry failed ${r.kind} run`}
+                      >
+                        Retry
+                      </GhostButton>
+                    )}
                     <span className="font-mono">{timeLabel}</span>
                     {r.github_run_url ? (
                       <a

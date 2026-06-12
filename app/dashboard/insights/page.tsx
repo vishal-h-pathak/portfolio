@@ -41,7 +41,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { supabase, type Job } from "../../lib/supabase";
+import type { Job } from "../../lib/supabase";
 
 // ── Color palette — kept here so all charts share a single identity ──
 // One color per source. New sources fall back to neutral grey.
@@ -438,14 +438,19 @@ function PatternAnalysisSection({ mounted }: { mounted: boolean }) {
 
   useEffect(() => {
     (async () => {
-      const { data, error } = await supabase
-        .from("pattern_analyses")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (error) setError(error.message);
-      else setRow((data as PatternAnalysisRow) ?? null);
+      try {
+        const res = await fetch("/api/dashboard/pattern-analyses", {
+          cache: "no-store",
+        });
+        const json = (await res.json().catch(() => ({}))) as {
+          analysis?: PatternAnalysisRow | null;
+          error?: string;
+        };
+        if (!res.ok) setError(json.error ?? `Failed to load (${res.status})`);
+        else setRow(json.analysis ?? null);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e));
+      }
       setLoading(false);
     })();
   }, []);
@@ -573,15 +578,24 @@ export default function InsightsPage() {
     if (inFlight.current) return inFlight.current;
     setRefreshing(true);
     const p = (async () => {
-      const { data, error: fetchError } = await supabase
-        .from("jobs")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (fetchError) setError(fetchError.message);
-      else {
-        setJobs((data ?? []) as Job[]);
-        setError(null);
-        setLastUpdated(new Date());
+      try {
+        // Insights aggregates over a handful of scalar columns; the
+        // server route's `insights` view selects only those.
+        const res = await fetch("/api/dashboard/jobs?view=insights", {
+          cache: "no-store",
+        });
+        const json = (await res.json().catch(() => ({}))) as {
+          jobs?: Job[];
+          error?: string;
+        };
+        if (!res.ok) setError(json.error ?? `Failed to load jobs (${res.status})`);
+        else {
+          setJobs(json.jobs ?? []);
+          setError(null);
+          setLastUpdated(new Date());
+        }
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e));
       }
       setLoading(false);
       setRefreshing(false);

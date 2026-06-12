@@ -18,7 +18,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
-import { supabase } from "../../lib/supabase";
 
 const ACTION_REFRESH_MS = 30_000;
 
@@ -67,17 +66,17 @@ export default function DashboardNav({
     let timer: ReturnType<typeof setInterval> | null = null;
 
     const refresh = async () => {
-      const { count, error } = await supabase
-        .from("jobs")
-        .select("id", { count: "exact", head: true })
-        .in("status", ["ready_for_review", "needs_review"]);
-      if (cancelled) return;
-      if (error) {
+      try {
+        const res = await fetch("/api/dashboard/jobs/action-count", {
+          cache: "no-store",
+        });
+        if (cancelled || !res.ok) return;
+        const json = (await res.json()) as { count?: number };
+        setActionCount(json.count ?? 0);
+      } catch {
         // Failures here are non-fatal — the nav still renders without
         // the badge, and the next poll will retry.
-        return;
       }
-      setActionCount(count ?? 0);
     };
 
     const start = () => {

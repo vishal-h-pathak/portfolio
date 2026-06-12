@@ -17,14 +17,14 @@
  * dismiss actions are deliberately kept on the detail page — a one-line
  * row doesn't show enough context to make that call.
  *
- * Wired to the same Supabase client + dashboard_auth cookie that
- * protects the rest of /dashboard/*. No new API calls on this page;
- * the detail page does the transitions.
+ * Reads via /api/dashboard/jobs?view=review-queue behind the same
+ * dashboard_auth cookie that protects the rest of /dashboard/*. The
+ * detail page does the transitions.
  */
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { supabase, type Job } from "../../lib/supabase";
+import type { Job } from "../../lib/supabase";
 import DashboardNav from "../components/DashboardNav";
 
 function relativeTime(iso: string | null): string | null {
@@ -80,13 +80,19 @@ export default function ReviewQueuePage() {
       // OR when the submitter legitimately couldn't finish (legacy
       // `needs_review`). Either way the human review owner is now on
       // the hook, so we want most-recently-updated first.
-      const { data, error } = await supabase
-        .from("jobs")
-        .select("*")
-        .in("status", ["ready_for_review", "needs_review"])
-        .order("status_updated_at", { ascending: false });
-      if (error) setError(error.message);
-      else setJobs((data ?? []) as Job[]);
+      try {
+        const res = await fetch("/api/dashboard/jobs?view=review-queue", {
+          cache: "no-store",
+        });
+        const json = (await res.json().catch(() => ({}))) as {
+          jobs?: Job[];
+          error?: string;
+        };
+        if (!res.ok) setError(json.error ?? `Failed to load queue (${res.status})`);
+        else setJobs(json.jobs ?? []);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e));
+      }
       setLoading(false);
     })();
   }, []);

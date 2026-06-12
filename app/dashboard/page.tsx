@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { supabase, type Job, type JobStatus } from "../lib/supabase";
+import type { Job, JobStatus } from "../lib/supabase";
 import { AdapterBadge } from "./components/AdapterBadge";
 import {
   DestructiveButton,
@@ -155,12 +155,22 @@ export default function DashboardPage() {
 
   useEffect(() => {
     (async () => {
-      const { data, error } = await supabase
-        .from("jobs")
-        .select("*")
-        .order("score", { ascending: false });
-      if (error) setError(error.message);
-      else setJobs((data ?? []) as Job[]);
+      // Server route (service-role, middleware-gated) with the narrow
+      // list-view column set — jobs rows carry large jsonb the list
+      // never renders. See app/api/dashboard/jobs/route.ts.
+      try {
+        const res = await fetch("/api/dashboard/jobs?view=list", {
+          cache: "no-store",
+        });
+        const json = (await res.json().catch(() => ({}))) as {
+          jobs?: Job[];
+          error?: string;
+        };
+        if (!res.ok) setError(json.error ?? `Failed to load jobs (${res.status})`);
+        else setJobs(json.jobs ?? []);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e));
+      }
       setLoading(false);
     })();
   }, []);
@@ -172,8 +182,19 @@ export default function DashboardPage() {
 
   async function updateStatus(job: Job, status: JobStatus) {
     setJobs((prev) => prev.map((j) => (j.id === job.id ? { ...j, status } : j)));
-    const { error } = await supabase.from("jobs").update({ status }).eq("id", job.id);
-    if (error) setError(error.message);
+    try {
+      const res = await fetch(`/api/dashboard/jobs/${job.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) {
+        const json = (await res.json().catch(() => ({}))) as { error?: string };
+        setError(json.error ?? `Failed to update status (${res.status})`);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
   }
 
   if (loading || view === null) {

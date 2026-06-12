@@ -24,12 +24,11 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import {
-  supabase,
-  type FormAnswers,
-  type FormAnswerQuestion,
-  type Job,
-  type JobStatus,
+import type {
+  FormAnswers,
+  FormAnswerQuestion,
+  Job,
+  JobStatus,
 } from "../../../lib/supabase";
 import {
   DestructiveButton,
@@ -289,13 +288,21 @@ function PrefillScreenshot({ storagePath }: { storagePath: string }) {
   const [err, setErr] = useState<string | null>(null);
   useEffect(() => {
     (async () => {
-      const { data, error } = await supabase.storage
-        .from("job-materials")
-        .createSignedUrl(storagePath, 60 * 10);
-      if (error || !data?.signedUrl) {
-        setErr(error?.message ?? "failed to sign");
-      } else {
-        setSignedUrl(data.signedUrl);
+      try {
+        const res = await fetch(
+          `/api/dashboard/storage/sign?path=${encodeURIComponent(storagePath)}`,
+        );
+        const json = (await res.json().catch(() => ({}))) as {
+          url?: string;
+          error?: string;
+        };
+        if (!res.ok || !json.url) {
+          setErr(json.error ?? "failed to sign");
+        } else {
+          setSignedUrl(json.url);
+        }
+      } catch (e) {
+        setErr(e instanceof Error ? e.message : String(e));
       }
     })();
   }, [storagePath]);
@@ -445,16 +452,23 @@ export default function ReviewDetailPage() {
   async function refresh() {
     if (!jobId) return;
     setLoading(true);
-    const { data, error } = await supabase
-      .from("jobs")
-      .select("*")
-      .eq("id", jobId)
-      .maybeSingle();
-    if (error) setError(error.message);
-    else if (!data) setError("Job not found");
-    else {
-      setJob(data as Job);
-      setError(null);
+    try {
+      const res = await fetch(`/api/dashboard/jobs/${jobId}`, {
+        cache: "no-store",
+      });
+      const json = (await res.json().catch(() => ({}))) as {
+        job?: Job;
+        error?: string;
+      };
+      if (res.status === 404) setError("Job not found");
+      else if (!res.ok) setError(json.error ?? `Failed to load (${res.status})`);
+      else if (!json.job) setError("Job not found");
+      else {
+        setJob(json.job);
+        setError(null);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
     }
     setLoading(false);
   }

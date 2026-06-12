@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { supabase, type Job } from "../lib/supabase";
+import type { Job } from "../lib/supabase";
 
 type Message = { role: "user" | "assistant"; content: string };
 
@@ -178,10 +178,11 @@ export default function MatchAgent({ job, onClose }: { job: Job; onClose: () => 
         !(m.role === "user" && m.content.startsWith("(begin interview")),
     );
     try {
-      await supabase
-        .from("jobs")
-        .update({ match_chat: cleaned })
-        .eq("id", job.id);
+      await fetch(`/api/dashboard/jobs/${job.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ match_chat: cleaned }),
+      });
     } catch (err) {
       // Failure here is non-fatal — the conversation still works in
       // memory; only the next-run tailor loses access to it.

@@ -10,7 +10,6 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "../../lib/supabase";
 
 type StarStory = {
   id: number;
@@ -181,13 +180,19 @@ export default function StoriesPage() {
 
   useEffect(() => {
     (async () => {
-      const { data, error } = await supabase
-        .from("star_stories")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(500);
-      if (error) setError(error.message);
-      else setStories((data as StarStory[]) ?? []);
+      try {
+        const res = await fetch("/api/dashboard/stories", {
+          cache: "no-store",
+        });
+        const json = (await res.json().catch(() => ({}))) as {
+          stories?: StarStory[];
+          error?: string;
+        };
+        if (!res.ok) setError(json.error ?? `Failed to load stories (${res.status})`);
+        else setStories(json.stories ?? []);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e));
+      }
       setLoading(false);
     })();
   }, []);
@@ -225,16 +230,22 @@ export default function StoriesPage() {
     setStories((prev) =>
       prev.map((s) => (s.id === id ? { ...s, is_master: next } : s))
     );
-    const { error } = await supabase
-      .from("star_stories")
-      .update({ is_master: next })
-      .eq("id", id);
-    if (error) {
+    try {
+      const res = await fetch(`/api/dashboard/stories/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_master: next }),
+      });
+      if (!res.ok) {
+        const json = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(json.error ?? `Failed to update (${res.status})`);
+      }
+    } catch (e) {
       // Roll back the optimistic update if the write failed.
       setStories((prev) =>
         prev.map((s) => (s.id === id ? { ...s, is_master: !next } : s))
       );
-      setError(error.message);
+      setError(e instanceof Error ? e.message : String(e));
     }
   }
 
