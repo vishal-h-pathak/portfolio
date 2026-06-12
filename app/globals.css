@@ -128,6 +128,7 @@ a { color: inherit; text-decoration: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .nav-brand .pulse-dot,
+  .loading-screen .pulse-dot,
   .pulse,
   .now::before,
   .pill.live::before,
@@ -756,11 +757,60 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
 }
 
 /* ===== FOCUS RINGS ===== */
-a:focus-visible, button:focus-visible {
-  outline: 2px solid var(--green);
+/* Ink-colored, site-wide — neutral against both accent families. */
+:focus-visible {
+  outline: 2px solid var(--ink);
   outline-offset: 2px;
 }
-.project-head:focus-visible { outline-color: var(--amber); }
+
+/* ===== NOT FOUND ===== */
+.nf {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+.nf-inner { max-width: 560px; }
+.nf-title { margin: 0 0 14px; }
+.nf-body {
+  margin: 0;
+  color: var(--ink-dim);
+  font-size: 16px;
+  max-width: 52ch;
+}
+.nf-link {
+  color: var(--green);
+  border-bottom: 1px solid var(--green-dim);
+  transition: border-color 0.2s;
+}
+.nf-link:hover { border-bottom-color: var(--green); }
+.nf-meta {
+  margin-top: 28px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--ink-faint);
+}
+
+/* ===== LOADING ===== */
+.loading-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--ink-dim);
+}
+.loading-screen .pulse-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: pulse 1.6s ease-in-out infinite;
+}
 
 /* ===== CELLULAR GAITS PROJECT PAGE ===== */
 .cg-topbar {
