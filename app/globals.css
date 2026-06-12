@@ -691,6 +691,11 @@ h2 {
   padding: 6px 10px;
   pointer-events: none;
   z-index: 40;
+  transition: opacity 0.2s ease;
+}
+.kbd-hint.is-hidden { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .kbd-hint { transition: none; }
 }
 .kbd-hint kbd {
   font: inherit;
