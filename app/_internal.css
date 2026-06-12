@@ -59,11 +59,26 @@
   -webkit-font-smoothing: antialiased;
 }
 
-.internal-surface h1,
-.internal-surface h2,
-.internal-surface h3,
-.internal-surface h4 {
-  font-weight: 400;
+/*
+  globals.css (marketing) styles bare h1–h3 and anchors WITHOUT a
+  cascade layer; unlayered author styles outrank every layered Tailwind
+  utility, so dashboard classes like text-[10px] or hover:text-ink were
+  silently losing. revert-layer rolls those marketing declarations back
+  inside the register only, letting utilities (and Tailwind's preflight
+  defaults beneath them) take over.
+*/
+.internal-surface :is(h1, h2, h3, h4) {
+  font-family: revert-layer;
+  font-size: revert-layer;
+  font-weight: revert-layer;
+  letter-spacing: revert-layer;
+  line-height: revert-layer;
+  margin: revert-layer;
+  text-wrap: revert-layer;
+}
+.internal-surface a {
+  color: revert-layer;
+  text-decoration: revert-layer;
 }
 
 /* Single focus language for the whole register. */
