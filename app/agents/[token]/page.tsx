@@ -128,7 +128,7 @@ const AGENTS: AgentConfig[] = [
       {
         name: "Submit confirmed jobs",
         interval: "On demand (python main.py)",
-        note: "Submits applications for jobs with status='submit_confirmed'",
+        note: "Historical: submitted applications the human had confirmed in the dashboard. Decommissioned with the legacy repos — the jobpipe submit flow (pre-fill + human submit) replaced it, and the status it polled was retired by migration 011.",
       },
     ],
     dependencies: [

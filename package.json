@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/check-status-types.mjs",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "gen:status": "node scripts/gen-status-types.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",

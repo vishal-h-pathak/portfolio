@@ -22,16 +22,11 @@ export function statusTone(status: JobStatus | null | undefined): Tone {
     case "approved":
     case "preparing":
     case "prefilling":
-    case "submitting": // legacy in-flight
     case "applied":
-    case "submitted": // legacy terminal-positive
       return "live";
 
     case "ready_for_review":
     case "awaiting_human_submit":
-    case "ready_to_submit": // legacy alias
-    case "submit_confirmed": // legacy alias
-    case "needs_review": // legacy alias
       return "attention";
 
     case "failed":
@@ -45,7 +40,7 @@ export function statusTone(status: JobStatus | null | undefined): Tone {
 /** Statuses where the system is actively working — badges pulse. */
 export function isInFlight(status: JobStatus | null | undefined): boolean {
   const s = status ?? "new";
-  return s === "preparing" || s === "prefilling" || s === "submitting";
+  return s === "preparing" || s === "prefilling";
 }
 
 /** Terminal muted states — dashed border, row fades. */
@@ -61,8 +56,7 @@ export function isActionNeeded(status: JobStatus | null | undefined): boolean {
   return (
     s === "ready_for_review" ||
     s === "awaiting_human_submit" ||
-    s === "failed" ||
-    s === "needs_review" // legacy alias still in flight on stragglers
+    s === "failed"
   );
 }
 
@@ -79,12 +73,6 @@ export const STATUS_LABEL: Record<string, string> = {
   skipped: "skipped",
   expired: "expired",
   ignored: "ignored",
-  // Legacy aliases (read-only post-migration 007)
-  ready_to_submit: "ready (legacy)",
-  submit_confirmed: "confirmed (legacy)",
-  submitting: "submitting (legacy)",
-  needs_review: "needs review (legacy)",
-  submitted: "submitted (legacy)",
 };
 
 /** CSS variable for tone-keyed inline accents (card stripes, chart bars).

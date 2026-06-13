@@ -8,30 +8,16 @@
  * Don't reintroduce a client-side Supabase client here.
  */
 
-export type JobStatus =
-  // M-2 canonical lifecycle (career-ops alignment).
-  | "discovered"
-  | "new"
-  | "approved"
-  | "preparing"
-  | "ready_for_review"
-  | "prefilling"
-  | "awaiting_human_submit"
-  | "applied"
-  | "failed"
-  | "skipped"
-  | "expired"
-  | "ignored"
-  // Legacy union members kept for back-compat with older dashboard
-  // code that hasn't been updated to the new lifecycle yet. Migration
-  // 007 collapsed every existing row in these states to ready_for_review,
-  // and the CHECK constraint will reject any new write to them — so
-  // these are read-only at this point.
-  | "ready_to_submit"
-  | "submit_confirmed"
-  | "submitting"
-  | "needs_review"
-  | "submitted";
+// JobStatus is GENERATED from the jobpipe canonical enum (Session E) —
+// see app/lib/job-status.generated.ts and scripts/gen-status-types.mjs.
+// Re-exported here so existing importers keep working. Legacy aliases
+// (ready_to_submit / submit_confirmed / submitting / needs_review /
+// submitted) were retired by jobpipe migration 011; the CHECK constraint
+// is canonical-only and no rows carry them anymore.
+import type { JobStatus } from "./job-status.generated";
+
+export { JOB_STATUSES } from "./job-status.generated";
+export type { JobStatus } from "./job-status.generated";
 
 
 /**
@@ -155,7 +141,7 @@ export type Job = {
   failure_reason: string | null;
   description: string | null;
   notified: boolean | null;
-  // Populated by job-submitter when an attempt lands in needs_review. Null
+  // Populated by the submitter when an attempt needs human review. Null
   // until the submitter runs or after the reviewer approves/dismisses and
   // the packet is cleared. See SubmissionPacket above for the full shape.
   submission_log: SubmissionPacket | null;

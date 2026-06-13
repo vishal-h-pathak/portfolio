@@ -31,7 +31,6 @@ import {
 import { loadPref, savePref } from "./lib/prefs";
 import { useOptimisticAction } from "./lib/useOptimisticAction";
 import MatchAgent from "./MatchAgent";
-import ReviewPanel from "./ReviewPanel";
 
 type ViewMode = "swipe" | "browse";
 
@@ -60,7 +59,6 @@ export default function DashboardPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [degreeGateSupported, setDegreeGateSupported] = useState(false);
   const [matchJob, setMatchJob] = useState<Job | null>(null);
-  const [reviewJob, setReviewJob] = useState<Job | null>(null);
   const [view, setView] = useState<ViewMode | null>(null);
   const [search, setSearch] = useState<string>(
     () => loadPref(SEARCH_STORAGE_KEY, { q: "" }).q,
@@ -184,9 +182,12 @@ export default function DashboardPage() {
     [act],
   );
 
+  // Session E: the legacy ReviewPanel modal (only reachable on
+  // `ready_to_submit` rows, whose "Confirm Submit" wrote the retired
+  // `submit_confirmed` status) was deleted — the review flow lives at
+  // /dashboard/review/[job_id]. Every card opens the Match Agent panel.
   const openPanel = useCallback((job: Job) => {
-    if ((job.status ?? "new") === "ready_to_submit") setReviewJob(job);
-    else setMatchJob(job);
+    setMatchJob(job);
   }, []);
 
   const actions: JobActions = useMemo(
@@ -225,15 +226,6 @@ export default function DashboardPage() {
         />
       )}
       {matchJob && <MatchAgent job={matchJob} onClose={() => setMatchJob(null)} />}
-      {reviewJob && (
-        <ReviewPanel
-          job={reviewJob}
-          onClose={() => setReviewJob(null)}
-          onUpdateStatus={(job, status) =>
-            void setStatus(job, status, { errorLabel: "Update" })
-          }
-        />
-      )}
     </>
   );
 }

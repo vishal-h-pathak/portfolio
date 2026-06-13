@@ -9,9 +9,9 @@
  * surface). The Review queue badge counts rows needing a human.
  *
  * Self-fetches its own action-needed count (rows where status is
- * `ready_for_review` or the legacy alias `needs_review`) so callers
- * don't have to thread it through props. Polls every 30s while the
- * tab is visible to keep the badge fresh.
+ * `ready_for_review`) so callers don't have to thread it through
+ * props. Polls every 30s while the tab is visible to keep the badge
+ * fresh.
  */
 
 import Link from "next/link";

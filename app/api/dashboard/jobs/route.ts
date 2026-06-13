@@ -137,7 +137,7 @@ export async function GET(req: NextRequest) {
       query = admin
         .from("jobs")
         .select("*")
-        .in("status", ["ready_for_review", "needs_review"])
+        .eq("status", "ready_for_review")
         .order("status_updated_at", { ascending: false });
       break;
     default:

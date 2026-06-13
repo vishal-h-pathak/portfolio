@@ -3,14 +3,11 @@
 /**
  * /dashboard/review — Review queue list.
  *
- * Shows every job awaiting human review. Under the M-2 lifecycle a row
- * lands here in two ways:
- *
- *   - `ready_for_review` — the tailor finished generating materials
- *     (resume + cover letter + form-answer drafts) and the human needs
- *     to inspect before pre-filling. This is the common path.
- *   - `needs_review` — legacy alias for the same state, kept for any
- *     straggler rows that haven't been migrated.
+ * Shows every job awaiting human review — rows in `ready_for_review`:
+ * the tailor finished generating materials (resume + cover letter +
+ * form-answer drafts) and the human needs to inspect before
+ * pre-filling. (The legacy `needs_review` alias was retired by
+ * migration 011 — canonical statuses only.)
  *
  * Sorted by `status_updated_at` (most recent first). Each card links to
  * /dashboard/review/[job_id] for the full packet detail view. Approve /
@@ -39,9 +36,8 @@ export default function ReviewQueuePage() {
     (async () => {
       // status_updated_at reflects when the row last transitioned —
       // under M-2 that's when the tailor finished materials
-      // (`ready_for_review`) OR when the submitter legitimately
-      // couldn't finish (legacy `needs_review`). Either way the human
-      // review owner is now on the hook → most-recently-updated first.
+      // (`ready_for_review`), putting the human review owner on the
+      // hook → most-recently-updated first.
       try {
         const res = await fetch("/api/dashboard/jobs?view=review-queue", {
           cache: "no-store",
