@@ -23,6 +23,7 @@ export const config = {
   matcher: [
     "/dashboard/:path*",
     "/api/chat",
+    "/api/chat/:path*",
     "/api/materials/:path*",
     "/api/dashboard/:path*",
   ],
