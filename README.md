@@ -67,9 +67,44 @@ npx tsc --noEmit
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=     # signed URLs + admin writes
-ANTHROPIC_API_KEY=
+ANTHROPIC_API_KEY=             # chat auth source 1 (optional — see "Chat auth")
+CLAUDE_CODE_OAUTH_TOKEN=       # chat auth source 2 (optional, subscription usage)
+CHAT_MODEL=                    # optional, default claude-opus-4-8
 DASHBOARD_PASSWORD=            # gates /dashboard
 ```
+
+---
+
+## Chat auth
+
+The MatchAgent chat (`/api/chat`) and the J-11 profile-insight
+classifier share one server-side auth resolution chain
+(`app/lib/chat-auth.ts`), evaluated per request:
+
+1. **`ANTHROPIC_API_KEY`** — pay-per-token API. Model comes from
+   `CHAT_MODEL` (default `claude-opus-4-8`). If a call fails with a
+   billing/credit error or an invalid key, the key is benched for
+   15 minutes (one attempt + cool-off, no retries) and the same request
+   falls through to step 2.
+2. **`CLAUDE_CODE_OAUTH_TOKEN`** — Claude subscription usage through the
+   Claude Agent SDK. Mint a token with `claude setup-token` (requires a
+   Claude Pro/Max subscription) and put it in `.env.local` or the Vercel
+   env. **Runtime caveat:** the Agent SDK spawns the Claude Code CLI as
+   a subprocess. This works under local `npm run dev`; on Vercel's
+   serverless runtime the CLI generally cannot be spawned, in which case
+   the route degrades to step 3 cleanly — production on Vercel
+   effectively supports API-key mode only.
+3. **Neither available** — `/api/chat` answers `200 {disabled: true,
+   reason}` (never a 5xx), `GET /api/chat/status` reports
+   `{mode: "disabled"}`, and the dashboard renders no chat UI at all
+   (one quiet "match agent offline — approvals unaffected" line in the
+   cockpit).
+
+**Chat being down never blocks the pipeline.** Review, approve, skip,
+tailor, pre-fill, and mark-applied all work with zero chat auth
+configured; the MatchAgent and the learned-insights loop resume the
+moment any auth source comes back. Tokens live server-side only — never
+in client code or `NEXT_PUBLIC_*`.
 
 ---
 
