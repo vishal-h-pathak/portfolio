@@ -68,6 +68,27 @@ export default function MatchAgent({ job, onClose }: { job: Job; onClose: () => 
           mode: "match-agent",
         }),
       });
+      // Disabled/error replies come back as JSON (success streams are
+      // text/plain). Auth can die mid-conversation — e.g. the API key
+      // hits a billing wall and no OAuth token is configured — and that
+      // must read as a quiet notice, not a thrown error.
+      if ((res.headers.get("content-type") ?? "").includes("application/json")) {
+        const body = (await res.json().catch(() => null)) as
+          | { disabled?: boolean; error?: string }
+          | null;
+        if (body?.disabled) {
+          setMessages((m) => {
+            const copy = [...m];
+            copy[copy.length - 1] = {
+              role: "assistant",
+              content: "match agent offline — approvals unaffected",
+            };
+            return copy;
+          });
+          return;
+        }
+        throw new Error(body?.error ?? `HTTP ${res.status}`);
+      }
       if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
       const reader = res.body.getReader();
       const decoder = new TextDecoder();

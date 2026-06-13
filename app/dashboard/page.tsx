@@ -29,6 +29,7 @@ import {
   type TierKey,
 } from "./lib/format";
 import { loadPref, savePref } from "./lib/prefs";
+import { useChatStatus } from "./lib/useChatStatus";
 import { useOptimisticAction } from "./lib/useOptimisticAction";
 import MatchAgent from "./MatchAgent";
 import ReviewPanel from "./ReviewPanel";
@@ -67,6 +68,7 @@ export default function DashboardPage() {
   );
 
   const act = useOptimisticAction();
+  const chatMode = useChatStatus();
 
   const jobsRef = useRef<Job[]>(jobs);
   jobsRef.current = jobs;
@@ -184,10 +186,16 @@ export default function DashboardPage() {
     [act],
   );
 
-  const openPanel = useCallback((job: Job) => {
-    if ((job.status ?? "new") === "ready_to_submit") setReviewJob(job);
-    else setMatchJob(job);
-  }, []);
+  const openPanel = useCallback(
+    (job: Job) => {
+      if ((job.status ?? "new") === "ready_to_submit") setReviewJob(job);
+      // Chat is an enhancer: when auth is disabled (or still resolving),
+      // approve/skip proceed as normal and the MatchAgent panel simply
+      // never opens — no dead UI, no failed requests.
+      else if (chatMode === "api" || chatMode === "oauth") setMatchJob(job);
+    },
+    [chatMode],
+  );
 
   const actions: JobActions = useMemo(
     () => ({ act, setStatus, skipJob, tailorJob, openPanel }),

@@ -42,6 +42,7 @@ import { Skeleton, SkeletonRows } from "../../components/Skeleton";
 import { useToast } from "../../components/Toast";
 import { requestJSON } from "../../lib/api";
 import { relativeTime, scoreOf } from "../../lib/format";
+import { useChatStatus } from "../../lib/useChatStatus";
 import { useOptimisticAction } from "../../lib/useOptimisticAction";
 import MatchAgent from "../../MatchAgent";
 
@@ -450,6 +451,7 @@ export default function ReviewDetailPage() {
   const [showSkipPick, setShowSkipPick] = useState(false);
   const [showMarkFailed, setShowMarkFailed] = useState(false);
   const [showMatchAgent, setShowMatchAgent] = useState(false);
+  const chatMode = useChatStatus();
 
   useEffect(() => {
     if (!jobId) return;
@@ -712,24 +714,35 @@ export default function ReviewDetailPage() {
           <PrefillScreenshot storagePath={job.prefill_screenshot_path} />
         )}
 
-        {/* ── Match Agent (J-11, unchanged by this refactor) ─────── */}
+        {/* ── Match Agent (J-11) ─────────────────────────────────────
+         * Gated by /api/chat/status: while resolving (null) render
+         * nothing (no flash); when disabled, a single quiet line — the
+         * approval flow never depends on chat being up. */}
         <section className="mb-8">
-          <button
-            onClick={() => setShowMatchAgent((v) => !v)}
-            className="text-xs text-ink-dim underline-offset-4 transition-colors duration-150 hover:text-ink hover:underline"
-          >
-            {showMatchAgent ? "Hide" : "Open"} Match Agent
-            {Array.isArray(job.match_chat) && job.match_chat.length > 0 && (
-              <span className="ml-2 text-[10px] uppercase tracking-[0.16em] text-green tabular-nums">
-                {job.match_chat.length} turn(s) saved
-              </span>
-            )}
-          </button>
-          {showMatchAgent && (
-            <div className="mt-3 border border-rule bg-bg-raised p-3">
-              <MatchAgent job={job} onClose={() => setShowMatchAgent(false)} />
-            </div>
-          )}
+          {chatMode === "disabled" ? (
+            <p className="font-mono text-[10px] tracking-[0.14em] text-ink-faint">
+              match agent offline — approvals unaffected
+            </p>
+          ) : chatMode !== null ? (
+            <>
+              <button
+                onClick={() => setShowMatchAgent((v) => !v)}
+                className="text-xs text-ink-dim underline-offset-4 transition-colors duration-150 hover:text-ink hover:underline"
+              >
+                {showMatchAgent ? "Hide" : "Open"} Match Agent
+                {Array.isArray(job.match_chat) && job.match_chat.length > 0 && (
+                  <span className="ml-2 text-[10px] uppercase tracking-[0.16em] text-green tabular-nums">
+                    {job.match_chat.length} turn(s) saved
+                  </span>
+                )}
+              </button>
+              {showMatchAgent && (
+                <div className="mt-3 border border-rule bg-bg-raised p-3">
+                  <MatchAgent job={job} onClose={() => setShowMatchAgent(false)} />
+                </div>
+              )}
+            </>
+          ) : null}
         </section>
 
         {/* ── Action bar (sticky) ────────────────────────────────── *
