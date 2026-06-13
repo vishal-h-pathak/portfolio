@@ -79,15 +79,9 @@ const DEFAULT_FILTERS: Filters = {
 
 const FILTERS_KEY = "dashboard:browse:filters:v1";
 
-const IN_PROGRESS = new Set(["approved", "preparing", "prefilling", "submitting"]);
-const NEEDS_ACTION = new Set([
-  "ready_for_review",
-  "awaiting_human_submit",
-  "ready_to_submit",
-  "submit_confirmed",
-  "needs_review",
-]);
-const DONE = new Set(["applied", "submitted", "failed", "ignored", "skipped", "expired"]);
+const IN_PROGRESS = new Set(["approved", "preparing", "prefilling"]);
+const NEEDS_ACTION = new Set(["ready_for_review", "awaiting_human_submit"]);
+const DONE = new Set(["applied", "failed", "ignored", "skipped", "expired"]);
 
 function matchesStatusGroup(status: JobStatus | null, group: StatusGroup): boolean {
   if (group === "all") return true;
@@ -1048,7 +1042,6 @@ function ActionButtons({
       );
 
     case "ready_for_review":
-    case "ready_to_submit":
       return (
         <div className="flex items-center gap-1.5">
           <Link
@@ -1065,11 +1058,6 @@ function ActionButtons({
             skip
           </Btn>
         </div>
-      );
-
-    case "submit_confirmed":
-      return (
-        <span className="text-[11px] italic text-amber">awaiting submission…</span>
       );
 
     case "applied":

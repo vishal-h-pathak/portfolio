@@ -192,18 +192,19 @@ function aggregateDaily(jobs: Job[], sources: string[]): DailyRow[] {
 }
 
 type FunnelRow = { stage: string; count: number };
+// Canonical-only since migration 011 (Session E) — the legacy aliases
+// (ready_to_submit / submit_confirmed / submitting / submitted /
+// needs_review) no longer exist in data.
 const APPROVED_OR_LATER = new Set([
-  "approved", "preparing", "ready_to_submit",
-  "submit_confirmed", "submitting", "submitted",
-  "applied", "needs_review", "failed",
+  "approved", "preparing", "ready_for_review",
+  "prefilling", "awaiting_human_submit",
+  "applied", "failed",
 ]);
 const READY_OR_LATER = new Set([
-  "ready_to_submit", "submit_confirmed", "submitting",
-  "submitted", "applied", "needs_review",
+  "ready_for_review", "prefilling",
+  "awaiting_human_submit", "applied",
 ]);
-const SUBMITTED_OR_APPLIED = new Set([
-  "submitted", "submit_confirmed", "applied",
-]);
+const SUBMITTED_OR_APPLIED = new Set(["applied"]);
 function aggregateFunnel(jobs: Job[]): FunnelRow[] {
   let total = 0, notify = 0, approved = 0, ready = 0, submitted = 0;
   for (const j of jobs) {

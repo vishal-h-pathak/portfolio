@@ -76,7 +76,7 @@ export async function getBenchActivity(): Promise<BenchActivity | null> {
       admin
         .from("jobs")
         .select("id", { count: "exact", head: true })
-        .in("status", ["applied", "submitted"]),
+        .eq("status", "applied"),
     ]);
 
     if (runsRes.error || trackedRes.error || scoredRes.error || appliedRes.error) {
