@@ -24,6 +24,12 @@ import Anthropic from "@anthropic-ai/sdk";
 import { promises as fs } from "fs";
 import path from "path";
 import { NextRequest, NextResponse } from "next/server";
+import {
+  isApiKeyUnusableError,
+  markApiKeyUnusable,
+  resolveChatAuth,
+} from "../../../lib/chat-auth";
+import { oauthCompleteText } from "../../../lib/chat-oauth";
 
 export const runtime = "nodejs";
 
@@ -53,8 +59,13 @@ Respond with ONLY a JSON object:
 
 type Message = { role: "user" | "assistant"; content: string };
 
+/**
+ * Run the classifier through the chat-auth chain (it shares auth with
+ * /api/chat). Returns null when no auth source is usable — the caller
+ * maps that to a quiet 200, never a 5xx, so a missing key doesn't show
+ * up as console errors in the cockpit.
+ */
 async function classify(history: Message[]) {
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const userMsg =
     "Recent chat turns (most recent last):\n\n" +
     history
@@ -62,15 +73,45 @@ async function classify(history: Message[]) {
       .map((m) => `${m.role.toUpperCase()}: ${m.content}`)
       .join("\n\n");
 
-  const resp = await client.messages.create({
-    model: MODEL,
-    max_tokens: 400,
-    system: CLASSIFIER_SYSTEM,
-    messages: [{ role: "user", content: userMsg }],
-  });
-  const text = resp.content
-    .map((b) => (b.type === "text" ? b.text : ""))
-    .join("");
+  let auth = resolveChatAuth();
+  let text: string | null = null;
+
+  if (auth.mode === "api") {
+    const client = new Anthropic({ apiKey: auth.apiKey });
+    try {
+      const resp = await client.messages.create({
+        model: MODEL,
+        max_tokens: 400,
+        system: CLASSIFIER_SYSTEM,
+        messages: [{ role: "user", content: userMsg }],
+      });
+      text = resp.content
+        .map((b) => (b.type === "text" ? b.text : ""))
+        .join("");
+    } catch (err) {
+      if (!isApiKeyUnusableError(err)) throw err;
+      markApiKeyUnusable();
+      auth = resolveChatAuth();
+    }
+  }
+
+  if (text === null && auth.mode === "oauth") {
+    try {
+      text = await oauthCompleteText({
+        system: CLASSIFIER_SYSTEM,
+        prompt: userMsg,
+        model: MODEL,
+        oauthToken: auth.token,
+      });
+    } catch {
+      // Adapter can't run on this runtime — classification is an
+      // enhancer; degrade silently rather than erroring the chat UI.
+      return null;
+    }
+  }
+
+  if (text === null) return null;
+
   const start = text.indexOf("{");
   const end = text.lastIndexOf("}");
   if (start === -1 || end === -1) {
@@ -133,6 +174,14 @@ export async function POST(req: NextRequest) {
         );
       }
       const result = await classify(history);
+      if (result === null) {
+        return NextResponse.json({
+          disabled: true,
+          generalizable: false,
+          summary: "",
+          reasoning: "chat auth unavailable",
+        });
+      }
       return NextResponse.json(result);
     }
 
