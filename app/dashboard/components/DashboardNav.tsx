@@ -3,11 +3,10 @@
 /**
  * DashboardNav — global nav for the dashboard surface.
  *
- * Mounted on /dashboard, /dashboard/insights, /dashboard/review,
- * /dashboard/review/[job_id]. Replaces each page's bespoke top-of-page
- * header element. The cockpit's "← Review queue" back-link is kept on
- * the cockpit page itself — deep-link breadcrumb context matters there
- * even with a global nav above.
+ * Same chrome as the notebook nav: sticky, near-black with backdrop
+ * blur, hairline bottom rule, mono links, green pulse-dot brand. The
+ * active link underlines amber (the dashboard is a bench/build
+ * surface). The Review queue badge counts rows needing a human.
  *
  * Self-fetches its own action-needed count (rows where status is
  * `ready_for_review` or the legacy alias `needs_review`) so callers
@@ -31,16 +30,21 @@ type NavItem = {
 const ITEMS: NavItem[] = [
   {
     href: "/dashboard",
-    label: "Dashboard",
+    label: "Overview",
     // Active for the bare /dashboard route only — nested routes have
     // their own nav items.
     isActive: (p) => p === "/dashboard",
   },
   {
     href: "/dashboard/review",
-    label: "Review queue",
+    label: "Review",
     isActive: (p) => p.startsWith("/dashboard/review"),
     badge: (n) => n > 0,
+  },
+  {
+    href: "/dashboard/stories",
+    label: "Stories",
+    isActive: (p) => p.startsWith("/dashboard/stories"),
   },
   {
     href: "/dashboard/insights",
@@ -105,15 +109,19 @@ export default function DashboardNav({
   }, []);
 
   return (
-    <nav className="border-b border-neutral-900 bg-black/80 backdrop-blur-sm sticky top-0 z-30">
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 h-12 flex items-center gap-6">
+    <nav className="sticky top-0 z-30 border-b border-rule bg-[rgba(11,11,12,0.92)] backdrop-blur-[8px]">
+      <div className="mx-auto flex h-12 max-w-6xl items-center gap-5 overflow-x-auto px-4 sm:px-8">
         <Link
           href="/dashboard"
-          className="text-xs uppercase tracking-widest text-neutral-400 hover:text-neutral-100 font-mono"
+          className="flex shrink-0 items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-ink transition-colors duration-150 hover:text-green"
         >
+          <span
+            aria-hidden="true"
+            className="h-1.5 w-1.5 rounded-full bg-green motion-safe:animate-pulse"
+          />
           Job pipeline
         </Link>
-        <ul className="flex items-center gap-1 text-sm">
+        <ul className="flex items-center gap-4">
           {ITEMS.map((item) => {
             const active = item.isActive(path);
             const showBadge =
@@ -121,26 +129,21 @@ export default function DashboardNav({
               actionCount !== null &&
               item.badge(actionCount);
             return (
-              <li key={item.href}>
+              <li key={item.href} className="shrink-0">
                 <Link
                   href={item.href}
                   aria-current={active ? "page" : undefined}
                   className={
-                    "inline-flex items-center gap-2 px-3 py-1.5 rounded transition-colors " +
+                    "inline-flex items-baseline gap-1.5 border-b py-1 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors duration-150 " +
                     (active
-                      ? "bg-neutral-900 text-neutral-100 border border-neutral-800"
-                      : "text-neutral-500 hover:text-neutral-100 border border-transparent")
+                      ? "border-amber text-ink"
+                      : "border-transparent text-ink-faint hover:text-ink")
                   }
                 >
                   <span>{item.label}</span>
                   {showBadge && (
                     <span
-                      className={
-                        "text-[10px] font-mono px-1.5 py-0.5 rounded border " +
-                        (active
-                          ? "border-amber-700 bg-amber-900/40 text-amber-200"
-                          : "border-amber-800/60 bg-amber-950/40 text-amber-300")
-                      }
+                      className="border border-amber-dim px-1.5 text-[10px] text-amber tabular-nums"
                       aria-label={`${actionCount} action(s) needed`}
                     >
                       {actionCount}
@@ -151,7 +154,9 @@ export default function DashboardNav({
             );
           })}
         </ul>
-        <div className="ml-auto flex items-center gap-2">{rightSlot}</div>
+        <div className="ml-auto flex shrink-0 items-center gap-2">
+          {rightSlot}
+        </div>
       </div>
     </nav>
   );

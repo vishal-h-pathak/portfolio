@@ -3,13 +3,19 @@ import { createAdminClient, MISCONFIGURED_MSG } from "@/app/lib/supabase-admin";
 
 /**
  * GET   /api/dashboard/jobs/[job_id]  — full job row (review cockpit).
- * PATCH /api/dashboard/jobs/[job_id]  — update status and/or match_chat.
+ * PATCH /api/dashboard/jobs/[job_id]  — update status, match_chat,
+ *        and/or application_notes.
  *
  * Part of the RLS lockdown: the dashboard's direct anon-key writes
  * (status changes from the list/swipe views, MatchAgent chat
- * persistence) moved here. Only the two fields the UI actually writes
+ * persistence) moved here. Only the fields the UI actually writes
  * are accepted — anything else in the body is a 400, so a compromised
  * dashboard session can't rewrite arbitrary columns.
+ *
+ * `application_notes` was added for reject-with-reason: dismissing a
+ * row from the list can attach a one-line reason that the pattern
+ * analyzer (J-6) reads — same field the /skip route writes. Purely
+ * additive; status-machine semantics unchanged.
  *
  * Auth: protected by middleware.ts (dashboard_auth cookie).
  */
@@ -106,6 +112,14 @@ export async function PATCH(
         );
       }
       update.match_chat = value;
+    } else if (key === "application_notes") {
+      if (typeof value !== "string" || value.length > 2000) {
+        return NextResponse.json(
+          { error: "Invalid application_notes: expected string ≤ 2000 chars" },
+          { status: 400 },
+        );
+      }
+      update.application_notes = value.trim() || null;
     } else {
       return NextResponse.json(
         { error: `Field not writable: ${key}` },
@@ -116,7 +130,7 @@ export async function PATCH(
 
   if (Object.keys(update).length === 0) {
     return NextResponse.json(
-      { error: "Empty update: expected status and/or match_chat" },
+      { error: "Empty update: expected status, match_chat, and/or application_notes" },
       { status: 400 },
     );
   }

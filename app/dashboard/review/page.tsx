@@ -26,46 +26,9 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { Job } from "../../lib/supabase";
 import DashboardNav from "../components/DashboardNav";
-
-function relativeTime(iso: string | null): string | null {
-  if (!iso) return null;
-  const then = new Date(iso).getTime();
-  if (Number.isNaN(then)) return null;
-  const secs = Math.floor((Date.now() - then) / 1000);
-  if (secs < 60) return "just now";
-  const mins = Math.floor(secs / 60);
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return hours === 1 ? "1h ago" : `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days === 1) return "yesterday";
-  return `${days}d ago`;
-}
-
-function ConfidenceBadge({ c }: { c: number | null }) {
-  if (c === null || c === undefined) {
-    return (
-      <span className="text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border border-neutral-800 bg-neutral-900 text-neutral-500">
-        no score
-      </span>
-    );
-  }
-  // Policy: 0.8+ is the auto_submit threshold elsewhere, so anything on the
-  // review queue is by definition <0.8. Split high/mid/low inside that.
-  const cls =
-    c >= 0.7
-      ? "bg-emerald-900/40 text-emerald-300 border-emerald-800/60"
-      : c >= 0.55
-      ? "bg-amber-900/40 text-amber-300 border-amber-800/60"
-      : "bg-red-900/40 text-red-300 border-red-800/60";
-  return (
-    <span
-      className={`text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border font-mono ${cls}`}
-    >
-      {c.toFixed(2)}
-    </span>
-  );
-}
+import { ConfidenceBadge, Pill } from "../components/JobBadges";
+import { Skeleton, SkeletonRows } from "../components/Skeleton";
+import { relativeTime } from "../lib/format";
 
 export default function ReviewQueuePage() {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -74,12 +37,11 @@ export default function ReviewQueuePage() {
 
   useEffect(() => {
     (async () => {
-      // status_updated_at is more useful than created_at here — it
-      // reflects when the row last transitioned, which under the M-2
-      // flow is when the tailor finished materials (`ready_for_review`)
-      // OR when the submitter legitimately couldn't finish (legacy
-      // `needs_review`). Either way the human review owner is now on
-      // the hook, so we want most-recently-updated first.
+      // status_updated_at reflects when the row last transitioned —
+      // under M-2 that's when the tailor finished materials
+      // (`ready_for_review`) OR when the submitter legitimately
+      // couldn't finish (legacy `needs_review`). Either way the human
+      // review owner is now on the hook → most-recently-updated first.
       try {
         const res = await fetch("/api/dashboard/jobs?view=review-queue", {
           cache: "no-store",
@@ -108,96 +70,102 @@ export default function ReviewQueuePage() {
     return out;
   }, [jobs]);
 
-  if (loading) {
-    return (
-      <>
-        <DashboardNav />
-        <main className="min-h-[60vh] flex items-center justify-center bg-black text-neutral-500 text-sm">
-          loading…
-        </main>
-      </>
-    );
-  }
-
   return (
     <>
       <DashboardNav />
-      <main className="min-h-screen px-4 py-8 sm:px-8 sm:py-12 max-w-5xl mx-auto bg-black text-neutral-100">
-        <header className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-semibold">Review queue</h1>
-          <p className="text-sm text-neutral-500 mt-1">
-            {jobs.length === 0
-              ? "Nothing waiting — every submission either cleared or was dismissed."
-              : `${jobs.length} submission${jobs.length === 1 ? "" : "s"} waiting on human review`}
+      <main className="mx-auto min-h-screen max-w-5xl px-4 py-8 sm:px-8 sm:py-10">
+        <header className="mb-6">
+          <h1 className="font-serif text-[26px] tracking-tight text-ink">
+            Review queue
+          </h1>
+          <p className="mt-0.5 text-[11px] text-ink-faint tabular-nums">
+            {loading
+              ? "loading…"
+              : jobs.length === 0
+                ? "nothing waiting"
+                : `${jobs.length} submission${jobs.length === 1 ? "" : "s"} waiting on human review`}
           </p>
         </header>
 
-      {error && (
-        <div className="mb-6 rounded border border-red-900/60 bg-red-950/40 px-3 py-2 text-sm text-red-300">
-          {error}
-        </div>
-      )}
+        {error && (
+          <div className="mb-6 border border-red-dim px-3 py-2 text-xs text-red">
+            {error}
+          </div>
+        )}
 
-      {jobs.length === 0 && !error && (
-        <div className="rounded-lg border border-neutral-800 bg-neutral-950 p-8 text-center text-sm text-neutral-500">
-          The review queue is empty. When the tailor finishes materials
-          for an approved job, it&apos;ll land here with the resume +
-          cover letter ready to inspect.
-        </div>
-      )}
+        {loading ? (
+          <>
+            <Skeleton className="mb-3 h-4 w-28" />
+            <SkeletonRows rows={4} rowClassName="h-24" />
+          </>
+        ) : (
+          <>
+            {jobs.length === 0 && !error && (
+              <p className="border border-dashed border-rule px-4 py-8 text-center text-xs text-ink-faint">
+                Queue empty — when the tailor finishes materials for an
+                approved job, it lands here.
+              </p>
+            )}
 
-      {Object.entries(grouped).map(([adapter, list]) => (
-        <section key={adapter} className="mb-10">
-          <h2 className="text-sm font-medium text-neutral-400 uppercase tracking-wide mb-3">
-            {adapter}
-            <span className="text-neutral-600 ml-2">({list.length})</span>
-          </h2>
-          <ul className="grid gap-3">
-            {list.map((job) => (
-              <li key={job.id}>
-                <Link
-                  href={`/dashboard/review/${job.id}`}
-                  className="block rounded-lg border border-neutral-800 bg-neutral-900/40 hover:bg-neutral-900/80 hover:border-neutral-700 transition p-4"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <div className="mb-1 flex items-center gap-2 flex-wrap">
-                        <ConfidenceBadge c={job.submission_log?.confidence ?? job.confidence ?? null} />
-                        <span className="text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border border-neutral-800 bg-neutral-900 text-neutral-500">
-                          attempt {job.submission_log?.attempt_n ?? "?"}
-                        </span>
-                        {relativeTime(job.status_updated_at) && (
-                          <span className="text-[10px] font-mono text-neutral-600">
-                            {relativeTime(job.status_updated_at)}
-                          </span>
-                        )}
-                      </div>
-                      <div className="font-medium truncate">{job.title}</div>
-                      <div className="text-sm text-neutral-400 truncate">
-                        {job.company}
-                        {job.location ? ` · ${job.location}` : ""}
-                      </div>
-                      {job.submission_log?.reason && (
-                        <div className="text-xs text-neutral-500 mt-1.5 line-clamp-2">
-                          {job.submission_log.reason}
+            {Object.entries(grouped).map(([adapter, list]) => (
+              <section key={adapter} className="mb-8">
+                <h2 className="mb-2.5 flex items-baseline gap-2 border-b border-rule-soft pb-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+                  {adapter}
+                  <span className="tabular-nums">({list.length})</span>
+                </h2>
+                <ul className="grid gap-2.5">
+                  {list.map((job) => (
+                    <li key={job.id}>
+                      <Link
+                        href={`/dashboard/review/${job.id}`}
+                        className="block border border-rule bg-bg-raised p-3.5 transition-colors duration-150 hover:border-amber"
+                        style={{ borderLeft: "2px solid var(--amber)" }}
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="min-w-0">
+                            <div className="mb-1 flex flex-wrap items-center gap-1.5">
+                              <ConfidenceBadge
+                                c={job.submission_log?.confidence ?? job.confidence ?? null}
+                              />
+                              <Pill tone="dim">
+                                attempt {job.submission_log?.attempt_n ?? "?"}
+                              </Pill>
+                              {relativeTime(job.status_updated_at) && (
+                                <span className="text-[10px] text-ink-faint tabular-nums">
+                                  {relativeTime(job.status_updated_at)}
+                                </span>
+                              )}
+                            </div>
+                            <div className="truncate text-[13px] font-medium text-ink">
+                              {job.title}
+                            </div>
+                            <div className="truncate text-xs text-ink-dim">
+                              {job.company}
+                              {job.location ? ` · ${job.location}` : ""}
+                            </div>
+                            {job.submission_log?.reason && (
+                              <div className="mt-1.5 line-clamp-2 text-[11px] text-ink-faint">
+                                {job.submission_log.reason}
+                              </div>
+                            )}
+                          </div>
+                          <div className="shrink-0 text-right text-[11px] tabular-nums">
+                            <div className="text-ink-dim">
+                              {(job.submission_log?.filled_fields?.length ?? 0)} filled
+                            </div>
+                            <div className="text-amber">
+                              {(job.submission_log?.skipped_fields?.length ?? 0)} skipped
+                            </div>
+                          </div>
                         </div>
-                      )}
-                    </div>
-                    <div className="shrink-0 text-right">
-                      <div className="text-xs text-neutral-600 font-mono">
-                        {(job.submission_log?.filled_fields?.length ?? 0)} filled
-                      </div>
-                      <div className="text-xs text-amber-500/80 font-mono">
-                        {(job.submission_log?.skipped_fields?.length ?? 0)} skipped
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              </li>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
             ))}
-            </ul>
-          </section>
-        ))}
+          </>
+        )}
       </main>
     </>
   );
