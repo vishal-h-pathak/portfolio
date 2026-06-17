@@ -60,6 +60,50 @@ export function isActionNeeded(status: JobStatus | null | undefined): boolean {
   );
 }
 
+/**
+ * Linear lifecycle stages for the read-only progress pill (JobBadges
+ * → LifecyclePill). The full status set collapses to five ordered
+ * stages a row walks in order:
+ *
+ *   new → approved → tailored → staged → submitted
+ *
+ * Off-path states (failed / skipped / ignored / expired) have NO stage
+ * index — the pill renders them via statusTone / isTerminalMuted so it
+ * never contradicts the badge. This is the single source of truth for
+ * stage membership; the pill only renders it.
+ */
+export const LIFECYCLE_STAGES = [
+  { key: "new", label: "new" },
+  { key: "approved", label: "approved" },
+  { key: "tailored", label: "tailored" },
+  { key: "staged", label: "staged" },
+  { key: "submitted", label: "submitted" },
+] as const;
+
+/** Index into LIFECYCLE_STAGES, or null for off-path terminal/failed
+ *  states (failed, skipped, ignored, expired) that aren't on the line. */
+export function lifecycleStageIndex(
+  status: JobStatus | null | undefined,
+): number | null {
+  switch (status ?? "new") {
+    case "discovered":
+    case "new":
+      return 0;
+    case "approved":
+    case "preparing":
+      return 1;
+    case "ready_for_review":
+      return 2;
+    case "prefilling":
+    case "awaiting_human_submit":
+      return 3;
+    case "applied":
+      return 4;
+    default: // failed, skipped, ignored, expired
+      return null;
+  }
+}
+
 export const STATUS_LABEL: Record<string, string> = {
   discovered: "discovered",
   new: "new",

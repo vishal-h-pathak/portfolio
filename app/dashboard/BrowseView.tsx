@@ -27,6 +27,7 @@ import { AdapterBadge } from "./components/AdapterBadge";
 import { Btn, btnLinkClass } from "./components/Button";
 import {
   DegreeGatePill,
+  LifecyclePill,
   LocationBadge,
   Pill,
   StatusBadge,
@@ -83,6 +84,24 @@ const IN_PROGRESS = new Set(["approved", "preparing", "prefilling"]);
 const NEEDS_ACTION = new Set(["ready_for_review", "awaiting_human_submit"]);
 const DONE = new Set(["applied", "failed", "ignored", "skipped", "expired"]);
 
+/* ── Submit-lane eligibility ────────────────────────────────────────────
+ * A tailored (ready_for_review) row can be enqueued for the local submit
+ * runner only if it has a usable direct link AND a generated resume. The
+ * guardrails are shared by the per-row Submit button (disable) and the
+ * Submit-All bulk action (skip). `link_status` is live in the jobs table
+ * (jobpipe migration 013) and fetched in LIST_COLUMNS — the check below
+ * is the ONLY one that skips aggregator/expired rows, since those still
+ * carry a non-null application_url. */
+type SubmitSkipReason = "no direct link" | "no resume";
+
+function submitBlockedReason(job: Job): SubmitSkipReason | null {
+  const link = job.link_status;
+  if (link === "aggregator_unverified" || link === "expired") return "no direct link";
+  if (!job.application_url) return "no direct link";
+  if (!job.resume_pdf_path) return "no resume";
+  return null;
+}
+
 function matchesStatusGroup(status: JobStatus | null, group: StatusGroup): boolean {
   if (group === "all") return true;
   const s = status ?? "new";
@@ -136,6 +155,7 @@ export default function BrowseView({
     | null
   >(null);
   const [confirmApprove, setConfirmApprove] = useState<Job[] | null>(null);
+  const [confirmSubmitAll, setConfirmSubmitAll] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   /** Rows whose tailor was dispatched this session (status still
    *  'approved' until the GHA workflow flips it on the next poll). */
@@ -280,6 +300,33 @@ export default function BrowseView({
     [actions, clearSelection],
   );
 
+  // Submit All Tailored — mirror of bulk approve, but it enqueues every
+  // eligible tailored row for the LOCAL submit runner (per-row /prefill).
+  // It is NOT a CI dispatch like "tailor all approved": submit needs a
+  // human at the keyboard, so the dashboard only sets intent here.
+  const bulkSubmitAll = useCallback(
+    (eligible: Job[]) => {
+      setConfirmSubmitAll(false);
+      if (eligible.length === 0) return;
+      void actions.act.run("bulk:submit", {
+        perform: async () => {
+          const results = await Promise.allSettled(
+            eligible.map((j) => actions.submitJob(j)),
+          );
+          const failed = results.filter(
+            (r) => r.status === "rejected" || r.value === null,
+          ).length;
+          if (failed > 0)
+            throw new Error(`${failed} of ${eligible.length} rows failed`);
+          return null;
+        },
+        errorLabel: "Submit all",
+        successToast: `Queued ${eligible.length} row${eligible.length === 1 ? "" : "s"} for submit`,
+      });
+    },
+    [actions],
+  );
+
   const bulkSkip = useCallback(
     (targets: Job[], reason: string | null) => {
       setReasonTarget(null);
@@ -338,7 +385,11 @@ export default function BrowseView({
 
   /* ── Keyboard layer ──────────────────────────────────────────── */
 
-  const modalOpen = reasonTarget !== null || confirmApprove !== null || showHelp;
+  const modalOpen =
+    reasonTarget !== null ||
+    confirmApprove !== null ||
+    confirmSubmitAll ||
+    showHelp;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -448,6 +499,25 @@ export default function BrowseView({
 
   const approveEligible = selectedJobs.filter((j) => (j.status ?? "new") === "new");
 
+  // Submit-lane register overview: every tailored row, split into those
+  // eligible to enqueue and those blocked (counted by reason for the
+  // confirmation copy). Runs over the full jobs list, not the selection.
+  const tailoredRows = jobs.filter(
+    (j) => (j.status ?? "new") === "ready_for_review",
+  );
+  const submitEligible = tailoredRows.filter(
+    (j) => submitBlockedReason(j) === null,
+  );
+  const submitSkipCounts = tailoredRows.reduce(
+    (acc, j) => {
+      const r = submitBlockedReason(j);
+      if (r) acc[r] += 1;
+      return acc;
+    },
+    { "no direct link": 0, "no resume": 0 } as Record<SubmitSkipReason, number>,
+  );
+  const submitSkippedTotal = tailoredRows.length - submitEligible.length;
+
   return (
     <main className="mx-auto min-h-screen max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
       <header className="mb-6 flex items-baseline justify-between gap-4">
@@ -470,6 +540,44 @@ export default function BrowseView({
 
       <ManualTailorPanel />
       <RunsPanel />
+
+      {/* ── Submit lane (register overview) ─────────────────────────
+          Sets intent only — enqueues every eligible tailored row for the
+          LOCAL submit runner. Deliberately separate from the CI-dispatch
+          buttons in RunsPanel: submit needs a human at the keyboard, so
+          there is no "run submit" workflow to dispatch. */}
+      {tailoredRows.length > 0 && (
+        <section
+          aria-label="Submit lane"
+          className="mb-6 flex flex-wrap items-center justify-between gap-2 border border-blue-dim bg-bg-raised px-3.5 py-2.5"
+        >
+          <div className="min-w-0">
+            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-blue">
+              Submit lane
+            </span>
+            <span className="ml-2 text-[11px] text-ink-dim tabular-nums">
+              {submitEligible.length} tailored row
+              {submitEligible.length === 1 ? "" : "s"} ready to enqueue
+              {submitSkippedTotal > 0 && (
+                <span className="text-amber"> · {submitSkippedTotal} blocked</span>
+              )}
+            </span>
+          </div>
+          <Btn
+            variant="submit"
+            pending={actions.act.isPending("bulk:submit")}
+            disabled={submitEligible.length === 0}
+            onClick={() => setConfirmSubmitAll(true)}
+            title={
+              submitEligible.length === 0
+                ? "No tailored rows have a usable direct link + resume"
+                : "Enqueue every eligible tailored row for the local submit runner"
+            }
+          >
+            submit all tailored
+          </Btn>
+        </section>
+      )}
 
       {/* ── Toolbar ─────────────────────────────────────────────── */}
       <section
@@ -711,6 +819,45 @@ export default function BrowseView({
           </div>
         </Modal>
       )}
+      {confirmSubmitAll && (
+        <Modal
+          label="Confirm submit all tailored"
+          onClose={() => setConfirmSubmitAll(false)}
+        >
+          <ModalTitle>Submit all tailored</ModalTitle>
+          <p className="mb-3 text-xs leading-relaxed text-ink-dim">
+            Enqueue {submitEligible.length} tailored row
+            {submitEligible.length === 1 ? "" : "s"} for the local submit
+            runner. Each opens a visible browser on your machine for you to
+            review and submit — nothing is sent automatically.
+          </p>
+          {submitSkippedTotal > 0 && (
+            <p className="mb-4 border border-amber-dim px-3 py-2 text-[11px] leading-relaxed text-amber">
+              {submitSkippedTotal} skipped:{" "}
+              {[
+                submitSkipCounts["no direct link"] > 0 &&
+                  `${submitSkipCounts["no direct link"]} no direct link`,
+                submitSkipCounts["no resume"] > 0 &&
+                  `${submitSkipCounts["no resume"]} no resume`,
+              ]
+                .filter(Boolean)
+                .join(" / ")}
+            </p>
+          )}
+          <div className="flex items-center justify-end gap-2">
+            <Btn variant="ghost" onClick={() => setConfirmSubmitAll(false)}>
+              cancel
+            </Btn>
+            <Btn
+              variant="submit"
+              disabled={submitEligible.length === 0}
+              onClick={() => bulkSubmitAll(submitEligible)}
+            >
+              enqueue {submitEligible.length}
+            </Btn>
+          </div>
+        </Modal>
+      )}
       {showHelp && <KeysHelp onClose={() => setShowHelp(false)} />}
     </main>
   );
@@ -895,6 +1042,7 @@ function BrowseCard({
           <div className="min-w-0">
             <div className="mb-1 flex flex-wrap items-center gap-1.5">
               <StatusBadge status={job.status} />
+              <LifecyclePill status={job.status} />
               <TierPill tier={job.tier} />
               <DegreeGatePill gated={job.degree_gated} />
               <LocationBadge location={job.location} />
@@ -961,7 +1109,7 @@ function ActionButtons({
   onDismiss: (job: Job) => void;
   onTailor: (job: Job) => void;
 }) {
-  const { act, setStatus, openPanel } = actions;
+  const { act, setStatus, submitJob, openPanel } = actions;
   const s = job.status ?? "new";
   const statusKey = `status:${job.id}`;
   const tailorKey = `tailor:${job.id}`;
@@ -1041,7 +1189,13 @@ function ActionButtons({
         </div>
       );
 
-    case "ready_for_review":
+    case "ready_for_review": {
+      // Third lane action: enqueue this tailored row for the local submit
+      // runner. Blocked (no usable link / no resume) → disabled with a
+      // reason, never silently enqueued. Optimistically moves to
+      // prefilling; the runner carries it to awaiting_human_submit.
+      const submitKey = `submit:${job.id}`;
+      const blocked = submitBlockedReason(job);
       return (
         <div className="flex items-center gap-1.5">
           <Link
@@ -1049,6 +1203,50 @@ function ActionButtons({
             className={btnLinkClass("primary")}
           >
             review materials
+          </Link>
+          <Btn
+            variant="submit"
+            pending={act.isPending(submitKey)}
+            flash={act.isFlashing(submitKey)}
+            disabled={blocked !== null}
+            title={
+              blocked
+                ? `Can't submit — ${blocked}. Pre-fill needs a usable direct link and a generated resume.`
+                : "Enqueue for the local submit runner (no browser opens here)"
+            }
+            onClick={() => void submitJob(job)}
+          >
+            submit
+          </Btn>
+          <Btn
+            variant="danger"
+            pending={statusPending}
+            onClick={() => onDismiss(job)}
+          >
+            skip
+          </Btn>
+        </div>
+      );
+    }
+
+    case "prefilling":
+      return (
+        <span className="flex items-center gap-1.5 text-[11px] italic text-green">
+          <span className="h-1.5 w-1.5 rounded-full bg-green motion-safe:animate-pulse" />
+          staging for submit…
+        </span>
+      );
+
+    case "awaiting_human_submit":
+      // Staged locally — the next move (review the pre-filled browser,
+      // submit, mark applied) lives in the cockpit. Link straight there.
+      return (
+        <div className="flex items-center gap-1.5">
+          <Link
+            href={`/dashboard/review/${job.id}`}
+            className={btnLinkClass("submit")}
+          >
+            finish submit ↗
           </Link>
           <Btn
             variant="danger"

@@ -9,6 +9,8 @@
  *
  *   - primary    amber — the bench/build accent; main CTA, hover fills
  *   - approve    green — live/positive accent; approve/confirm actions
+ *   - submit     blue — the third lane action; enqueue a tailored row
+ *                for the local submit runner (approve→tailor→submit)
  *   - secondary  hairline + dim ink; hover warms to amber
  *   - danger     red — destructive / loses work
  *   - ghost      borderless text action (Undo, Restore, dismiss)
@@ -24,7 +26,13 @@
 import type { ComponentProps, ReactNode } from "react";
 
 type Size = "sm" | "md";
-export type BtnVariant = "primary" | "approve" | "secondary" | "danger" | "ghost";
+export type BtnVariant =
+  | "primary"
+  | "approve"
+  | "submit"
+  | "secondary"
+  | "danger"
+  | "ghost";
 
 const BASE =
   "relative inline-flex items-center justify-center gap-1.5 border " +
@@ -44,6 +52,9 @@ const VARIANTS: Record<BtnVariant, string> = {
   approve:
     "border-green text-green hover:bg-green hover:text-bg " +
     "active:bg-green active:text-bg",
+  submit:
+    "border-blue text-blue hover:bg-blue hover:text-bg " +
+    "active:bg-blue active:text-bg",
   secondary:
     "border-rule text-ink-dim hover:border-amber hover:text-amber " +
     "active:border-amber active:text-amber",
