@@ -50,6 +50,10 @@ export type JobActions = {
   skipJob: (job: Job, reason: string | null) => Promise<unknown>;
   /** POST /runs/tailor for one row. */
   tailorJob: (job: Job) => Promise<unknown>;
+  /** POST /prefill — enqueue a tailored row for the local submit runner,
+   *  optimistically moving it toward awaiting_human_submit. Intent only;
+   *  no browser launch, no CI dispatch. */
+  submitJob: (job: Job) => Promise<unknown>;
   openPanel: (job: Job) => void;
 };
 
@@ -182,6 +186,23 @@ export default function DashboardPage() {
     [act],
   );
 
+  // Submit lane: enqueue a tailored (ready_for_review) row for the
+  // local submit runner via the existing /prefill route, which flips it
+  // to `prefilling`. We optimistically paint that move so the card
+  // advances immediately; the runner takes it to awaiting_human_submit.
+  // The dashboard never opens a browser or dispatches CI for submit.
+  const submitJob: JobActions["submitJob"] = useCallback(
+    (job) =>
+      act.run(`submit:${job.id}`, {
+        optimistic: () => optimisticPatch(job.id, { status: "prefilling" }),
+        perform: () =>
+          requestJSON("POST", `/api/dashboard/jobs/${job.id}/prefill`, {}),
+        errorLabel: "Submit",
+        successToast: `Queued for submit — ${job.company}`,
+      }),
+    [act, optimisticPatch],
+  );
+
   // Session E: the legacy ReviewPanel modal (only reachable on
   // `ready_to_submit` rows, whose "Confirm Submit" wrote the retired
   // `submit_confirmed` status) was deleted — the review flow lives at
@@ -191,8 +212,8 @@ export default function DashboardPage() {
   }, []);
 
   const actions: JobActions = useMemo(
-    () => ({ act, setStatus, skipJob, tailorJob, openPanel }),
-    [act, setStatus, skipJob, tailorJob, openPanel],
+    () => ({ act, setStatus, skipJob, tailorJob, submitJob, openPanel }),
+    [act, setStatus, skipJob, tailorJob, submitJob, openPanel],
   );
 
   if (view === null || (loading && view === null)) {

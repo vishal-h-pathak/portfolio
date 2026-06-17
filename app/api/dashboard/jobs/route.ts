@@ -59,6 +59,7 @@ const LIST_COLUMNS = [
   "archetype_confidence",
   "application_url",
   "application_notes",
+  "link_status",
   "resume_path",
   "cover_letter_path",
   "resume_pdf_path",
@@ -134,10 +135,13 @@ export async function GET(req: NextRequest) {
         .order("created_at", { ascending: false });
       break;
     case "review-queue":
+      // Submit lane: rows the human still owns — tailored-and-waiting
+      // (ready_for_review) plus staged-locally-and-waiting-to-submit
+      // (awaiting_human_submit). Most-recently-updated first.
       query = admin
         .from("jobs")
         .select("*")
-        .eq("status", "ready_for_review")
+        .in("status", ["ready_for_review", "awaiting_human_submit"])
         .order("status_updated_at", { ascending: false });
       break;
     default:

@@ -123,6 +123,19 @@ export type Job = {
   cover_letter_pdf_path: string | null;
   application_url: string | null;
   application_notes: string | null;
+  // Direct-link health for the application URL, written upstream by the
+  // hunter/link-verifier (jobpipe migration 013). The submit lane treats
+  // `aggregator_unverified` / `expired` as "no usable direct link" and
+  // refuses to enqueue — note these rows still carry a non-null
+  // application_url, so the link_status check is the only guard that
+  // skips them. Fetched in LIST_COLUMNS; widened with `(string & {})` so
+  // an unanticipated upstream value still typechecks.
+  link_status:
+    | "direct"
+    | "aggregator_unverified"
+    | "expired"
+    | (string & {})
+    | null;
   // ATS handler the submitter will route to. Deterministic adapters
   // (greenhouse / lever / ashby) are fast and zero-LLM; the rest fall
   // back to the universal agent path. Surfaced on browse cards so the

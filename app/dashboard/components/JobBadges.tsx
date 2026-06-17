@@ -13,6 +13,8 @@ import type { Job, JobStatus } from "../../lib/supabase";
 import {
   isInFlight,
   isTerminalMuted,
+  LIFECYCLE_STAGES,
+  lifecycleStageIndex,
   statusTone,
   STATUS_LABEL,
   type Tone,
@@ -152,5 +154,79 @@ export function DegreeGatePill({ gated }: { gated: boolean | null | undefined })
     <Pill tone="attention" title="Posting requires MS/PhD">
       ms/phd gate
     </Pill>
+  );
+}
+
+/** Background fills for the lifecycle pill's tone-colored current segment.
+ *  TONE_CLASS above is text/border; the pill needs solid bars. */
+const TONE_FILL: Record<Tone, string> = {
+  live: "bg-green",
+  attention: "bg-amber",
+  failed: "bg-red",
+  dim: "bg-ink-faint",
+};
+
+/**
+ * LifecyclePill — read-only, compact linear progress marker.
+ *
+ * Five segments for new → approved → tailored → staged → submitted.
+ * Completed segments fill dim, the current one fills its lifecycle tone
+ * (pulsing while in-flight), upcoming ones stay hairline. Off-path rows
+ * (failed / skipped / ignored / expired) have no stage index, so the
+ * whole track renders in the status tone (failed=red bar, terminal-muted
+ * =dashed dim) — it can never disagree with StatusBadge because both key
+ * off lifecycle.ts. Purely a QOL indicator; it writes nothing.
+ */
+export function LifecyclePill({ status }: { status: JobStatus | null }) {
+  const s = status ?? "new";
+  const idx = lifecycleStageIndex(s);
+  const tone = statusTone(s);
+  const muted = isTerminalMuted(s);
+  const inFlight = isInFlight(s);
+  const label = STATUS_LABEL[s] ?? s;
+
+  // Off-path (failed / skipped / ignored / expired): no position on the
+  // line — render every segment in the status tone so the marker still
+  // reads as "not progressing" without faking a stage.
+  const offPath = idx === null;
+  const a11y = offPath
+    ? `lifecycle: ${label}`
+    : `lifecycle: ${LIFECYCLE_STAGES[idx].label} (stage ${idx + 1} of ${LIFECYCLE_STAGES.length})`;
+
+  return (
+    <span
+      role="img"
+      aria-label={a11y}
+      title={a11y}
+      className="inline-flex items-center gap-0.5 align-middle"
+    >
+      {LIFECYCLE_STAGES.map((stage, i) => {
+        const done = idx !== null && i < idx;
+        const current = idx !== null && i === idx;
+        const fill = offPath
+          ? muted
+            ? "bg-rule"
+            : TONE_FILL[tone]
+          : current
+            ? TONE_FILL[tone]
+            : done
+              ? "bg-ink-faint"
+              : "bg-rule";
+        return (
+          <span
+            key={stage.key}
+            aria-hidden="true"
+            className={[
+              "h-1 w-3.5",
+              fill,
+              current && inFlight ? "motion-safe:animate-pulse" : "",
+              offPath && muted ? "opacity-60" : "",
+            ]
+              .join(" ")
+              .trim()}
+          />
+        );
+      })}
+    </span>
   );
 }
