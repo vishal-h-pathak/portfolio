@@ -1,0 +1,91 @@
+{
+  "meta": {
+    "run_id": "2026-05-02T00-01-51Z",
+    "checkpoint": "gen_50.npz",
+    "best_fit_native": 86.61898241369025,
+    "n_steps": 750,
+    "ca_seed": 0,
+    "lyapunov": {
+      "method": "twin-trajectory, renormalized, warmup discarded",
+      "warmup": 100,
+      "eps": 0.0001
+    },
+    "fitness_formula": "forward_dx - 0.05 * n_below (3 s rollout)",
+    "distance_units": "mm (Flygym world units)",
+    "native_gain": 1.0
+  },
+  "sweep": [
+    {
+      "gain": 0.25,
+      "fitness": 26.2369,
+      "distance_mm": 26.2369,
+      "n_below": 0,
+      "lambda": -0.8423,
+      "change_rate": 1.94556
+    },
+    {
+      "gain": 0.5,
+      "fitness": 56.7002,
+      "distance_mm": 56.7002,
+      "n_below": 0,
+      "lambda": -0.88736,
+      "change_rate": 1.95654
+    },
+    {
+      "gain": 0.75,
+      "fitness": 53.4497,
+      "distance_mm": 53.4497,
+      "n_below": 0,
+      "lambda": -0.15676,
+      "change_rate": 1.91597
+    },
+    {
+      "gain": 1.0,
+      "fitness": 86.619,
+      "distance_mm": 86.619,
+      "n_below": 0,
+      "lambda": -0.26128,
+      "change_rate": 1.91612
+    },
+    {
+      "gain": 1.3,
+      "fitness": 2.9633,
+      "distance_mm": 2.9633,
+      "n_below": 0,
+      "lambda": -0.1197,
+      "change_rate": 1.90313
+    },
+    {
+      "gain": 1.5,
+      "fitness": -6.9873,
+      "distance_mm": -6.9873,
+      "n_below": 0,
+      "lambda": 0.11043,
+      "change_rate": 1.89648
+    },
+    {
+      "gain": 2.0,
+      "fitness": -10.6674,
+      "distance_mm": -10.6674,
+      "n_below": 0,
+      "lambda": 0.09197,
+      "change_rate": 1.8964
+    },
+    {
+      "gain": 3.0,
+      "fitness": -0.0938,
+      "distance_mm": -0.0938,
+      "n_below": 0,
+      "lambda": -0.01104,
+      "change_rate": 1.8922
+    },
+    {
+      "gain": 4.0,
+      "fitness": -5.3664,
+      "distance_mm": -5.3664,
+      "n_below": 0,
+      "lambda": 0.1397,
+      "change_rate": 1.89883
+    }
+  ]
+}

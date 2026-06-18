@@ -848,6 +848,48 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   .cg-topbar-brand { gap: 6px; }
 }
 
+/* Concept tab nav: real links to real routes, active tab from pathname.
+   Scrolls horizontally on narrow screens so it never overflows the page.
+   Not sticky — the topbar already pins to the top, so a second sticky bar
+   would overlap it. */
+.cg-tabnav {
+  background: rgba(11, 11, 12, 0.92);
+  border-bottom: 1px solid var(--rule);
+}
+.cg-tabnav-list {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: flex;
+  gap: 2px;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.cg-tabnav-list::-webkit-scrollbar { display: none; }
+.cg-tab {
+  display: inline-block;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  padding: 13px 12px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.cg-tab:hover { color: var(--ink-dim); }
+.cg-tab[data-active="1"] {
+  color: var(--amber);
+  border-bottom-color: var(--amber);
+}
+@media (max-width: 700px) {
+  .cg-tabnav-list { padding: 0 12px; }
+  .cg-tab { padding: 12px 10px; font-size: 10px; letter-spacing: 0.1em; }
+}
+
 .cg-page {
   max-width: 920px;
   margin: 0 auto;
@@ -902,6 +944,13 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   padding-top: 32px;
   border-top: 1px solid var(--rule);
 }
+/* On tab routes the first element is a section; drop its top rule so it doesn't
+   float under the nav. The index is unaffected — its first child is the hero. */
+.cg-page > .cg-section:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
 .cg-section-lead {
   margin: 0 0 24px;
   color: var(--ink-dim);
@@ -910,12 +959,165 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   max-width: 66ch;
 }
 
+/* Frame (index) prose */
+.cg-frame-p {
+  margin: 0 0 18px;
+  color: var(--ink-dim);
+  font-size: 15px;
+  line-height: 1.7;
+  max-width: 66ch;
+}
+.cg-frame-p:last-child { margin-bottom: 0; }
+.cg-inline-link {
+  color: var(--green);
+  border-bottom: 1px solid var(--green-dim);
+  transition: color 0.15s;
+}
+.cg-inline-link:hover { color: var(--ink); }
+
+/* Concept-tab scaffold: interactive module region + four-part explainer.
+   Wave-3 prompts drop content into these slots. */
+.cg-tab-module { margin: 0 0 32px; }
+.cg-tab-module-stub {
+  border: 1px dashed var(--rule);
+  border-radius: 4px;
+  background: var(--bg-raised);
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.cg-tab-todo {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--amber);
+  opacity: 0.72;
+}
+.cg-explainer {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.cg-explainer-part {
+  background: var(--bg-raised);
+  padding: 18px 20px;
+}
+.cg-explainer-h {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin: 0 0 10px;
+}
+.cg-explainer-body {
+  color: var(--ink-dim);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.cg-explainer-body p { margin: 0; }
+.cg-explainer-body code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  color: var(--ink);
+  background: rgba(232, 230, 223, 0.06);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+@media (max-width: 700px) {
+  .cg-explainer { grid-template-columns: 1fr; }
+}
+
 .cg-dag {
   border: 1px solid var(--rule);
   background: var(--bg-raised);
   border-radius: 4px;
   padding: 16px;
 }
+
+/* ── system-design diagram (SystemDiagram.tsx) ──────────────────────── */
+.sysdiagram {
+  position: relative;
+  border: 1px solid var(--rule);
+  background: var(--bg-raised);
+  border-radius: 4px;
+  padding: 16px;
+}
+/* Keep the focus ring legible without a default browser outline on the <g>. */
+.sysdiagram svg [role="button"]:focus-visible rect:first-of-type {
+  stroke-width: 2;
+}
+.sysdiagram-pop {
+  position: absolute;
+  z-index: 30;
+  width: min(300px, 84%);
+  background: var(--bg-raised);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 12px 14px;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.55);
+  transition: opacity 0.12s ease;
+  pointer-events: auto;
+}
+.sysdiagram-pop.runtime { border-color: var(--green-dim); }
+.sysdiagram-pop.training { border-color: var(--amber-dim); }
+.sysdiagram-pop.planned { border-style: dashed; border-color: var(--rule); }
+.sysdiagram-pop h4 {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  margin: 0 0 6px;
+  color: var(--ink);
+}
+.sysdiagram-pop.runtime h4 { color: var(--green); }
+.sysdiagram-pop.training h4 { color: var(--amber); }
+.sysdiagram-pop-plain {
+  font-family: var(--serif);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-dim);
+  margin: 0 0 8px;
+}
+.sysdiagram-pop-note {
+  font-family: var(--serif);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-dim);
+  margin: 8px 0 0;
+}
+.sysdiagram-pop-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+}
+.sysdiagram-pop-list li { padding-left: 12px; position: relative; }
+.sysdiagram-pop-list li::before {
+  content: "·";
+  position: absolute;
+  left: 2px;
+  color: var(--ink-faint);
+}
+.sysdiagram-pop code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  color: var(--ink);
+}
+/* KaTeX runs small inside the popout so equations don't overflow. */
+.sysdiagram-pop .cg-math-block {
+  margin: 4px 0;
+  overflow-x: auto;
+}
+.sysdiagram-pop .cg-math .katex { font-size: 0.92em; }
 
 .cg-player {
   display: grid;
@@ -1108,6 +1310,63 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   color: var(--ink-faint);
   margin: 0;
   max-width: 64ch;
+}
+
+/* ---- FlyStage (live MuJoCo-WASM substrate) ---- */
+.cg-flystage-canvas {
+  border: 1px solid var(--rule);
+}
+.cg-flystage-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ink-dim);
+  text-align: center;
+  padding: 16px;
+}
+.cg-flystage-err {
+  font-size: 10px;
+  color: var(--amber);
+  opacity: 0.8;
+  max-width: 48ch;
+  word-break: break-word;
+}
+.cg-flystage-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--rule);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: cg-spin 0.9s linear infinite;
+}
+@keyframes cg-spin {
+  to { transform: rotate(360deg); }
+}
+.cg-flystage-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.cg-flystage-readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+}
+.cg-flystage-readout strong {
+  color: var(--ink);
+  font-weight: 500;
 }
 
 @media (max-width: 720px) {

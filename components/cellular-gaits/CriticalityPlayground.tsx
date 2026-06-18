@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { C, H, W, N, idx, initState, step, norm, type Controller } from "@/lib/nca";
 
 /**
  * Live criticality playground.
@@ -23,89 +24,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
  * CANNOT locate the edge. Only λ flips sign as you cross it.
  */
 
-const C = 4;
-const H = 8;
-const W = 8;
-const HID = 16;
-const N = C * H * W; // 256
 const EPS = 1e-3; // perturbation magnitude for the Lyapunov twin
 const WARMUP = 12; // ticks discarded before averaging
 const TICK_MS = 60; // ~16 ticks/sec
 const FREE_RESET = 48; // ticks between free-twin resets
 const FREE_CAP = 1.0; // color scale ceiling for the sensitivity map
-
-type Controller = {
-  meta: { best_fit_mm: number };
-  conv1_w: number[][][][]; // [16][4][3][3]
-  conv1_b: number[]; // [16]
-  conv2_w: number[][]; // [4][16]
-  conv2_b: number[]; // [4]
-  motor_cells: [number, number][];
-};
-
-const idx = (c: number, y: number, x: number) => c * 64 + y * 8 + x;
-
-function mulberry32(seed: number) {
-  let a = seed >>> 0;
-  return () => {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-function initState(seed: number): Float32Array {
-  const rng = mulberry32(seed);
-  const s = new Float32Array(N);
-  for (let i = 0; i < N; i++) s[i] = (rng() * 2 - 1) * 0.1; // uniform(-0.1, 0.1)
-  return s;
-}
-
-function step(s: Float32Array, ctrl: Controller, gain: number): Float32Array {
-  const { conv1_w, conv1_b, conv2_w, conv2_b } = ctrl;
-  const out = new Float32Array(N);
-  const hvec = new Float32Array(HID);
-  for (let y = 0; y < H; y++) {
-    for (let x = 0; x < W; x++) {
-      for (let o = 0; o < HID; o++) {
-        let acc = conv1_b[o];
-        const wo = conv1_w[o];
-        for (let i = 0; i < C; i++) {
-          const wi = wo[i];
-          for (let ky = 0; ky < 3; ky++) {
-            const yy = y + ky - 1;
-            if (yy < 0 || yy >= H) continue;
-            const wik = wi[ky];
-            for (let kx = 0; kx < 3; kx++) {
-              const xx = x + kx - 1;
-              if (xx < 0 || xx >= W) continue;
-              acc += wik[kx] * s[i * 64 + yy * 8 + xx];
-            }
-          }
-        }
-        hvec[o] = Math.tanh(gain * acc);
-      }
-      for (let o = 0; o < C; o++) {
-        let acc = conv2_b[o];
-        const w2 = conv2_w[o];
-        for (let i = 0; i < HID; i++) acc += w2[i] * hvec[i];
-        out[o * 64 + y * 8 + x] = acc < -1 ? -1 : acc > 1 ? 1 : acc;
-      }
-    }
-  }
-  return out;
-}
-
-function norm(a: Float32Array, b: Float32Array): number {
-  let s = 0;
-  for (let i = 0; i < N; i++) {
-    const d = a[i] - b[i];
-    s += d * d;
-  }
-  return Math.sqrt(s);
-}
 
 // blue → ink → red, matching CACanvas
 function divergingRdBu(v: number): string {

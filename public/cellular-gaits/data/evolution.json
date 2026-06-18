@@ -1,0 +1,450 @@
+{
+  "meta": {
+    "run_id": "2026-05-02T00-01-51Z",
+    "source_csv": "fitness_log_2026-05-02T00-01-51Z.csv",
+    "n_points": 53,
+    "best_fit_overall": 86.619,
+    "fitness_units": "mm (forward distance) - 0.05 * n_below",
+    "phases": {
+      "original": {
+        "step_start": 0,
+        "step_end": 37,
+        "best_at_phase_end": 56.9796,
+        "best_in_phase": 62.1422
+      },
+      "resumed": {
+        "step_start": 38,
+        "step_end": 52,
+        "best_at_phase_end": 78.5691,
+        "best_in_phase": 86.619
+      }
+    },
+    "note": "Phase 'resumed' warm-started from the gen-35 checkpoint of 'original' and re-uses gen numbers; use 'step' for the x-axis."
+  },
+  "curve": [
+    {
+      "step": 0,
+      "gen": 0,
+      "best": 0.1862,
+      "mean": -23.8175,
+      "std": 11.7698,
+      "phase": "original"
+    },
+    {
+      "step": 1,
+      "gen": 1,
+      "best": 4.5578,
+      "mean": -19.4368,
+      "std": 12.0931,
+      "phase": "original"
+    },
+    {
+      "step": 2,
+      "gen": 2,
+      "best": 2.1246,
+      "mean": -22.1199,
+      "std": 11.3048,
+      "phase": "original"
+    },
+    {
+      "step": 3,
+      "gen": 3,
+      "best": 12.9603,
+      "mean": -17.6008,
+      "std": 13.2885,
+      "phase": "original"
+    },
+    {
+      "step": 4,
+      "gen": 4,
+      "best": 3.6928,
+      "mean": -14.9618,
+      "std": 12.6413,
+      "phase": "original"
+    },
+    {
+      "step": 5,
+      "gen": 5,
+      "best": 2.5652,
+      "mean": -20.4312,
+      "std": 13.458,
+      "phase": "original"
+    },
+    {
+      "step": 6,
+      "gen": 6,
+      "best": 14.3256,
+      "mean": -15.9347,
+      "std": 12.0548,
+      "phase": "original"
+    },
+    {
+      "step": 7,
+      "gen": 7,
+      "best": 7.7075,
+      "mean": -17.921,
+      "std": 12.6018,
+      "phase": "original"
+    },
+    {
+      "step": 8,
+      "gen": 8,
+      "best": 2.7423,
+      "mean": -16.727,
+      "std": 10.4922,
+      "phase": "original"
+    },
+    {
+      "step": 9,
+      "gen": 9,
+      "best": 5.6496,
+      "mean": -18.3943,
+      "std": 12.159,
+      "phase": "original"
+    },
+    {
+      "step": 10,
+      "gen": 10,
+      "best": 4.3385,
+      "mean": -13.3783,
+      "std": 9.5409,
+      "phase": "original"
+    },
+    {
+      "step": 11,
+      "gen": 11,
+      "best": 7.2745,
+      "mean": -12.5627,
+      "std": 11.4877,
+      "phase": "original"
+    },
+    {
+      "step": 12,
+      "gen": 12,
+      "best": 4.4592,
+      "mean": -11.5677,
+      "std": 11.7273,
+      "phase": "original"
+    },
+    {
+      "step": 13,
+      "gen": 13,
+      "best": 8.7045,
+      "mean": -10.4937,
+      "std": 10.4084,
+      "phase": "original"
+    },
+    {
+      "step": 14,
+      "gen": 14,
+      "best": 9.0558,
+      "mean": -12.0239,
+      "std": 10.642,
+      "phase": "original"
+    },
+    {
+      "step": 15,
+      "gen": 15,
+      "best": 7.6693,
+      "mean": -7.9049,
+      "std": 9.2598,
+      "phase": "original"
+    },
+    {
+      "step": 16,
+      "gen": 16,
+      "best": 3.0005,
+      "mean": -10.8986,
+      "std": 7.0611,
+      "phase": "original"
+    },
+    {
+      "step": 17,
+      "gen": 17,
+      "best": 12.8789,
+      "mean": -9.8034,
+      "std": 8.5667,
+      "phase": "original"
+    },
+    {
+      "step": 18,
+      "gen": 18,
+      "best": 11.1649,
+      "mean": -9.5284,
+      "std": 10.1579,
+      "phase": "original"
+    },
+    {
+      "step": 19,
+      "gen": 19,
+      "best": 6.7761,
+      "mean": -8.8932,
+      "std": 9.089,
+      "phase": "original"
+    },
+    {
+      "step": 20,
+      "gen": 20,
+      "best": 9.3296,
+      "mean": -12.0379,
+      "std": 9.9405,
+      "phase": "original"
+    },
+    {
+      "step": 21,
+      "gen": 21,
+      "best": 2.8687,
+      "mean": -10.3874,
+      "std": 9.7763,
+      "phase": "original"
+    },
+    {
+      "step": 22,
+      "gen": 22,
+      "best": 2.3631,
+      "mean": -11.9098,
+      "std": 7.0372,
+      "phase": "original"
+    },
+    {
+      "step": 23,
+      "gen": 23,
+      "best": 11.1355,
+      "mean": -6.4477,
+      "std": 8.5675,
+      "phase": "original"
+    },
+    {
+      "step": 24,
+      "gen": 24,
+      "best": 8.4431,
+      "mean": -7.7828,
+      "std": 8.6426,
+      "phase": "original"
+    },
+    {
+      "step": 25,
+      "gen": 25,
+      "best": 6.0966,
+      "mean": -8.334,
+      "std": 8.5003,
+      "phase": "original"
+    },
+    {
+      "step": 26,
+      "gen": 26,
+      "best": 5.0973,
+      "mean": -8.2426,
+      "std": 9.119,
+      "phase": "original"
+    },
+    {
+      "step": 27,
+      "gen": 27,
+      "best": 8.2172,
+      "mean": -11.9458,
+      "std": 8.936,
+      "phase": "original"
+    },
+    {
+      "step": 28,
+      "gen": 28,
+      "best": 6.3264,
+      "mean": -7.9273,
+      "std": 9.6907,
+      "phase": "original"
+    },
+    {
+      "step": 29,
+      "gen": 29,
+      "best": 24.5507,
+      "mean": -9.839,
+      "std": 11.5762,
+      "phase": "original"
+    },
+    {
+      "step": 30,
+      "gen": 30,
+      "best": 21.0804,
+      "mean": -10.4771,
+      "std": 12.3415,
+      "phase": "original"
+    },
+    {
+      "step": 31,
+      "gen": 31,
+      "best": 10.6672,
+      "mean": -10.9951,
+      "std": 10.1683,
+      "phase": "original"
+    },
+    {
+      "step": 32,
+      "gen": 32,
+      "best": 42.8691,
+      "mean": -3.9276,
+      "std": 17.476,
+      "phase": "original"
+    },
+    {
+      "step": 33,
+      "gen": 33,
+      "best": 58.2581,
+      "mean": -5.8718,
+      "std": 18.5421,
+      "phase": "original"
+    },
+    {
+      "step": 34,
+      "gen": 34,
+      "best": 62.1422,
+      "mean": -5.3103,
+      "std": 18.8059,
+      "phase": "original"
+    },
+    {
+      "step": 35,
+      "gen": 35,
+      "best": 57.6664,
+      "mean": 2.6295,
+      "std": 22.573,
+      "phase": "original"
+    },
+    {
+      "step": 36,
+      "gen": 36,
+      "best": 60.694,
+      "mean": 5.5368,
+      "std": 30.1966,
+      "phase": "original"
+    },
+    {
+      "step": 37,
+      "gen": 37,
+      "best": 56.9796,
+      "mean": 9.1504,
+      "std": 23.8238,
+      "phase": "original"
+    },
+    {
+      "step": 38,
+      "gen": 35,
+      "best": 67.1552,
+      "mean": 19.0087,
+      "std": 34.357,
+      "phase": "resumed"
+    },
+    {
+      "step": 39,
+      "gen": 36,
+      "best": 66.1307,
+      "mean": 21.8901,
+      "std": 31.3051,
+      "phase": "resumed"
+    },
+    {
+      "step": 40,
+      "gen": 37,
+      "best": 86.619,
+      "mean": 25.418,
+      "std": 38.1807,
+      "phase": "resumed"
+    },
+    {
+      "step": 41,
+      "gen": 38,
+      "best": 81.2323,
+      "mean": 32.6893,
+      "std": 34.2792,
+      "phase": "resumed"
+    },
+    {
+      "step": 42,
+      "gen": 39,
+      "best": 71.0441,
+      "mean": 45.1873,
+      "std": 16.5131,
+      "phase": "resumed"
+    },
+    {
+      "step": 43,
+      "gen": 40,
+      "best": 75.8377,
+      "mean": 34.1726,
+      "std": 25.2401,
+      "phase": "resumed"
+    },
+    {
+      "step": 44,
+      "gen": 41,
+      "best": 74.6929,
+      "mean": 44.4428,
+      "std": 18.3161,
+      "phase": "resumed"
+    },
+    {
+      "step": 45,
+      "gen": 42,
+      "best": 68.2385,
+      "mean": 44.0555,
+      "std": 16.5608,
+      "phase": "resumed"
+    },
+    {
+      "step": 46,
+      "gen": 43,
+      "best": 76.1751,
+      "mean": 47.9389,
+      "std": 16.336,
+      "phase": "resumed"
+    },
+    {
+      "step": 47,
+      "gen": 44,
+      "best": 77.6257,
+      "mean": 48.4362,
+      "std": 14.3116,
+      "phase": "resumed"
+    },
+    {
+      "step": 48,
+      "gen": 45,
+      "best": 68.5821,
+      "mean": 51.9453,
+      "std": 9.4017,
+      "phase": "resumed"
+    },
+    {
+      "step": 49,
+      "gen": 46,
+      "best": 74.1374,
+      "mean": 50.8437,
+      "std": 12.2696,
+      "phase": "resumed"
+    },
+    {
+      "step": 50,
+      "gen": 47,
+      "best": 74.8962,
+      "mean": 46.2991,
+      "std": 13.4077,
+      "phase": "resumed"
+    },
+    {
+      "step": 51,
+      "gen": 48,
+      "best": 79.0342,
+      "mean": 50.0336,
+      "std": 18.5291,
+      "phase": "resumed"
+    },
+    {
+      "step": 52,
+      "gen": 49,
+      "best": 78.5691,
+      "mean": 47.8323,
+      "std": 17.0897,
+      "phase": "resumed"
+    }
+  ]
+}
