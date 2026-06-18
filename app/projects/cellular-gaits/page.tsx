@@ -3,6 +3,7 @@ import "katex/dist/katex.min.css";
 import { CAPlayer } from "@/components/cellular-gaits/CAPlayer";
 import { CriticalityPlayground } from "@/components/cellular-gaits/CriticalityPlayground";
 import { Math } from "@/components/cellular-gaits/Math";
+import { BuildPlanDAG } from "@/components/cellular-gaits/BuildPlanDAG";
 
 export const metadata: Metadata = {
   title: "Cellular Gaits — Vishal Pathak",
@@ -319,6 +320,23 @@ export default function CellularGaitsPage() {
               <Math tex="\lambda \approx 0" display={false} /> edge,{" "}
               <Math tex="\lambda > 0" display={false} /> chaotic.
             </p>
+          </div>
+        </section>
+
+        <section className="cg-section">
+          <p className="cg-section-eyebrow">§ ROADMAP · BUILD PLAN</p>
+          <p className="cg-section-lead">
+            Where this page is going. The current site is a first pass; the
+            redesign turns it into a tabbed technical reference where each
+            modeled choice — the body, the controller, sensing, the motor
+            mapping, the objective, the optimizer — is its own interactive
+            module, backed by the real fly physics compiled to WebAssembly. The
+            graph below is the build plan: columns are time, boxes stacked in a
+            column run in parallel. It is a living document, kept in sync with
+            the project as it evolves.
+          </p>
+          <div className="cg-dag">
+            <BuildPlanDAG />
           </div>
         </section>
 

@@ -910,6 +910,13 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   max-width: 66ch;
 }
 
+.cg-dag {
+  border: 1px solid var(--rule);
+  background: var(--bg-raised);
+  border-radius: 4px;
+  padding: 16px;
+}
+
 .cg-player {
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
