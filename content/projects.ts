@@ -113,6 +113,31 @@ export const PROJECTS: Project[] = [
   },
   {
     num: "B-04",
+    title: "Cellular Gaits",
+    oneLiner: "evolved cellular automaton walks a simulated fly",
+    status: "shipped",
+    statusLabel: "SHIPPED · v1",
+    paragraphs: [
+      {
+        text: "An 8×8 neural cellular automaton — Conway's Game of Life with a learnable rule instead of a fixed one — evolved with CMA-ES until its emergent grid pattern drives the 42 leg joints of a biomechanical fruit fly in FlyGym/MuJoCo. No dataset: the fly's own forward distance in the physics sim is the whole training signal.",
+      },
+      {
+        text: "The best individual walks ~29 mm/s — real-Drosophila range. Open it to watch the fly walking beside the CA grid pulsing in sync: a distributed, local-rule system producing a coordinated gait, which is the same question the fly connectome poses at 140,000× the scale.",
+        dim: true,
+      },
+    ],
+    meta: [
+      { key: "STACK", value: "FlyGym · MuJoCo · CMA-ES · Next" },
+      { key: "CONTROLLER", value: "660-param neural CA" },
+      { key: "RESULT", value: "~29 mm/s gait" },
+      { key: "BUILD", value: "Solo · Claude · v1", build: true },
+    ],
+    actions: [
+      { label: "→ open cellular gaits", href: "/projects/cellular-gaits", primary: true },
+    ],
+  },
+  {
+    num: "B-05",
     title: "This site",
     oneLiner: "the page you are reading",
     status: "shipped",
