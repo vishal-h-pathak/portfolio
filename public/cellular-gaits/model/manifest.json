@@ -1,0 +1,464 @@
+{
+  "model_file": "fly.xml",
+  "source": "FlyGym 2.0.1 (mujoco 3.6.0), _build_default_world() in src/cellular_gaits/env.py",
+  "fly_name": "nmf",
+  "thorax_body": "nmf/c_thorax",
+  "n_actuators": 42,
+  "actuator_index_equals_control_order": true,
+  "control_convention": "JS controller emits a 42-vector in [-1,1]; multiply by ctrlrange_rad (3.14) and write to mj_data.ctrl in actuator-index order. Actuator index i == this manifest's actuators[i] == env.py set_actuator_inputs order.",
+  "ctrlrange_rad": 3.14,
+  "kp": 50.0,
+  "control_rate_hz": 250,
+  "control_dt_s": 0.004,
+  "physics_timestep_s": 0.0001,
+  "physics_steps_per_control": 40,
+  "physics_rate_hz": 10000,
+  "gravity": [
+    0.0,
+    0.0,
+    -9810.0
+  ],
+  "length_units": "mm (gravity is -9810 mm/s^2)",
+  "spawn_position": [
+    0.0,
+    0.0,
+    0.7
+  ],
+  "neutral_keyframe": "neutral",
+  "actuators": [
+    {
+      "index": 0,
+      "actuator": "nmf/c_thorax-lf_coxa-yaw-position",
+      "joint": "nmf/c_thorax-lf_coxa-yaw",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 1,
+      "actuator": "nmf/c_thorax-lf_coxa-pitch-position",
+      "joint": "nmf/c_thorax-lf_coxa-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 2,
+      "actuator": "nmf/c_thorax-lf_coxa-roll-position",
+      "joint": "nmf/c_thorax-lf_coxa-roll",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 3,
+      "actuator": "nmf/lf_coxa-lf_trochanterfemur-pitch-position",
+      "joint": "nmf/lf_coxa-lf_trochanterfemur-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 4,
+      "actuator": "nmf/lf_coxa-lf_trochanterfemur-roll-position",
+      "joint": "nmf/lf_coxa-lf_trochanterfemur-roll",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 5,
+      "actuator": "nmf/lf_trochanterfemur-lf_tibia-pitch-position",
+      "joint": "nmf/lf_trochanterfemur-lf_tibia-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 6,
+      "actuator": "nmf/lf_tibia-lf_tarsus1-pitch-position",
+      "joint": "nmf/lf_tibia-lf_tarsus1-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 7,
+      "actuator": "nmf/c_thorax-lm_coxa-yaw-position",
+      "joint": "nmf/c_thorax-lm_coxa-yaw",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 8,
+      "actuator": "nmf/c_thorax-lm_coxa-pitch-position",
+      "joint": "nmf/c_thorax-lm_coxa-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 9,
+      "actuator": "nmf/c_thorax-lm_coxa-roll-position",
+      "joint": "nmf/c_thorax-lm_coxa-roll",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 10,
+      "actuator": "nmf/lm_coxa-lm_trochanterfemur-pitch-position",
+      "joint": "nmf/lm_coxa-lm_trochanterfemur-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 11,
+      "actuator": "nmf/lm_coxa-lm_trochanterfemur-roll-position",
+      "joint": "nmf/lm_coxa-lm_trochanterfemur-roll",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 12,
+      "actuator": "nmf/lm_trochanterfemur-lm_tibia-pitch-position",
+      "joint": "nmf/lm_trochanterfemur-lm_tibia-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 13,
+      "actuator": "nmf/lm_tibia-lm_tarsus1-pitch-position",
+      "joint": "nmf/lm_tibia-lm_tarsus1-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 14,
+      "actuator": "nmf/c_thorax-lh_coxa-yaw-position",
+      "joint": "nmf/c_thorax-lh_coxa-yaw",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 15,
+      "actuator": "nmf/c_thorax-lh_coxa-pitch-position",
+      "joint": "nmf/c_thorax-lh_coxa-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 16,
+      "actuator": "nmf/c_thorax-lh_coxa-roll-position",
+      "joint": "nmf/c_thorax-lh_coxa-roll",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 17,
+      "actuator": "nmf/lh_coxa-lh_trochanterfemur-pitch-position",
+      "joint": "nmf/lh_coxa-lh_trochanterfemur-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 18,
+      "actuator": "nmf/lh_coxa-lh_trochanterfemur-roll-position",
+      "joint": "nmf/lh_coxa-lh_trochanterfemur-roll",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 19,
+      "actuator": "nmf/lh_trochanterfemur-lh_tibia-pitch-position",
+      "joint": "nmf/lh_trochanterfemur-lh_tibia-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 20,
+      "actuator": "nmf/lh_tibia-lh_tarsus1-pitch-position",
+      "joint": "nmf/lh_tibia-lh_tarsus1-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 21,
+      "actuator": "nmf/c_thorax-rf_coxa-yaw-position",
+      "joint": "nmf/c_thorax-rf_coxa-yaw",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 22,
+      "actuator": "nmf/c_thorax-rf_coxa-pitch-position",
+      "joint": "nmf/c_thorax-rf_coxa-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 23,
+      "actuator": "nmf/c_thorax-rf_coxa-roll-position",
+      "joint": "nmf/c_thorax-rf_coxa-roll",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 24,
+      "actuator": "nmf/rf_coxa-rf_trochanterfemur-pitch-position",
+      "joint": "nmf/rf_coxa-rf_trochanterfemur-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 25,
+      "actuator": "nmf/rf_coxa-rf_trochanterfemur-roll-position",
+      "joint": "nmf/rf_coxa-rf_trochanterfemur-roll",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 26,
+      "actuator": "nmf/rf_trochanterfemur-rf_tibia-pitch-position",
+      "joint": "nmf/rf_trochanterfemur-rf_tibia-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 27,
+      "actuator": "nmf/rf_tibia-rf_tarsus1-pitch-position",
+      "joint": "nmf/rf_tibia-rf_tarsus1-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 28,
+      "actuator": "nmf/c_thorax-rm_coxa-yaw-position",
+      "joint": "nmf/c_thorax-rm_coxa-yaw",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 29,
+      "actuator": "nmf/c_thorax-rm_coxa-pitch-position",
+      "joint": "nmf/c_thorax-rm_coxa-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 30,
+      "actuator": "nmf/c_thorax-rm_coxa-roll-position",
+      "joint": "nmf/c_thorax-rm_coxa-roll",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 31,
+      "actuator": "nmf/rm_coxa-rm_trochanterfemur-pitch-position",
+      "joint": "nmf/rm_coxa-rm_trochanterfemur-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 32,
+      "actuator": "nmf/rm_coxa-rm_trochanterfemur-roll-position",
+      "joint": "nmf/rm_coxa-rm_trochanterfemur-roll",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 33,
+      "actuator": "nmf/rm_trochanterfemur-rm_tibia-pitch-position",
+      "joint": "nmf/rm_trochanterfemur-rm_tibia-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 34,
+      "actuator": "nmf/rm_tibia-rm_tarsus1-pitch-position",
+      "joint": "nmf/rm_tibia-rm_tarsus1-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 35,
+      "actuator": "nmf/c_thorax-rh_coxa-yaw-position",
+      "joint": "nmf/c_thorax-rh_coxa-yaw",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 36,
+      "actuator": "nmf/c_thorax-rh_coxa-pitch-position",
+      "joint": "nmf/c_thorax-rh_coxa-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 37,
+      "actuator": "nmf/c_thorax-rh_coxa-roll-position",
+      "joint": "nmf/c_thorax-rh_coxa-roll",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 38,
+      "actuator": "nmf/rh_coxa-rh_trochanterfemur-pitch-position",
+      "joint": "nmf/rh_coxa-rh_trochanterfemur-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 39,
+      "actuator": "nmf/rh_coxa-rh_trochanterfemur-roll-position",
+      "joint": "nmf/rh_coxa-rh_trochanterfemur-roll",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 40,
+      "actuator": "nmf/rh_trochanterfemur-rh_tibia-pitch-position",
+      "joint": "nmf/rh_trochanterfemur-rh_tibia-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    },
+    {
+      "index": 41,
+      "actuator": "nmf/rh_tibia-rh_tarsus1-pitch-position",
+      "joint": "nmf/rh_tibia-rh_tarsus1-pitch",
+      "ctrlrange": [
+        -3.14,
+        3.14
+      ],
+      "kp": 50.0
+    }
+  ],
+  "simplifications": [
+    "Removed all <contact> sensors (mjSENS_CONTACT, MuJoCo>=3.2): output-only ground-contact readouts unused by the JS controller and unsupported by older MuJoCo-WASM builds. Dynamics are unchanged.",
+    "Meshes are SIMPLIFIED_MAX2000FACES (FlyGym default), mirror_left2right=True.",
+    "Kept <option> flag multiccd=enable (improves mesh-mesh contact); drop it if the target WASM engine predates MuJoCo 3.x.",
+    "Kept tracking camera 'nmf/trackingcam' (harmless, useful for the viewer)."
+  ],
+  "removed_elements": [
+    "sensor:ground_contact_lf_leg",
+    "sensor:ground_contact_lm_leg",
+    "sensor:ground_contact_lh_leg",
+    "sensor:ground_contact_rf_leg",
+    "sensor:ground_contact_rm_leg",
+    "sensor:ground_contact_rh_leg"
+  ]
+}

@@ -4,7 +4,7 @@
 > redesign. The on-site diagram is `components/cellular-gaits/BuildPlanDAG.tsx` and it
 > must stay in sync with the status table below. When the plan changes, edit **both**.
 >
-> Last updated: 2026-06-18
+> Last updated: 2026-06-18 (C landed)
 
 ## Goal
 
@@ -18,10 +18,13 @@ removed; an appendix holds all the math.
 ## Architecture decisions
 
 - **Physics in the browser:** Google DeepMind ships official WebAssembly/TypeScript
-  bindings for MuJoCo, and FlyGym stores the fly as MJCF XML (`flygym/data/mjcf/`). We
-  load the real fly model into the real engine, client-side, and drive it with
-  controllers ported to JS. Pyodide is *not* used (no maintained MuJoCo wheel; full
-  FlyGym stack isn't browser-portable).
+  bindings for MuJoCo. FlyGym 2.0.1 builds the fly programmatically via `dm_control.mjcf`
+  (no static MJCF dir), so prompt A flattens the compiled model with
+  `export_with_assets`. The standalone bundle (`fly.xml` + 39 STL meshes + `manifest.json`,
+  3.27 MB, MuJoCo 3.6.0) now lives at `portfolio/public/cellular-gaits/model/`. We load the
+  real model into the real engine client-side and drive it with controllers ported to JS.
+  Pyodide is *not* used (no maintained MuJoCo wheel; full FlyGym stack isn't
+  browser-portable).
 - **Heavy compute stays offline:** CMA-ES evolution, gain→gait sweeps, and
   perturbation-recovery runs are precomputed in real Python FlyGym and shipped as
   JSON/mp4 to scrub. "Interactive" = live WASM physics for short rollouts + real
@@ -42,8 +45,8 @@ Columns in the diagram are time; boxes in a column run in parallel.
 
 | ID | Prompt | Repo | Wave | Depends on | Status |
 |----|--------|------|------|-----------|--------|
-| A | Export fly MJCF + assets | cellular-gaits | 1 | — | planned |
-| C | Route shell + nav + math appendix migration | portfolio | 1 | — | planned |
+| A | Export fly MJCF + assets | cellular-gaits | 1 | — | done |
+| C | Route shell + nav + math appendix migration | portfolio | 1 | — | done |
 | D | Precompute rollouts (gain→gait sweep, open/closed clips, evolution curve, CPG baseline) | cellular-gaits | 1 | — | planned |
 | B | MuJoCo-WASM substrate (`<FlyStage>`, spike + perf validation) | portfolio | 2 | A | planned |
 | E1 | Body tab | portfolio | 3 | B, C | planned |
@@ -80,3 +83,16 @@ this; a future campaign is the build-out.
 - **2026-06-18** — Initial plan. Architecture set (MuJoCo-WASM, sub-routes, math
   appendix, story removed). Decomposed into prompts A–F; diagram + this doc created and
   surfaced in the page appendix.
+- **2026-06-18** — **A done.** Fly model flattened (`export_with_assets`) into a standalone
+  bundle and copied to `public/cellular-gaits/model/` (`fly.xml`, 39 STL meshes,
+  `manifest.json`; 3.27 MB; MuJoCo 3.6.0). Verified: loads in vanilla MuJoCo, `nu==42`,
+  actuator index order == `env.py` control order (JS writes `ctrl[0..41]` directly), 4000
+  steps stable. Contact via 55 `<pair>`s; 6 contact sensors removed; `multiccd` kept (drop
+  if WASM engine predates MuJoCo 3.x). Units = mm, gravity −9810. Unblocks B.
+- **2026-06-18** — **C done.** `/projects/cellular-gaits` is now a tabbed, deep-linkable
+  reference: shared `layout.tsx` + `CgTabNav` (active tab from pathname, mobile-scrollable),
+  nine real routes (frame index, controller, six stub concept tabs via `ConceptScaffold`,
+  appendix). Story `cg-writeup` removed; math + `BuildPlanDAG` migrated verbatim into
+  `/appendix`. Hard facts from the old writeup salvaged into each stub's "what we chose".
+  Stub tabs (body/sensing/mapping/objective/optimizer/embodied) carry `// TODO: wave 3`
+  markers and the four-part explainer scaffold; E1–E7 now unblocked. Build green.
