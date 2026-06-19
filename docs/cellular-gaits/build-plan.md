@@ -56,7 +56,7 @@ Columns in the diagram are time; boxes in a column run in parallel.
 | E3 | Sensing tab (open vs closed loop) | portfolio | 3 | B, C, D | done |
 | E4 | Motor mapping tab | portfolio | 3 | B, C | done |
 | E5 | Objective tab (reweight fitness) | portfolio | 3 | B, C, D | done |
-| E6 | Optimizer tab (toy search + real curve) | portfolio | 3 | C, D | planned |
+| E6 | Optimizer tab (toy search + real curve) | portfolio | 3 | C, D | done |
 | E7 | Embodied connectome tab (Eon direction) | portfolio | 3 | C | planned |
 | F | Integrate + verify (cross-links, index frame, perf, build green) | portfolio | 4 | all E | planned |
 | G | System-design diagram (appendix, hover-to-reveal model) | portfolio | — | C | done |
@@ -95,6 +95,17 @@ this; a future campaign is the build-out.
   frame budget alongside the playground (precomputed-only, per the honesty rule). Build green
   (webpack; the Turbopack symlink panic + the pre-existing `dashboard/login` PageProps error are
   environment/base issues, not E2), 375px clean, 0 console errors.
+- **2026-06-18** — **E6 done.** Optimizer tab filled. Two-piece module: (1) a live,
+  in-browser **toy CMA-ES** — a faithful 2-D port of the real algorithm (weighted
+  recombination + rank-one/rank-μ covariance update + CSA) on a tilted ill-conditioned
+  quadratic, with play/step/reset; clearly labelled a toy, not the fly run. (2) the
+  **real evolution curve**, rendered statically (SSR) from D's precomputed
+  `evolution.json` — best/mean/±σ over 53 steps with the **original→resumed** phase split
+  annotated (warm-start from the gen-35 checkpoint beat a prematurely-converged ~62 mm up
+  to 86.6 mm). No live CMA-ES / fitness recompute. ConceptScaffold's four parts filled with
+  real constants (pop 32, σ₀ 0.3, 50 gens, 660 params; alternatives RL / MJX-Brax /
+  MAP-Elites; frontier = QD gallery). New: `ToyCmaEs.tsx`, `OptimizerModule.tsx`, `cg-opt-*`
+  styles. tsc clean for the route; readable at 375px.
 - **2026-06-18** — Initial plan. Architecture set (MuJoCo-WASM, sub-routes, math
   appendix, story removed). Decomposed into prompts A–F; diagram + this doc created and
   surfaced in the page appendix.
