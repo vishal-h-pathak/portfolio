@@ -54,7 +54,7 @@ Columns in the diagram are time; boxes in a column run in parallel.
 | E1 | Body tab | portfolio | 3 | B, C | done |
 | E2 | Controller tab (criticality playground + answered gain→gait result) | portfolio | 3 | B, C, D | done |
 | E3 | Sensing tab (open vs closed loop) | portfolio | 3 | B, C, D | done |
-| E4 | Motor mapping tab | portfolio | 3 | B, C | planned |
+| E4 | Motor mapping tab | portfolio | 3 | B, C | done |
 | E5 | Objective tab (reweight fitness) | portfolio | 3 | B, C, D | planned |
 | E6 | Optimizer tab (toy search + real curve) | portfolio | 3 | C, D | planned |
 | E7 | Embodied connectome tab (Eon direction) | portfolio | 3 | C | planned |
@@ -185,3 +185,22 @@ this; a future campaign is the build-out.
   filled with real constants (8×8×4 grid / 660 θ, 42 joints, 250 Hz, 86.6 mm native; sensors:
   campaniform sensilla / hair plates / chordotonal organs). 375px-clean (paths stack), keyboard/
   aria accessible (each path SVG `role="img"` titled+described). Build green. Don't-merge (F integrates).
+- **2026-06-18** — **E4 done.** `/mapping` filled (`components/cellular-gaits/MotorMap.tsx`): the
+  cell↔joint wiring made concrete. Two synced, bidirectional surfaces — the 8×8 grid (top-left
+  **7×6** = 42 motor cells numbered with their actuator index `i = r·6 + c`, the other 22 channel-0
+  cells dimmed) and a top-down schematic fly (6 legs × 7 joints) — hover/focus either side lights up
+  the matching element on the other; the deliberate decorrelation between grid position and which leg
+  moves is the teaching point (it's a wiring convenience, nothing biological). Readout traces
+  `s₀[r,c] → u[i] → joint` using the **real `model/manifest.json` actuator order** (fetched), and shows
+  the rescale `clip(u,−1,1)·3.14 rad`. Beside it a live `<FlyStage>` driven by the evolved NCA
+  (`lib/nca.ts`); pin a joint + "override on live fly" clamps that single target (`u[i]` slider, shown
+  in rad) while the other 41 keep walking — live MuJoCo, `clip_gain_native.mp4` fallback. Keyboard/aria
+  throughout (SVG `role=button`, `aria-pressed`, focus-visible rings), clean at 375px (single-column,
+  no overflow), no console errors. ConceptScaffold's four parts filled with real constants
+  (chose/why/alternatives/descending-neuron-readout frontier). Build green (see note below re: webpack).
+  **Drive-by, out of E4 scope:** `app/dashboard/login/page.tsx` had a pre-existing Next 16 type error
+  (sync `searchParams`, present on `feat/cg-redesign`) that blocked the type-check; fixed with the
+  canonical `await searchParams` migration so the build is actually green. NB: this worktree's
+  `node_modules` is a symlink out of root, which the **Turbopack** build rejects (`next build`); verified
+  green with `next build --webpack` — an environment quirk of the worktree, not the app. F should
+  confirm under Turbopack in the integrated tree.

@@ -1618,6 +1618,200 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   .cg-gaitclip video { aspect-ratio: 16 / 9; }
 }
 
+/* ── E4 motor mapping (cell ↔ joint) ────────────────────────────────── */
+.cg-mm {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--bg-raised);
+  padding: 18px;
+}
+.cg-mm-surfaces {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+.cg-mm-fig { margin: 0; }
+.cg-mm-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-family: var(--mono);
+  touch-action: manipulation;
+}
+.cg-mm-cap {
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: var(--ink-faint);
+  text-align: center;
+}
+.cg-mm-cap strong { color: var(--amber); font-weight: 500; }
+
+/* grid */
+.cg-mm-cell-off {
+  fill: rgba(232, 230, 223, 0.03);
+  stroke: var(--rule-soft);
+  stroke-width: 1;
+}
+.cg-mm-cell {
+  fill: rgba(232, 155, 61, 0.08);
+  stroke: var(--amber-dim);
+  stroke-width: 1;
+  transition: fill 0.12s, stroke 0.12s;
+}
+.cg-mm-cell[data-pinned="1"] { stroke: var(--amber); }
+.cg-mm-cell[data-active="1"] {
+  fill: rgba(111, 227, 154, 0.22);
+  stroke: var(--green);
+  stroke-width: 2;
+}
+.cg-mm-cell-i {
+  fill: var(--ink-faint);
+  font-size: 11px;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+.cg-mm-cell-i[data-active="1"] { fill: var(--ink); }
+
+/* fly schematic */
+.cg-mm-body {
+  fill: rgba(232, 230, 223, 0.05);
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+.cg-mm-limb {
+  stroke: rgba(232, 230, 223, 0.22);
+  stroke-width: 2;
+  stroke-linecap: round;
+  transition: stroke 0.12s;
+}
+.cg-mm-limb[data-active="1"] { stroke: var(--green); }
+.cg-mm-leg-label {
+  fill: var(--ink-faint);
+  font-size: 11px;
+  dominant-baseline: middle;
+  pointer-events: none;
+  transition: fill 0.12s;
+}
+.cg-mm-leg-label[data-active="1"] { fill: var(--green); }
+.cg-mm-node-hit { fill: transparent; }
+.cg-mm-node {
+  fill: var(--amber);
+  opacity: 0.6;
+  transition: r 0.1s, fill 0.12s, opacity 0.12s;
+}
+.cg-mm-node[data-pinned="1"] { opacity: 1; }
+.cg-mm-node[data-active="1"] { fill: var(--green); opacity: 1; }
+
+/* keyboard focus rings on the interactive groups */
+.cg-mm-hit { cursor: pointer; outline: none; }
+.cg-mm-hit:focus-visible .cg-mm-cell,
+.cg-mm-hit:focus-visible .cg-mm-node {
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+/* readout */
+.cg-mm-readout {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.cg-mm-readout-empty {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+.cg-mm-ro-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+.cg-mm-ro-k { color: var(--ink-faint); letter-spacing: 0.04em; }
+.cg-mm-ro-arr { color: var(--green); }
+.cg-mm-ro-line code {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink);
+  background: rgba(232, 230, 223, 0.06);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.cg-mm-ro-act { color: var(--green) !important; }
+
+/* live fly + override */
+.cg-mm-live {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  border-top: 1px solid var(--rule);
+  padding-top: 18px;
+}
+.cg-mm-stage { min-width: 0; }
+.cg-mm-override { display: flex; flex-direction: column; gap: 10px; }
+.cg-mm-ov-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink);
+  cursor: pointer;
+}
+.cg-mm-ov-toggle input { accent-color: var(--green); cursor: pointer; }
+.cg-mm-ov-toggle input:disabled { cursor: default; }
+.cg-mm-ov-pin {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-dim);
+}
+.cg-mm-ov-pin code {
+  font-family: var(--mono);
+  color: var(--green);
+  background: rgba(111, 227, 154, 0.08);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.cg-mm-ov-hint { color: var(--ink-faint); }
+.cg-mm-ov-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-dim);
+}
+.cg-mm-ov-row[data-off="1"] { opacity: 0.45; }
+.cg-mm-ov-row input[type="range"] { flex: 1; accent-color: var(--green); min-width: 0; }
+.cg-mm-ov-val { color: var(--ink); white-space: nowrap; }
+.cg-mm-ov-note {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--ink-dim);
+}
+
+@media (max-width: 640px) {
+  .cg-mm { padding: 14px; }
+  .cg-mm-surfaces { grid-template-columns: 1fr; gap: 22px; }
+  .cg-mm-live { grid-template-columns: 1fr; }
+}
+
 /* ── the math section (KaTeX) ───────────────────────────────────────── */
 .cg-math { color: var(--ink); }
 .cg-math-block {
