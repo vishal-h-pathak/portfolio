@@ -34,7 +34,7 @@ export function ConceptScaffold({
   /** Section name, rendered as the § eyebrow. */
   name: string;
   /** One-line lead under the eyebrow. */
-  lead: string;
+  lead: ReactNode;
   /** The interactive module. Defaults to a wave-3 placeholder. */
   module?: ReactNode;
   /** The four-part explainer. Each missing part falls back to a TODO marker. */
