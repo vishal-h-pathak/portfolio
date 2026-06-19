@@ -4,12 +4,12 @@
  * gate should leak. Server component — the form posts to the login
  * route and middleware handles the redirect.
  */
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { error?: string };
+  searchParams: Promise<{ error?: string }>;
 }) {
-  const error = searchParams?.error;
+  const error = (await searchParams)?.error;
   return (
     <main className="flex min-h-screen items-center justify-center px-4">
       <form
