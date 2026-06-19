@@ -55,7 +55,7 @@ Columns in the diagram are time; boxes in a column run in parallel.
 | E2 | Controller tab (criticality playground + answered gain→gait result) | portfolio | 3 | B, C, D | done |
 | E3 | Sensing tab (open vs closed loop) | portfolio | 3 | B, C, D | done |
 | E4 | Motor mapping tab | portfolio | 3 | B, C | done |
-| E5 | Objective tab (reweight fitness) | portfolio | 3 | B, C, D | planned |
+| E5 | Objective tab (reweight fitness) | portfolio | 3 | B, C, D | done |
 | E6 | Optimizer tab (toy search + real curve) | portfolio | 3 | C, D | planned |
 | E7 | Embodied connectome tab (Eon direction) | portfolio | 3 | C | planned |
 | F | Integrate + verify (cross-links, index frame, perf, build green) | portfolio | 4 | all E | planned |
@@ -151,6 +151,7 @@ this; a future campaign is the build-out.
   decimation not needed). MT/`SharedArrayBuffer` (COOP/COEP) noted as a future lever, not used.
   **Wave 3: E1/E3/E4 get LIVE physics** (recorded fallback available via `fallbackClipSrc` but
   not the default). Unblocks E1, E2, E3, E4.
+<<<<<<< HEAD
 - **2026-06-18** — **E1 done.** Body tab (`/projects/cellular-gaits/body`) filled. Interactive
   module is the real evolved NCA walking the real fly **live** in MuJoCo-WASM via `<FlyStage>`
   (default controller), with the stage's play/pause/reset plus a camera-tracking on/off toggle,
@@ -204,3 +205,21 @@ this; a future campaign is the build-out.
   `node_modules` is a symlink out of root, which the **Turbopack** build rejects (`next build`); verified
   green with `next build --webpack` — an environment quirk of the worktree, not the app. F should
   confirm under Turbopack in the integrated tree.
+- **2026-06-18** — **E5 done.** Filled the `/objective` tab. New `ObjectiveChart.tsx` (client
+  island) plots D's **precomputed** `gain_sweep.json` — forward distance vs the gain knob,
+  the same single-peak story framed as "this is what the chosen objective rewarded": native
+  gain 1.0 marked amber (✦ 86.6 mm), the two-sided collapse drawn as red below-zero bars.
+  Server-rendered `Math` formula above it (`F = Δx − 0.05·N_below`, `z_thr = 0.5 z_thorax`,
+  post-warmup). A penalty toggle switches the bars/axis between distance and full fitness and
+  exposes an honesty point baked into the data: **N_below = 0 at every sampled gain**, so the
+  stability penalty never fired and fitness = distance here — surfaced explicitly rather than
+  faked. Per-bar readout (distance / N_below / penalty / fitness) on hover + keyboard focus
+  (`role=button`, `tabindex`, `aria-label`, `aria-live` readout, SVG `title`/`desc`).
+  Four-part explainer filled with real constants; alternatives (energy, symmetry,
+  speed-match, push-robustness, uprightness) and frontier (multi-objective / quality-diversity
+  archive, Stage 3) named. Honesty constraint stated: visualizes the real objective, does not
+  re-optimize for a new one. Verified rendering + interactivity via dev server + Playwright
+  (0 console errors; toggle + readout confirmed); clean at 375px (no overflow). `tsc --noEmit`
+  green and the cellular-gaits routes compile under `next build --webpack`; the repo-wide
+  `npm run build` is blocked only by the worktree's `node_modules` symlink (Turbopack) and a
+  pre-existing dashboard type error, both outside E5. New CSS under `.cg-obj-*` in globals.css.
