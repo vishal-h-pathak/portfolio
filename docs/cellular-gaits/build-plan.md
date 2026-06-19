@@ -57,7 +57,7 @@ Columns in the diagram are time; boxes in a column run in parallel.
 | E4 | Motor mapping tab | portfolio | 3 | B, C | done |
 | E5 | Objective tab (reweight fitness) | portfolio | 3 | B, C, D | done |
 | E6 | Optimizer tab (toy search + real curve) | portfolio | 3 | C, D | done |
-| E7 | Embodied connectome tab (Eon direction) | portfolio | 3 | C | planned |
+| E7 | Embodied connectome tab (Eon direction) | portfolio | 3 | C | done |
 | F | Integrate + verify (cross-links, index frame, perf, build green) | portfolio | 4 | all E | planned |
 | G | System-design diagram (appendix, hover-to-reveal model) | portfolio | — | C | done |
 
@@ -233,3 +233,16 @@ this; a future campaign is the build-out.
   green and the cellular-gaits routes compile under `next build --webpack`; the repo-wide
   `npm run build` is blocked only by the worktree's `node_modules` symlink (Turbopack) and a
   pre-existing dashboard type error, both outside E5. New CSS under `.cg-obj-*` in globals.css.
+- **2026-06-18** — **E7 done.** Filled the `/embodied` tab (the Eon on-ramp). New
+  `ControllerLadder.tsx` — a themed signal-flow (reuses `SystemDiagram`'s SVG visual language +
+  `.sysdiagram`/`.sysdiagram-pop` CSS) of the controller ladder: **NCA null model (today, live) →
+  CPG → closed proprioceptive loop (Stage 2) → real FlyWire VNC connectome**, all swapped into
+  **one fixed controller slot** driving **one fixed FlyGym body** — the green path (NCA → slot →
+  body) marks what's live today, the rest is roadmap; each rung reveals a "what changes" popout on
+  hover / tap / focus (keyboard-focusable, `Esc` to close, `aria`-described, edge-aware popout,
+  clean at 375px). The existing native walking clip (`data/clip_gain_native.mp4`) is embedded as
+  the "today" anchor. `ConceptScaffold` filled with all four parts (null model · structure →
+  dynamics → behaviour · next rungs · the Eon frontier) plus a linked **references** list (Shiu
+  et al. 2024, Lappalainen et al. 2024, Wang-Chen et al. 2024, Vaxenburg et al. 2025, the Eon
+  embodied-fly write-up incl. the Loihi 2 / neuromorphic angle, and FlyWire). No new physics.
+  Build green.
