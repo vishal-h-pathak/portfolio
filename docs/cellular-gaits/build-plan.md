@@ -151,7 +151,6 @@ this; a future campaign is the build-out.
   decimation not needed). MT/`SharedArrayBuffer` (COOP/COEP) noted as a future lever, not used.
   **Wave 3: E1/E3/E4 get LIVE physics** (recorded fallback available via `fallbackClipSrc` but
   not the default). Unblocks E1, E2, E3, E4.
-<<<<<<< HEAD
 - **2026-06-18** — **E1 done.** Body tab (`/projects/cellular-gaits/body`) filled. Interactive
   module is the real evolved NCA walking the real fly **live** in MuJoCo-WASM via `<FlyStage>`
   (default controller), with the stage's play/pause/reset plus a camera-tracking on/off toggle,
