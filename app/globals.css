@@ -1369,6 +1369,50 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   font-weight: 500;
 }
 
+/* ---- Plant schematic (static morphology, house style) ---- */
+.cg-plant-note {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  color: var(--ink-faint);
+  margin: 14px 0 18px;
+  max-width: 64ch;
+}
+.cg-plant {
+  margin: 0;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: var(--bg-raised);
+  padding: 14px 14px 4px;
+}
+.cg-plant svg [role="button"]:focus-visible {
+  outline: none;
+}
+.cg-plant svg [role="button"]:focus-visible polyline:nth-of-type(2) {
+  stroke: var(--green);
+}
+.cg-plant-cap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 10px 2px 12px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.03em;
+  color: var(--ink-faint);
+}
+.cg-plant-cap strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+.cg-plant-cap-sel {
+  color: var(--green);
+}
+.cg-plant-cap-sel strong {
+  color: var(--green);
+}
+
 @media (max-width: 720px) {
   .cg-pg {
     grid-template-columns: 1fr;
