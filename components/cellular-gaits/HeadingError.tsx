@@ -18,12 +18,15 @@ const INK = "#E8E6DF";
 const RULE = "rgba(232,230,223,0.18)";
 
 const W = 600;
-const H = 300;
+// Tall enough that the open-loop ray (veers down by up to ~57°) and its label
+// stay inside the box at the real data, with the headline callout parked in the
+// lower-right where neither ray reaches.
+const H = 360;
 
 // Shove origin + reference geometry.
 const OX = 118;
-const OY = 150;
-const L = 250;
+const OY = 130;
+const L = 216;
 
 type Ray = { deg: number; color: string };
 
@@ -158,12 +161,12 @@ export function HeadingError({
         {/* origin dot */}
         <circle cx={OX} cy={OY} r={3.5} fill={INK} />
 
-        {/* headline single-shove callout */}
+        {/* headline single-shove callout — lower-right, clear of both rays */}
         <g>
-          <text x={W - 14} y={30} fill={SUB} fontSize={10.5} textAnchor="end" letterSpacing="0.04em">
+          <text x={W - 14} y={H - 30} fill={SUB} fontSize={10.5} textAnchor="end" letterSpacing="0.04em">
             HEADLINE SINGLE SHOVE · seed {seed}
           </text>
-          <text x={W - 14} y={50} fill={INK} fontSize={13} textAnchor="end">
+          <text x={W - 14} y={H - 10} fill={INK} fontSize={13} textAnchor="end">
             <tspan fill={AMBER}>{seedOpenDeg.toFixed(0)}° off</tspan>
             <tspan fill={SUB}>{"  →  "}</tspan>
             <tspan fill={GREEN}>{seedClosedDeg.toFixed(0)}° held</tspan>

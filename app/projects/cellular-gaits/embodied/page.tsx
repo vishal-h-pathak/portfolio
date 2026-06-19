@@ -82,16 +82,20 @@ export default function EmbodiedTabPage() {
         module={
           <>
             <ControllerLadder />
+            {/* Rung 01 *is* the live fly on the Body tab — link to that one
+                canonical home instead of re-embedding the identical native-gain
+                walking loop here. */}
             <figure className="cg-ladder-anchor">
-              <video
-                src="/cellular-gaits/data/clip_gain_native.mp4"
-                muted
-                loop
-                autoPlay
-                playsInline
-                controls
-                aria-label="The NCA null model walking the FlyGym fly at native gain"
-              />
+              <a
+                className="cg-ladder-anchor-link"
+                href="/projects/cellular-gaits/body"
+              >
+                <span className="cg-ladder-anchor-tag">RUNG 01 · LIVE TODAY</span>
+                <span className="cg-ladder-anchor-go">
+                  Watch the NCA null model walk this exact body, live, on the
+                  Body tab →
+                </span>
+              </a>
               <figcaption>
                 Rung 01, today — the NCA null model walking the FlyGym body
                 (native gain, live-physics validated). The body and the slot stay

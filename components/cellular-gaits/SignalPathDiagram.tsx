@@ -74,11 +74,12 @@ function Panel({ closed, idp }: { closed: boolean; idp: string }) {
             strokeDasharray="5 4"
             markerEnd={`url(#${idp}-gray)`}
           />
-          <text x={222} y={H / 2 - 6} fill={SUB} fontSize={10} textAnchor="middle" transform={`rotate(90 222 ${H / 2 - 6})`}>
+          {/* One clean rotated label. The "planned · not wired · Stage 2"
+              status is already carried by the figcaption and the dashed stroke,
+              so a single line keeps it readable (two rotated lines on the same x
+              overlapped into garbled stacked text). */}
+          <text x={220} y={H / 2} fill={SUB} fontSize={10} textAnchor="middle" transform={`rotate(90 220 ${H / 2})`}>
             joint angles + foot contacts
-          </text>
-          <text x={222} y={H / 2 + 8} fill={SUB} fontSize={9.5} textAnchor="middle" transform={`rotate(90 222 ${H / 2 + 8})`} opacity={0.85}>
-            planned · not wired · Stage 2
           </text>
         </>
       )}

@@ -15,10 +15,14 @@
  * loop is Stage 2, so NO live perturbation-recovery demo and NO faked numbers.
  */
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import type { FlyStageMetrics } from "@/components/cellular-gaits/FlyStage";
+import type {
+  FlyStageCtx,
+  FlyStageMetrics,
+} from "@/components/cellular-gaits/FlyStage";
 import { SignalPathDiagram } from "@/components/cellular-gaits/SignalPathDiagram";
+import { SensorOverlay } from "@/components/cellular-gaits/SensorOverlay";
 
 // ssr:false + dynamic import → three.js + the WASM fly load client-side only,
 // and only when this module mounts. Recorded native-gain rollout is the honest
@@ -28,8 +32,66 @@ const FlyStage = dynamic(
   { ssr: false },
 );
 
+type NcaHandle = { motors: () => Float32Array; reset: (seed?: number) => void };
+type SensorSnapshot = { contacts: Uint8Array; angles: Float32Array };
+
 export function SensingModule() {
   const [m, setM] = useState<FlyStageMetrics | null>(null);
+  const [sensor, setSensor] = useState<SensorSnapshot | null>(null);
+
+  // The open-loop NCA driving the fly. We supply it ourselves (rather than
+  // letting FlyStage build the default) so the same control-step callback can
+  // *read the body's proprioception back out of the sim* — exactly the channels
+  // a closed loop would use, which this open-loop rule then ignores.
+  const ncaRef = useRef<NcaHandle | null>(null);
+  const zero = useRef(new Float32Array(42));
+  const prevStep = useRef(-1);
+  // Persistent buffers; the sim hands back reused arrays, so we copy into these
+  // each step and snapshot them onto React state on a throttle (not at 250 Hz).
+  const sense = useRef({
+    contacts: new Uint8Array(6),
+    angles: new Float32Array(42),
+    live: false,
+  });
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { loadController, makeNcaController } = await import("@/lib/nca");
+      const w = await loadController();
+      if (!alive) return;
+      ncaRef.current = makeNcaController(w);
+    })().catch((e) => console.error("[SensingModule] controller load failed", e));
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  // Flush the latest sampled proprioception to state ~11×/s for the overlay.
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (!sense.current.live) return;
+      setSensor({
+        contacts: sense.current.contacts.slice(),
+        angles: sense.current.angles.slice(),
+      });
+    }, 90);
+    return () => clearInterval(id);
+  }, []);
+
+  const controller = useCallback((ctx: FlyStageCtx): Float32Array => {
+    if (ctx.controlStep === 0 && prevStep.current !== 0) ncaRef.current?.reset();
+    prevStep.current = ctx.controlStep;
+    const u = ncaRef.current ? ncaRef.current.motors() : zero.current;
+    // Sample the body state the controller does NOT consume (open loop).
+    const fc = ctx.sim.footContacts();
+    const al = ctx.sim.actuatorLengths();
+    sense.current.contacts.set(fc);
+    const an = sense.current.angles;
+    for (let i = 0; i < 42; i++) an[i] = al[i] ?? 0;
+    sense.current.live = true;
+    return u;
+  }, []);
 
   return (
     <div className="cg-sense">
@@ -41,15 +103,22 @@ export function SensingModule() {
           <p className="cg-sense-stage-note">
             The evolved controller walking the real fly, live. It runs{" "}
             <strong>blind</strong>: the grid emits the same rhythm every control
-            step, never reading the legs it just moved.
+            step, never reading the legs it just moved — the proprioception
+            overlay shows exactly the body state it throws away.
           </p>
         </div>
 
-        <FlyStage
-          onStep={setM}
-          height={380}
-          fallbackClipSrc="/cellular-gaits/data/clip_gain_native.mp4"
-        />
+        <div className="cg-sense-stage-live">
+          <FlyStage
+            controller={controller}
+            onStep={setM}
+            height={380}
+            fallbackClipSrc="/cellular-gaits/data/clip_gain_native.mp4"
+          />
+          {sensor && (
+            <SensorOverlay contacts={sensor.contacts} angles={sensor.angles} />
+          )}
+        </div>
 
         <div className="cg-flystage-readout">
           <span>

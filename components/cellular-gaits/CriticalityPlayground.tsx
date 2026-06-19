@@ -1,7 +1,29 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { C, H, W, N, idx, initState, step, norm, type Controller } from "@/lib/nca";
+import dynamic from "next/dynamic";
+import {
+  C,
+  H,
+  W,
+  N,
+  idx,
+  initState,
+  step,
+  norm,
+  makeNcaController,
+  type Controller,
+} from "@/lib/nca";
+import type { FlyStageCtx } from "@/components/cellular-gaits/FlyStage";
+
+// The live body is the only heavy thing here (three.js + WASM); load it lazily
+// and only when this playground mounts, so the controller route stays light.
+const FlyStage = dynamic(
+  () => import("@/components/cellular-gaits/FlyStage").then((m) => m.FlyStage),
+  { ssr: false },
+);
+
+type NcaHandle = { motors: () => Float32Array; reset: (seed?: number) => void };
 
 /**
  * Live criticality playground.
@@ -99,6 +121,31 @@ export function CriticalityPlayground({
   const [gain, setGain] = useState(1.0);
   const [readout, setReadout] = useState({ lambda: 0, cr: 0, tick: 0 });
   const [bestFit, setBestFit] = useState<number | null>(null);
+
+  // Live body driven by the *same* gain knob: the abstract λ / heatmaps, now
+  // moving the real gait. Rebuilt whenever the gain changes.
+  const flyNcaRef = useRef<NcaHandle | null>(null);
+  const flyZero = useRef(new Float32Array(42));
+  const flyPrevStep = useRef(-1);
+  const [flyReset, setFlyReset] = useState(0);
+
+  const flyController = useCallback((ctx: FlyStageCtx): Float32Array => {
+    if (ctx.controlStep === 0 && flyPrevStep.current !== 0) {
+      flyNcaRef.current?.reset();
+    }
+    flyPrevStep.current = ctx.controlStep;
+    const nca = flyNcaRef.current;
+    return nca ? nca.motors() : flyZero.current;
+  }, []);
+
+  // Rebuild the body NCA at the selected gain and re-pose the fly, so dragging
+  // the knob visibly changes the real walk (native → ordered → chaos collapse).
+  useEffect(() => {
+    const ctrl = ctrlRef.current;
+    if (!loaded || !ctrl) return;
+    flyNcaRef.current = makeNcaController(ctrl, { gain });
+    setFlyReset((r) => r + 1);
+  }, [gain, loaded]);
 
   const resetTwins = useCallback(() => {
     const a = A.current;
@@ -358,7 +405,8 @@ export function CriticalityPlayground({
   const reg = regimeFor(readout.lambda);
 
   return (
-    <div className="cg-pg">
+    <div className="cg-pg-wrap">
+      <div className="cg-pg">
       <div className="cg-pg-stage">
         <canvas
           ref={gridRef}
@@ -451,6 +499,36 @@ export function CriticalityPlayground({
           barely moves. (λ needs a few seconds to settle after each change.)
         </p>
       </div>
+      </div>
+
+      {loaded && (
+        <div className="cg-pg-fly">
+          <div className="cg-pg-fly-head">
+            <span
+              className="cg-pg-badge"
+              style={{ borderColor: reg.color, color: reg.color }}
+            >
+              live body · {reg.label}
+            </span>
+            <p className="cg-pg-fly-note">
+              The same knob on the <strong>real gait</strong>: the evolved NCA at
+              gain <strong>{gain.toFixed(2)}</strong> driving the live MuJoCo fly.
+              Drag it toward chaos and the walk visibly falls apart — the abstract
+              λ above, embodied in the body.
+            </p>
+          </div>
+          <FlyStage
+            controller={flyController}
+            resetSignal={flyReset}
+            height={300}
+            fallbackClipSrc="/cellular-gaits/data/clip_gain_native.mp4"
+          />
+          <p className="cg-pg-cap">
+            live MuJoCo · the criticality knob driving the body at gain{" "}
+            {gain.toFixed(2)}
+          </p>
+        </div>
+      )}
     </div>
   );
 }

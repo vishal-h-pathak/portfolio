@@ -1295,13 +1295,33 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   margin: 16px 0 0;
   max-width: 440px;
 }
-.cg-ladder-anchor video {
-  display: block;
-  width: 100%;
-  height: auto;
+.cg-ladder-anchor-link {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
   border: 1px solid var(--rule);
   border-radius: 4px;
   background: var(--bg-raised);
+  text-decoration: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.cg-ladder-anchor-link:hover,
+.cg-ladder-anchor-link:focus-visible {
+  border-color: var(--green);
+  background: rgba(111, 227, 154, 0.06);
+}
+.cg-ladder-anchor-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--green);
+}
+.cg-ladder-anchor-go {
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink);
 }
 .cg-ladder-anchor figcaption {
   margin: 8px 0 0;
@@ -1412,6 +1432,7 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
 /* ── criticality playground ─────────────────────────────────────────── */
 :root { --chaos: #E36F6F; }
 
+.cg-pg-wrap { display: flex; flex-direction: column; gap: 16px; }
 .cg-pg {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -1424,6 +1445,29 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   background: var(--bg-raised);
   padding: 20px;
 }
+.cg-pg-fly {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid var(--rule);
+  background: var(--bg-raised);
+  padding: 16px 20px;
+}
+.cg-pg-fly-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.cg-pg-fly-note {
+  margin: 0;
+  flex: 1 1 260px;
+  min-width: 0;
+  color: var(--ink-dim);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.cg-pg-fly-note strong { color: var(--ink); font-weight: 500; }
 .cg-pg-stage { grid-area: stage; display: flex; flex-direction: column; gap: 8px; }
 .cg-pg-side { grid-area: side; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .cg-pg-controls { grid-area: controls; display: flex; flex-direction: column; gap: 14px; }
@@ -1735,6 +1779,69 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
 .cg-sense-stage-note strong { color: var(--ink); font-weight: 500; }
 .cg-sense-readout-gap { color: var(--amber); }
 .cg-sense-readout-gap strong { color: var(--amber); }
+
+/* live proprioception overlay, anchored over the FlyStage canvas */
+.cg-sense-stage-live { position: relative; }
+.cg-sensor-overlay {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  max-width: 140px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: rgba(11, 11, 12, 0.66);
+  backdrop-filter: blur(2px);
+}
+.cg-sensor-overlay-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.cg-sensor-overlay-tag {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  color: var(--green);
+}
+.cg-sensor-overlay-sub {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink-dim);
+}
+.cg-sensor-contacts { display: block; }
+.cg-sensor-joints {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cg-sensor-joints-k {
+  font-family: var(--mono);
+  font-size: 8.5px;
+  color: var(--ink-dim);
+}
+.cg-sensor-joints-strip {
+  display: block;
+  width: 100%;
+  height: 22px;
+}
+.cg-sensor-overlay-note {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 8.5px;
+  line-height: 1.4;
+  color: var(--ink-dim);
+}
+@media (max-width: 480px) {
+  /* keep the overlay from crowding the small-screen stage */
+  .cg-sensor-overlay { max-width: 118px; padding: 8px 9px; }
+  .cg-sensor-overlay-note { display: none; }
+}
 
 .cg-sense-h {
   font-family: var(--mono);
