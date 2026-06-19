@@ -1041,6 +1041,120 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   padding: 16px;
 }
 
+/* ── objective viz (ObjectiveChart.tsx) ─────────────────────────────── */
+.cg-obj-module .cg-mathblock { margin: 0 0 22px; }
+
+.cg-obj {
+  border: 1px solid var(--rule);
+  background: var(--bg-raised);
+  border-radius: 4px;
+  padding: 16px 16px 18px;
+}
+.cg-obj-loading {
+  border: 1px solid var(--rule);
+  background: var(--bg-raised);
+  border-radius: 4px;
+  padding: 28px 16px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+.cg-obj-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin: 0 0 10px;
+}
+.cg-obj-title {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+}
+.cg-obj-sub {
+  color: var(--ink-faint);
+  margin-left: 6px;
+  letter-spacing: 0.02em;
+}
+.cg-obj-toggles { display: flex; gap: 8px; }
+.cg-obj-toggle {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: var(--ink-dim);
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 4px 9px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.cg-obj-toggle:hover { color: var(--ink); border-color: var(--ink-faint); }
+.cg-obj-toggle[data-on] { color: var(--amber); border-color: var(--amber-dim); }
+.cg-obj-toggle-box { margin-right: 6px; }
+.cg-obj-toggle sub { font-size: 0.8em; }
+
+.cg-obj-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: manipulation;
+}
+.cg-obj-svg g:focus-visible rect:first-of-type { outline: none; }
+.cg-obj-svg g:focus-visible { outline: 1px dashed var(--ink-faint); outline-offset: 2px; }
+
+.cg-obj-readout {
+  margin-top: 12px;
+  min-height: 44px;
+  border-top: 1px solid var(--rule);
+  padding-top: 12px;
+}
+.cg-obj-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  margin: 0;
+}
+.cg-obj-stats > div { display: flex; flex-direction: column; gap: 2px; }
+.cg-obj-stats dt {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.cg-obj-stats dd {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--ink);
+}
+.cg-obj-stats dd.cg-obj-fit { color: var(--green); }
+.cg-obj-stats dd.cg-obj-pen { color: #e36f6f; }
+.cg-obj-hint {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+.cg-obj-note {
+  margin: 14px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+  max-width: 70ch;
+}
+.cg-obj-note strong { color: var(--ink); font-weight: 500; }
+.cg-obj-note sub { font-size: 0.78em; }
+
+@media (max-width: 460px) {
+  .cg-obj-head { flex-direction: column; gap: 8px; }
+  .cg-obj-stats { gap: 8px 16px; }
+}
+
 /* ── system-design diagram (SystemDiagram.tsx) ──────────────────────── */
 .sysdiagram {
   position: relative;
