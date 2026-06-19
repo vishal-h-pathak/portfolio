@@ -975,6 +975,63 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
 }
 .cg-inline-link:hover { color: var(--ink); }
 
+/* Per-tab appendix pointer (rendered by ConceptScaffold after the explainer). */
+.cg-section-appendix {
+  margin: 28px 0 0;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.01em;
+  color: var(--ink-faint);
+  max-width: 66ch;
+}
+
+/* Frame (index) → tabs map: one concept tab per row, label + its question. */
+.cg-tab-index {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--rule);
+}
+.cg-tab-index-link {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 20px;
+  align-items: baseline;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--rule);
+  transition: background-color 0.15s;
+}
+.cg-tab-index-link:hover,
+.cg-tab-index-link:focus-visible {
+  background: var(--bg-raised);
+  outline: none;
+}
+.cg-tab-index-label {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--green);
+}
+.cg-tab-index-link:hover .cg-tab-index-label,
+.cg-tab-index-link:focus-visible .cg-tab-index-label {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.cg-tab-index-q {
+  color: var(--ink-dim);
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+@media (max-width: 560px) {
+  .cg-tab-index-link {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 14px 4px;
+  }
+}
+
 /* Concept-tab scaffold: interactive module region + four-part explainer.
    Wave-3 prompts drop content into these slots. */
 .cg-tab-module { margin: 0 0 32px; }

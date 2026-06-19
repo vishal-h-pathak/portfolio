@@ -1,5 +1,45 @@
 import type { Metadata } from "next";
 import { CAPlayer } from "@/components/cellular-gaits/CAPlayer";
+import { CG_BASE } from "@/components/cellular-gaits/tabs";
+
+/** The concept tabs, each as the one question it isolates. Reading order = nav order. */
+const TAB_INDEX: { href: string; label: string; q: string }[] = [
+  {
+    href: `${CG_BASE}/body`,
+    label: "Body",
+    q: "the plant we drive — a FlyGym Drosophila, 42 leg actuators across ~87 joints, walking live.",
+  },
+  {
+    href: `${CG_BASE}/controller`,
+    label: "Controller",
+    q: "a neural cellular automaton parked just inside the edge of chaos — and the gain→gait sweep that shows why.",
+  },
+  {
+    href: `${CG_BASE}/sensing`,
+    label: "Sensing",
+    q: "open-loop today (the rule never reads the body) vs. the closed proprioceptive loop that comes next.",
+  },
+  {
+    href: `${CG_BASE}/mapping`,
+    label: "Mapping",
+    q: "how 42 grid cells wire to 42 joint targets — a convenience, not biology.",
+  },
+  {
+    href: `${CG_BASE}/objective`,
+    label: "Objective",
+    q: "what fitness actually rewarded — forward distance, with a stability penalty that never fired.",
+  },
+  {
+    href: `${CG_BASE}/optimizer`,
+    label: "Optimizer",
+    q: "CMA-ES — the search that tuned 660 parameters from a stagger to a gait.",
+  },
+  {
+    href: `${CG_BASE}/embodied`,
+    label: "Embodied",
+    q: "the ladder out of the null model: NCA → CPG → closed loop → the real FlyWire VNC connectome.",
+  },
+];
 
 export const metadata: Metadata = {
   title: "Cellular Gaits — Vishal Pathak",
@@ -75,6 +115,29 @@ export default function CellularGaitsFramePage() {
           videoSrc="/cellular-gaits/best.mp4"
           jsonSrc="/cellular-gaits/ca_states_best.json"
         />
+      </section>
+
+      <section className="cg-section">
+        <p className="cg-section-eyebrow">§ THE TABS</p>
+        <p className="cg-section-lead">
+          One modeling choice per tab. Each asks what was chosen, why, what the
+          alternatives were, and where the biological version sits — then shows
+          it running. All the math lives in the{" "}
+          <a className="cg-inline-link" href={`${CG_BASE}/appendix`}>
+            appendix
+          </a>
+          .
+        </p>
+        <ol className="cg-tab-index">
+          {TAB_INDEX.map((t) => (
+            <li key={t.href}>
+              <a className="cg-tab-index-link" href={t.href}>
+                <span className="cg-tab-index-label">{t.label}</span>
+                <span className="cg-tab-index-q">{t.q}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
       </section>
     </>
   );

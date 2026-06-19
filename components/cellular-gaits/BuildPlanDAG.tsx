@@ -40,7 +40,7 @@ const NODES: Node[] = [
   { id: "D", x: 30, y: 214, w: 200, h: 72, kind: "py", title: ["D · Precompute rollouts"], sub: "cellular-gaits · long-running" },
   { id: "B", x: 270, y: 120, w: 180, h: 92, kind: "web", title: ["B · MuJoCo-WASM", "substrate"], sub: "portfolio · linchpin" },
   { id: "E1", x: 512, y: 80, w: 236, h: 44, kind: "web", title: ["E1 · Body"], sub: "live WASM fly" },
-  { id: "E2", x: 512, y: 130, w: 236, h: 44, kind: "web", title: ["E2 · Controller"], sub: "criticality + rule swap" },
+  { id: "E2", x: 512, y: 130, w: 236, h: 44, kind: "web", title: ["E2 · Controller"], sub: "criticality + gain→gait" },
   { id: "E3", x: 512, y: 180, w: 236, h: 44, kind: "web", title: ["E3 · Sensing"], sub: "open/closed · needs D" },
   { id: "E4", x: 512, y: 230, w: 236, h: 44, kind: "web", title: ["E4 · Motor mapping"], sub: "cells → joints" },
   { id: "E5", x: 512, y: 280, w: 236, h: 44, kind: "web", title: ["E5 · Objective"], sub: "reweight fitness · needs D" },

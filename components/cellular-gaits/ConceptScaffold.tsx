@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { CG_BASE } from "./tabs";
 
 /**
  * Shared layout for a concept tab. Wave-3 prompts (E1–E7) drop content into the
@@ -63,6 +64,15 @@ export function ConceptScaffold({
           </div>
         ))}
       </div>
+
+      <p className="cg-section-appendix">
+        The math behind this — equations, constants, and the build-plan DAG — is
+        in the{" "}
+        <a className="cg-inline-link" href={`${CG_BASE}/appendix`}>
+          appendix
+        </a>
+        .
+      </p>
     </section>
   );
 }

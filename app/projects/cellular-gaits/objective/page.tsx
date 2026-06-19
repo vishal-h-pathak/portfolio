@@ -55,7 +55,12 @@ export default function ObjectiveTabPage() {
             rewards locomotion, the penalty discourages collapsing or dragging.
             It&rsquo;s a hand-set objective, not a law — a choice that happened to
             select a working gait, peaking at native gain <code>1.0</code> (
-            <code>86.6&nbsp;mm</code>).
+            <code>86.6&nbsp;mm</code>). That single-peaked curve is the same one
+            the{" "}
+            <a className="cg-inline-link" href="/projects/cellular-gaits/controller">
+              Controller
+            </a>{" "}
+            tab reads as the edge-of-chaos result.
           </p>
         ),
         alternatives: (

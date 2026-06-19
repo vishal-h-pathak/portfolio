@@ -20,11 +20,7 @@ export default function MappingTabPage() {
             row, gives <strong>42</strong> numbers; entry <code>i</code> becomes
             the target for actuator <code>i</code> (manifest order), rescaled{" "}
             <code>clip(u,−1,1)·3.14 rad</code>. One CA tick per control step.
-            (Full equation in the{" "}
-            <a className="cg-inline-link" href="/projects/cellular-gaits/appendix">
-              appendix
-            </a>
-            .)
+            (Full equation in the appendix.)
           </p>
         ),
         why: (

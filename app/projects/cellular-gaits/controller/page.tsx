@@ -39,7 +39,13 @@ export default function ControllerTabPage() {
               performance cliff lands exactly where λ crosses zero{" "}
               <strong>(gain ~1.3–1.5)</strong>: the moment the cellular automaton
               tips into chaos, the gait dissolves. The evolved controller parked
-              itself at λ≈−0.26 — just inside the ordered edge.
+              itself at λ≈−0.26 — just inside the ordered edge. The same
+              gain→distance curve, reframed as <em>what fitness actually
+              rewarded</em>, is the{" "}
+              <a className="cg-inline-link" href="/projects/cellular-gaits/objective">
+                Objective
+              </a>{" "}
+              tab.
             </p>
             <GainSweepChart />
             <GaitClips />
@@ -80,7 +86,10 @@ export default function ControllerTabPage() {
             Replace the generic rule with the real <em>Drosophila</em> VNC leg
             connectome — the FlyWire wiring itself as the update rule — and ask
             whether real structure, embodied, produces real behavior. See the{" "}
-            <strong>Embodied</strong> tab.
+            <a className="cg-inline-link" href="/projects/cellular-gaits/embodied">
+              Embodied
+            </a>{" "}
+            tab.
           </p>
         ),
       }}

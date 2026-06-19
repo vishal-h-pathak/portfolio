@@ -48,7 +48,12 @@ export default function SensingTabPage() {
             (stretch and vibration) — feeding continuous body state into the VNC.
             Closing the loop is <strong>Stage 2</strong> and the path to
             robustness: the open-loop gait survives flat ground, but only a
-            controller that feels can recover from a shove.
+            controller that feels can recover from a shove. It&apos;s the second
+            rung on the{" "}
+            <a className="cg-inline-link" href="/projects/cellular-gaits/embodied">
+              Embodied
+            </a>{" "}
+            ladder, between the null model and the real connectome.
           </p>
         ),
       }}

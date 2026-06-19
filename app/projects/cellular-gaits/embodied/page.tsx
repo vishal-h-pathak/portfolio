@@ -128,9 +128,13 @@ export default function EmbodiedTabPage() {
           alternatives: (
             <p>
               The next rungs make the controller progressively more biological.{" "}
-              <strong>Stage 2</strong> closes the sensory loop — the dashed
-              proprioceptive arc in the system diagram — so the fly stops walking
-              blind. After that, pull the real VNC leg circuit from FlyWire and
+              <strong>Stage 2</strong>{" "}
+              <a className="cg-inline-link" href="/projects/cellular-gaits/sensing">
+                closes the sensory loop
+              </a>{" "}
+              — the dashed proprioceptive arc in the system diagram — so the fly
+              stops walking blind. After that, pull the real VNC leg circuit from
+              FlyWire and
               wire it directly to the legs, swapping the invented rule for measured
               connectivity. CPG and closed-loop are the rungs in between.
             </p>

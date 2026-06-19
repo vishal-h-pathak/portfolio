@@ -6,7 +6,7 @@
 > design) and they must stay in sync with the tables below. When the plan changes,
 > edit **all** of them.
 >
-> Last updated: 2026-06-18 (B landed — live physics validated)
+> Last updated: 2026-06-18 (F landed — all seven tabs integrated, build green under Turbopack)
 
 ## Goal
 
@@ -58,7 +58,7 @@ Columns in the diagram are time; boxes in a column run in parallel.
 | E5 | Objective tab (reweight fitness) | portfolio | 3 | B, C, D | done |
 | E6 | Optimizer tab (toy search + real curve) | portfolio | 3 | C, D | done |
 | E7 | Embodied connectome tab (Eon direction) | portfolio | 3 | C | done |
-| F | Integrate + verify (cross-links, index frame, perf, build green) | portfolio | 4 | all E | planned |
+| F | Integrate + verify (cross-links, index frame, perf, build green) | portfolio | 4 | all E | done |
 | G | System-design diagram (appendix, hover-to-reveal model) | portfolio | — | C | done |
 
 Status values: `planned` → `prompt-written` → `in-progress` → `done`.
@@ -83,6 +83,19 @@ this; a future campaign is the build-out.
 
 ## Changelog
 
+- **2026-06-18** — **F done — redesign integrated.** Merged all seven tab branches
+  (`feat/cg-e1-body` … `feat/cg-e7-embodied`) into `feat/cg-redesign`. Conflicts were the
+  concurrent appends to `app/globals.css` (unioned — every tab's `.cg-*` block kept, none
+  duplicated a selector) and this changelog/status table (hand-merged into one table, every
+  A–G + E1–E7 + F row `done`, one concatenated changelog). Kept the widened
+  `ConceptScaffold` `lead: ReactNode` prop (E2; backward-compatible). **Dropped E4's
+  out-of-scope edit to `app/dashboard/login/page.tsx`** — the integrated tree builds green
+  under Turbopack with the base (sync `searchParams`) version, so the async migration the E
+  worktrees chased was an artifact of their symlinked-`node_modules` Turbopack panic, not a
+  real error here. `npm run build` is **green under Turbopack** (the default), all eight
+  cellular-gaits routes prerender. Polish: tightened the index frame, cross-linked the tabs
+  (controller↔objective gain-sweep, sensing↔embodied closed-loop, every tab→appendix), and
+  confirmed three.js + MuJoCo-wasm stay lazy on the physics tabs only.
 - **2026-06-18** — **E2 done.** Controller tab rebuilt on `ConceptScaffold` (four-part
   explainer, real constants). Kept the live `CriticalityPlayground` (it now reads as *posing*
   the criticality question), and added the **answered result**: a themed dual-axis SVG
