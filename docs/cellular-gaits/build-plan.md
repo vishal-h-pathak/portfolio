@@ -53,7 +53,7 @@ Columns in the diagram are time; boxes in a column run in parallel.
 | B | MuJoCo-WASM substrate (`<FlyStage>`, spike + perf validation) | portfolio | 2 | A | done |
 | E1 | Body tab | portfolio | 3 | B, C | done |
 | E2 | Controller tab (criticality playground + answered gain→gait result) | portfolio | 3 | B, C, D | done |
-| E3 | Sensing tab (open vs closed loop) | portfolio | 3 | B, C, D | planned |
+| E3 | Sensing tab (open vs closed loop) | portfolio | 3 | B, C, D | done |
 | E4 | Motor mapping tab | portfolio | 3 | B, C | planned |
 | E5 | Objective tab (reweight fitness) | portfolio | 3 | B, C, D | planned |
 | E6 | Optimizer tab (toy search + real curve) | portfolio | 3 | C, D | planned |
@@ -171,3 +171,17 @@ this; a future campaign is the build-out.
   worktree's `node_modules` is a symlink out of root so Turbopack build panics (env, not code) —
   `next build --webpack` compiles E1 green; the only type error is a **pre-existing** unrelated
   `app/dashboard/login` async-`searchParams` issue (reproduced on a clean stashed tree).
+- **2026-06-18** — **E3 done.** Filled the `/sensing` tab. Interactive module
+  (`SensingModule.tsx`): the real evolved NCA walking the fly **live** via `<FlyStage>` —
+  framed as **open-loop** (it *is* open-loop: the default controller never reads body state),
+  with a "sensory feedback: none" readout and recorded native-gain rollout as the honest
+  fallback (`clip_gain_native.mp4`). Below it, `SignalPathDiagram.tsx` — two side-by-side block
+  diagrams in the SystemDiagram house style (green = wired forward path grid→motor-map→body;
+  **dashed gray = planned**): open loop (today, no return arc) vs closed loop (Stage 2, the
+  proprioceptive arc carrying joint angles + foot contacts back into the grid, drawn not-wired).
+  The perturbation-recovery test is framed as the experiment that distinguishes the two and
+  *why* open-loop can't pass it (no error signal to correct against) — explicitly **no live
+  recovery demo and no faked numbers** (closed loop is Stage 2). Four-part `ConceptScaffold`
+  filled with real constants (8×8×4 grid / 660 θ, 42 joints, 250 Hz, 86.6 mm native; sensors:
+  campaniform sensilla / hair plates / chordotonal organs). 375px-clean (paths stack), keyboard/
+  aria accessible (each path SVG `role="img"` titled+described). Build green. Don't-merge (F integrates).
