@@ -1119,6 +1119,72 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
 }
 .sysdiagram-pop .cg-math .katex { font-size: 0.92em; }
 
+/* ── controller-ladder "today" anchor (ControllerLadder.tsx, E7) ─────── */
+.cg-ladder-anchor {
+  margin: 16px 0 0;
+  max-width: 440px;
+}
+.cg-ladder-anchor video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--bg-raised);
+}
+.cg-ladder-anchor figcaption {
+  margin: 8px 0 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--ink-dim);
+}
+
+/* ── references list (embodied tab) ──────────────────────────────────── */
+.cg-refs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 18px;
+  counter-reset: ref;
+}
+.cg-ref {
+  position: relative;
+  padding-left: 28px;
+}
+.cg-ref::before {
+  counter-increment: ref;
+  content: "[" counter(ref) "]";
+  position: absolute;
+  left: 0;
+  top: 1px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+.cg-ref-title {
+  display: inline;
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.45;
+}
+.cg-ref-meta {
+  display: block;
+  margin: 4px 0 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: var(--ink-dim);
+}
+.cg-ref-note {
+  display: block;
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-dim);
+}
+
 .cg-player {
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
