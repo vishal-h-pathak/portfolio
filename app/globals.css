@@ -1369,6 +1369,107 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   font-weight: 500;
 }
 
+/* ── Sensing tab (SensingModule.tsx / SignalPathDiagram.tsx) ─────────── */
+.cg-sense { display: flex; flex-direction: column; gap: 28px; }
+.cg-sense-stage-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.cg-sense-stage-note {
+  margin: 0;
+  flex: 1 1 240px;
+  min-width: 0;
+  color: var(--ink-dim);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.cg-sense-stage-note strong { color: var(--ink); font-weight: 500; }
+.cg-sense-readout-gap { color: var(--amber); }
+.cg-sense-readout-gap strong { color: var(--amber); }
+
+.cg-sense-h {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin: 0 0 10px;
+}
+.cg-sense-p {
+  margin: 0 0 16px;
+  color: var(--ink-dim);
+  font-size: 14px;
+  line-height: 1.62;
+  max-width: 66ch;
+}
+.cg-sense-p code,
+.cg-sense-disclaimer code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  color: var(--ink);
+  background: rgba(232, 230, 223, 0.06);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+.cg-sense-p strong { color: var(--ink); font-weight: 500; }
+
+.cg-sense-paths {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+.cg-sense-path {
+  margin: 0;
+  border: 1px solid var(--rule);
+  background: var(--bg-raised);
+  border-radius: 4px;
+  padding: 14px 16px 16px;
+}
+.cg-sense-path-cap {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--ink-faint);
+  margin-bottom: 10px;
+}
+.cg-sense-path-tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 2px;
+  margin-right: 8px;
+  vertical-align: 1px;
+  border: 1px solid currentColor;
+}
+.cg-sense-path-tag[data-kind="now"] { color: var(--green); }
+.cg-sense-path-tag[data-kind="next"] { color: var(--ink-faint); border-style: dashed; }
+
+.cg-sense-test {
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--amber-dim);
+  background: var(--bg-raised);
+  border-radius: 4px;
+  padding: 18px 20px;
+}
+.cg-sense-disclaimer {
+  margin: 0;
+  color: var(--ink-faint);
+  font-size: 12.5px;
+  line-height: 1.6;
+  font-style: italic;
+  max-width: 66ch;
+}
+.cg-sense-disclaimer em { font-style: normal; color: var(--ink-dim); }
+
+@media (max-width: 640px) {
+  .cg-sense-paths { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 720px) {
   .cg-pg {
     grid-template-columns: 1fr;
