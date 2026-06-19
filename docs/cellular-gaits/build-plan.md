@@ -51,7 +51,7 @@ Columns in the diagram are time; boxes in a column run in parallel.
 | C | Route shell + nav + math appendix migration | portfolio | 1 | — | done |
 | D | Precompute rollouts (gain→gait sweep, evolution curve, clips; open/closed + CPG deferred) | cellular-gaits | 1 | — | done |
 | B | MuJoCo-WASM substrate (`<FlyStage>`, spike + perf validation) | portfolio | 2 | A | done |
-| E1 | Body tab | portfolio | 3 | B, C | planned |
+| E1 | Body tab | portfolio | 3 | B, C | done |
 | E2 | Controller tab (criticality playground + rule swap) | portfolio | 3 | B, C | planned |
 | E3 | Sensing tab (open vs closed loop) | portfolio | 3 | B, C, D | planned |
 | E4 | Motor mapping tab | portfolio | 3 | B, C | planned |
@@ -139,3 +139,23 @@ this; a future campaign is the build-out.
   decimation not needed). MT/`SharedArrayBuffer` (COOP/COEP) noted as a future lever, not used.
   **Wave 3: E1/E3/E4 get LIVE physics** (recorded fallback available via `fallbackClipSrc` but
   not the default). Unblocks E1, E2, E3, E4.
+- **2026-06-18** — **E1 done.** Body tab (`/projects/cellular-gaits/body`) filled. Interactive
+  module is the real evolved NCA walking the real fly **live** in MuJoCo-WASM via `<FlyStage>`
+  (default controller), with the stage's play/pause/reset plus a camera-tracking on/off toggle,
+  a forward-distance / sim-time / FPS readout from `onStep`, and a recorded fallback
+  (`clip_gain_native.mp4`) for weak devices. Added `components/cellular-gaits/PlantSchematic.tsx`
+  — a themed SVG (house style: `var(--mono)`, site palette, data-driven, hover/tap/focus, `aria`,
+  keyboard) labelling the plant: **42** position actuators = 7 DoF × 6 legs, ~**87** joints, from
+  an X-ray microCT scan, units mm, control **250 Hz** with **40** physics substeps @ 10 kHz.
+  Selecting any of the six legs reveals its 7-DoF kinematic chain (coxa yaw·pitch·roll →
+  trochanter–femur pitch·roll → tibia → tarsus) and the exact 7 consecutive `u[i…j]` channels it
+  drives (per-leg actuator offsets verified against `model/manifest.json`). The "highlight those
+  joints on the live fly" extra was scoped out (would mean geom-highlight plumbing into the shared
+  `<FlyStage>` — not cheap, and risks the other physics tabs). All four `ConceptScaffold` parts
+  filled with real constants (chose: NeuroMechFly/FlyGym in MuJoCo; why: fixed testbed substrate;
+  alternatives: Vaxenburg whole-body RL / generic hexapod / kinematic replay; frontier:
+  NeuroMechFly v2 full sensorimotor body). Verified: live fly walks (~60 fps), leg selection maps
+  correctly, **zero horizontal overflow at 375px**, 0 console errors, type-clean. Build note: the
+  worktree's `node_modules` is a symlink out of root so Turbopack build panics (env, not code) —
+  `next build --webpack` compiles E1 green; the only type error is a **pre-existing** unrelated
+  `app/dashboard/login` async-`searchParams` issue (reproduced on a clean stashed tree).
