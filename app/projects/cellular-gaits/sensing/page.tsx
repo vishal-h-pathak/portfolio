@@ -46,10 +46,18 @@ export default function SensingTabPage() {
             Real flies are saturated with mechanosensors — campaniform sensilla
             (cuticular strain), hair plates (joint position), chordotonal organs
             (stretch and vibration) — feeding continuous body state into the VNC.
-            Closing the loop is <strong>Stage 2</strong> and the path to
-            robustness: the open-loop gait survives flat ground, but only a
-            controller that feels can recover from a shove. It&apos;s the second
-            rung on the{" "}
+            Closing the loop is <strong>done (Stage 2):</strong> the open-loop
+            gait survives flat ground, but only a controller that feels can
+            recover from a shove — now wired and trained as the first closed-loop
+            behavior, live on the{" "}
+            <a
+              className="cg-inline-link"
+              href="/projects/cellular-gaits/behaviors/perturbation"
+            >
+              Perturbation
+            </a>{" "}
+            tab (it halves post-shove heading error). It&apos;s the second rung
+            on the{" "}
             <a className="cg-inline-link" href="/projects/cellular-gaits/embodied">
               Embodied
             </a>{" "}

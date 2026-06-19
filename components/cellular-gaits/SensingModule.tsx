@@ -93,11 +93,20 @@ export function SensingModule() {
           they diverge exactly when something goes wrong.
         </p>
         <p className="cg-sense-disclaimer">
-          No live recovery demo here — closed-loop control doesn’t exist yet
-          (Stage&nbsp;2), and faking a recovery the controller can’t actually
-          perform would be dishonest. The recorded gain sweep on the{" "}
-          <em>Controller</em> tab is the real data we do have; perturbation
-          rollouts wait on a controller that can feel.
+          The fly above is still the <strong>open-loop v1 walker</strong> — that
+          is the honest thing to show on this tab, since walking is solved
+          open-loop. But the closed loop now <strong>exists</strong>: it has been
+          wired and trained, and the live recovery demo is real. Shove it
+          yourself on the{" "}
+          <a
+            className="cg-inline-link"
+            href="/projects/cellular-gaits/behaviors/perturbation"
+          >
+            Perturbation
+          </a>{" "}
+          tab, where a controller that feels its body halves its post-shove
+          heading error (56.6°→26.5°) versus this open-loop one. The
+          perturbation-recovery test is no longer hypothetical.
         </p>
       </div>
     </div>

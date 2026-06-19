@@ -53,7 +53,12 @@ export type FlySimMetrics = {
   time: number;
   /** Planar distance travelled from the spawn point (mm). */
   distance: number;
+  /** Heading relative to the spawn facing, degrees (0 = on course). */
+  headingDeg: number;
 };
+
+/** FlyGym leg order for the 6 foot-contact booleans (matches the manifest). */
+const LEG_PREFIXES = ["lf", "lm", "lh", "rf", "rm", "rh"] as const;
 
 export type LoadFlyOptions = {
   modelBase?: string;
@@ -129,11 +134,22 @@ export class FlySim {
   private geomXposView: Float64Array;
   private geomXmatView: Float64Array;
   private xposView: Float64Array;
+  private xmatView: Float64Array; // body world rotations, row-major 3×3 × nbody
+  private actLenView: Float64Array; // actuator_length, 42 (== joint angles)
+  private xfrcView: Float64Array; // xfrc_applied, [fx fy fz tx ty tz] × nbody
 
   readonly geoms: FlyGeom[];
   private meshes: Map<number, FlyMesh> = new Map();
 
+  // Foot-contact plumbing: the ground geom id, a geom-id → leg-index map (any
+  // tarsus segment of a leg counts as that leg's foot), and reusable buffers.
+  private groundGeomId = -1;
+  private legByGeom: Map<number, number> = new Map();
+  private contactBuf = new Uint8Array(6);
+  private actLenBuf = new Float64Array(42);
+
   private spawn: [number, number, number];
+  private spawnHeading = 0;
 
   constructor(mod: MainModule, model: MjModel, data: MjData) {
     this.mod = mod;
@@ -160,10 +176,50 @@ export class FlySim {
     this.geomXposView = data.geom_xpos as Float64Array;
     this.geomXmatView = data.geom_xmat as Float64Array;
     this.xposView = data.xpos as Float64Array;
+    this.xmatView = data.xmat as Float64Array;
+    this.actLenView = data.actuator_length as Float64Array;
+    this.xfrcView = data.xfrc_applied as Float64Array;
+
+    this.resolveContactGeoms();
 
     this.geoms = this.buildGeomList();
     this.reset();
     this.spawn = this.thoraxXyz();
+    this.spawnHeading = this.rawHeading();
+  }
+
+  /**
+   * Resolve the ground geom id and map every leg tarsus geom to its leg index,
+   * so a control-step contact scan can tell which feet are down. Best-effort:
+   * if a name is absent (model variant) it's skipped and that foot just reads 0.
+   */
+  private resolveContactGeoms(): void {
+    const m = this.model;
+    const geomId = (name: string): number => {
+      try {
+        const g = m.geom(name);
+        const id = g.id as number;
+        g.delete();
+        return id;
+      } catch {
+        return -1;
+      }
+    };
+    this.groundGeomId = geomId("ground_plane");
+    LEG_PREFIXES.forEach((prefix, leg) => {
+      for (let seg = 1; seg <= 5; seg++) {
+        const id = geomId(`nmf/${prefix}_tarsus${seg}`);
+        if (id >= 0) this.legByGeom.set(id, leg);
+      }
+    });
+  }
+
+  /** World heading of the thorax x-axis, radians, atan2(y, x). */
+  private rawHeading(): number {
+    const o = this.thoraxId * 9;
+    const ax = this.xmatView[o]; // column-0 x (body forward, world x component)
+    const ay = this.xmatView[o + 3]; // column-0 y
+    return Math.atan2(ay, ax);
   }
 
   private buildGeomList(): FlyGeom[] {
@@ -254,11 +310,74 @@ export class FlySim {
     }
   }
 
+  /**
+   * Live proprioception, channel ch4 of the closed-loop controller: the 42
+   * actuated joint angles (`actuator_length`, actuator/control order, radians).
+   * Returns a reused buffer.
+   */
+  actuatorLengths(): Float64Array {
+    const out = this.actLenBuf;
+    for (let i = 0; i < this.nu; i++) out[i] = this.actLenView[i] ?? 0;
+    return out;
+  }
+
+  /**
+   * Live proprioception, channel ch5: the 6 per-leg foot-contact booleans
+   * (1 if any tarsus segment of that leg is touching the ground this step),
+   * leg order [lf, lm, lh, rf, rm, rh]. Returns a reused buffer.
+   */
+  footContacts(): Uint8Array {
+    const out = this.contactBuf;
+    out.fill(0);
+    if (this.groundGeomId < 0 || this.legByGeom.size === 0) return out;
+    const contacts = this.data.contact;
+    const ncon = this.data.ncon as number;
+    for (let i = 0; i < ncon; i++) {
+      const c = contacts.get(i);
+      if (!c) continue;
+      const g1 = c.geom1 as number;
+      const g2 = c.geom2 as number;
+      // contacts are deduped value-objects in embind; release the handle.
+      (c as unknown as { delete?: () => void }).delete?.();
+      let leg = -1;
+      if (g1 === this.groundGeomId) leg = this.legByGeom.get(g2) ?? -1;
+      else if (g2 === this.groundGeomId) leg = this.legByGeom.get(g1) ?? -1;
+      if (leg >= 0) out[leg] = 1;
+    }
+    return out;
+  }
+
+  /**
+   * Apply a constant external force (mm·force units) to the thorax — the lever
+   * for the perturbation "shove". Persists across `controlStep`s until cleared.
+   */
+  setThoraxForce(fx: number, fy: number, fz: number): void {
+    const o = this.thoraxId * 6;
+    this.xfrcView[o] = fx;
+    this.xfrcView[o + 1] = fy;
+    this.xfrcView[o + 2] = fz;
+  }
+
+  /** Zero any applied force/torque on the thorax. */
+  clearThoraxForce(): void {
+    const o = this.thoraxId * 6;
+    for (let k = 0; k < 6; k++) this.xfrcView[o + k] = 0;
+  }
+
   metrics(): FlySimMetrics {
     const t = this.thoraxXyz();
     const dx = t[0] - this.spawn[0];
     const dy = t[1] - this.spawn[1];
-    return { thorax: t, time: this.data.time as number, distance: Math.hypot(dx, dy) };
+    let dh = this.rawHeading() - this.spawnHeading;
+    // wrap to (-π, π]
+    while (dh > Math.PI) dh -= 2 * Math.PI;
+    while (dh < -Math.PI) dh += 2 * Math.PI;
+    return {
+      thorax: t,
+      time: this.data.time as number,
+      distance: Math.hypot(dx, dy),
+      headingDeg: (dh * 180) / Math.PI,
+    };
   }
 
   reset(): void {
@@ -267,8 +386,10 @@ export class FlySim {
     } else {
       this.mod.mj_resetData(this.model, this.data);
     }
+    this.clearThoraxForce();
     this.mod.mj_forward(this.model, this.data);
     this.spawn = this.thoraxXyz();
+    this.spawnHeading = this.rawHeading();
   }
 
   dispose(): void {

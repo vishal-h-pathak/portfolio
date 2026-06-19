@@ -6,7 +6,7 @@
 > design) and they must stay in sync with the tables below. When the plan changes,
 > edit **all** of them.
 >
-> Last updated: 2026-06-18 (F landed — all seven tabs integrated, build green under Turbopack)
+> Last updated: 2026-06-18 (C2-B landed — Behaviors group scaffolded; closed-loop visuals; loop framing closed)
 
 ## Goal
 
@@ -81,8 +81,46 @@ fly (FlyWire LIF brain + Lappalainen vision + NeuroMechFly body), and connects t
 neuromorphic angle (the FlyWire connectome on Loihi 2). The E7 tab is the on-ramp to
 this; a future campaign is the build-out.
 
+## Campaign 2 — behaviors group (closing the loop)
+
+The redesign shipped the open-loop walking reference. Campaign 2 closes the sensory loop and
+builds the **Behaviors** group on top of it (new routes under `/projects/cellular-gaits/behaviors/*`),
+starting with perturbation/robustness. See `docs/cellular-gaits/research-roadmap.md` for the science.
+Boxes in a wave run in parallel.
+
+| ID | Prompt | Repo | Wave | Depends on | Status |
+|----|--------|------|------|-----------|--------|
+| C2-A | Closed-loop controller + perturbation training (sensors → grid, re-evolve) | cellular-gaits | C2·1 | redesign | in-progress |
+| C2-B | Behaviors tab group + closed-loop visuals (scaffold, content/visuals only) | portfolio | C2·1 | redesign | done |
+| C2-C | Wire C2-A's trained controller + open/closed recovery clips into `/behaviors/perturbation` | portfolio | C2·2 | C2-A, C2-B | planned |
+
+- **C2-A and C2-B run in parallel** — C2-B is content + visuals only, no trained data, so it
+  doesn't block on the compute job.
+- **C2-B delivers:** the `/behaviors` hub + `/behaviors/perturbation` scaffold, `ClosedLoopDiagram`
+  (open dashed → closed solid, before/after) and `SensorChannels` (42 joint angles + 6 foot
+  contacts → grid), and the Sensing-tab / `SystemDiagram` reframe (the dashed feedback arc is now
+  labelled *open-loop today → closing now*, linking the perturbation tab). The live closed-loop
+  FlyStage + recovery clips are a marked placeholder that **C2-C** fills.
+
 ## Changelog
 
+- **2026-06-18** — **C2-B done — Behaviors group scaffolded.** New routes under
+  `/projects/cellular-gaits/behaviors/`: a **hub** (closed-loop framing + one card per roadmap
+  behavior — perturbation *live soon*, chemotaxis / escape / navigation *queued*) and the
+  **`/behaviors/perturbation`** scaffold (`ConceptScaffold` four-part reframed to sense · reward ·
+  expectation · connectome-link, plus a clearly-marked `// TODO: C2-C` placeholder for the live
+  closed-loop FlyStage + open/closed recovery clips). Two standalone, data-free visuals in the
+  SystemDiagram house style: **`ClosedLoopDiagram`** (interactive before/after — the proprioceptive
+  arc dashed/open vs solid/closed, each block reveals its one-liner on hover·tap·focus, keyboard +
+  `aria`, edge-aware popout) and **`SensorChannels`** (the 48-signal proprioceptive bus → grid, with
+  a keyboard-operable toggle between *extra channels* and *sensor cells*; counts real, mapping
+  schematic until `closed_loop_controller.json`). Added the **Behaviors** tab to `tabs.ts`/`CgTabNav`
+  (nested-route active matching). The dashed arc finally closes in the framing: **Sensing tab** +
+  **`SystemDiagram`** reframed *open-loop today → closing now* with links to the perturbation tab
+  (kept honest — the arc stays dashed since the loop isn't wired until C2-A/C2-C). `ConceptScaffold`
+  widened with an optional `explainerParts` prop (backward-compatible). No three.js/wasm on the new
+  content routes. Build green under Turbopack; 375px clean. Branch `feat/c2-behaviors-scaffold`,
+  not merged.
 - **2026-06-18** — **F done — redesign integrated.** Merged all seven tab branches
   (`feat/cg-e1-body` … `feat/cg-e7-embodied`) into `feat/cg-redesign`. Conflicts were the
   concurrent appends to `app/globals.css` (unioned — every tab's `.cg-*` block kept, none
@@ -259,3 +297,27 @@ this; a future campaign is the build-out.
   et al. 2024, Lappalainen et al. 2024, Wang-Chen et al. 2024, Vaxenburg et al. 2025, the Eon
   embodied-fly write-up incl. the Loihi 2 / neuromorphic angle, and FlyWire). No new physics.
   Build green.
+- **2026-06-19** — **C2-C done.** Wired the live closed loop into
+  `/behaviors/perturbation`. `lib/nca.ts` gained the **6→16 closed-loop** path
+  (`loadClosedLoop` + `stepClosedLoop` + `makeClosedLoopController`): conv1 takes
+  4 recurrent state + 2 live sensor channels, built each control step from the
+  exported `sensors` spec — ch4 = 42 joint angles (`actuator_length`, θ/3.14) on
+  the 7×6 motor block, ch5 = 6 foot contacts on the bottom row; state stays 4
+  channels, motor readout reused from v1 (`motor_cells`). Wiring pinned by a
+  scratch verifier (shapes 16×6×3×3 / 4×16×1×1, finite/clamped, deterministic,
+  sensors influence conv1). `lib/mujoco-fly.ts` gained `actuatorLengths()`,
+  `footContacts()` (tarsus↔ground contact pairs → leg order lf,lm,lh,rf,rm,rh),
+  `setThoraxForce`/`clearThoraxForce` (`xfrc_applied`) and a `headingDeg` metric.
+  `FlyStage` got `shoveSignal`/`shoveMagnitude`/`shoveDurationS` (lateral impulse
+  applied at control-step granularity over the pert window, fps-independent) and
+  a `resetSignal` prop. New `PerturbationDemo` (one live stage, toggle v1
+  open-loop ↔ trained closed-loop, shove button, live readout, recorded-clip
+  fallback). The page (server) reads `robustness_metrics.json` via fs (sanitizing
+  bare `Infinity`) and renders the recorded open/closed clips + a server-rendered
+  `HeadingError` SVG (56.6°→26.5° mean, seed-202 97°→19° callout). `SensorChannels`
+  refined to the real spec; `ClosedLoopDiagram`/`SystemDiagram`/Sensing copy
+  updated (loop closed *for perturbation*, v1 walk still open-loop — kept honest).
+  **Honesty:** at magnitude 6 neither controller falls (both 100% upright) — the
+  win is course correction / disturbance rejection, not catching a fall; the
+  closed-loop fitness scalar (69.97) is *not* compared to v1's 86.6 (different
+  objective). three.js/WASM load only on this route (dynamic, `ssr:false`).

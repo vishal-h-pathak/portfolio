@@ -10,16 +10,15 @@ import { CG_BASE } from "./tabs";
  *   what we chose · why · alternatives · the biological / frontier version
  */
 
-export type ConceptExplainer = {
-  chose?: ReactNode;
-  why?: ReactNode;
-  alternatives?: ReactNode;
-  frontier?: ReactNode;
-};
+export type ConceptExplainer = Record<string, ReactNode>;
+
+export type ExplainerPart = { key: string; label: string };
 
 const PLACEHOLDER = <span className="cg-tab-todo">{`// TODO: wave 3`}</span>;
 
-const EXPLAINER_PARTS: { key: keyof ConceptExplainer; label: string }[] = [
+// Default four-part framing (the wave-3 concept tabs). The Behaviors tabs pass
+// their own `explainerParts` (sense · reward · expectation · connectome link).
+const EXPLAINER_PARTS: ExplainerPart[] = [
   { key: "chose", label: "What we chose" },
   { key: "why", label: "Why" },
   { key: "alternatives", label: "Alternatives" },
@@ -31,6 +30,7 @@ export function ConceptScaffold({
   lead,
   module,
   explainer,
+  explainerParts,
 }: {
   /** Section name, rendered as the § eyebrow. */
   name: string;
@@ -38,9 +38,13 @@ export function ConceptScaffold({
   lead: ReactNode;
   /** The interactive module. Defaults to a wave-3 placeholder. */
   module?: ReactNode;
-  /** The four-part explainer. Each missing part falls back to a TODO marker. */
+  /** The explainer parts, keyed by `explainerParts` (defaults to the four-part
+   * concept framing). Each missing part falls back to a TODO marker. */
   explainer?: ConceptExplainer;
+  /** Override the explainer part labels/keys (e.g. the Behaviors framing). */
+  explainerParts?: ExplainerPart[];
 }) {
+  const parts = explainerParts ?? EXPLAINER_PARTS;
   return (
     <section className="cg-section">
       <p className="cg-section-eyebrow">§ {name.toUpperCase()}</p>
@@ -55,7 +59,7 @@ export function ConceptScaffold({
       </div>
 
       <div className="cg-explainer">
-        {EXPLAINER_PARTS.map((part) => (
+        {parts.map((part) => (
           <div className="cg-explainer-part" key={part.key}>
             <p className="cg-explainer-h">{part.label}</p>
             <div className="cg-explainer-body">

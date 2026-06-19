@@ -22,5 +22,6 @@ export const CG_TABS: CgTab[] = [
   { href: `${CG_BASE}/objective`, label: "Objective" },
   { href: `${CG_BASE}/optimizer`, label: "Optimizer" },
   { href: `${CG_BASE}/embodied`, label: "Embodied" },
+  { href: `${CG_BASE}/behaviors`, label: "Behaviors" },
   { href: `${CG_BASE}/appendix`, label: "Appendix" },
 ];

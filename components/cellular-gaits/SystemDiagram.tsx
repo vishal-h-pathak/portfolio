@@ -136,13 +136,22 @@ const BLOCKS: Block[] = [
     w: 192,
     h: 82,
     title: "Sensing",
-    sub: "planned · proprioception",
+    sub: "closed · perturbation",
     plain: "Joint angles + foot contacts fed back into the grid.",
     body: (
       <p className="sysdiagram-pop-note">
-        Joint angles + foot contacts fed back into the grid.{" "}
-        <strong>Not yet implemented</strong> — the controller is currently
-        open-loop (walks blind). Closes in Stage 2.
+        42 joint angles + 6 foot contacts fed back into the grid.{" "}
+        <strong>Now wired and trained</strong> as the first closed-loop behavior
+        on the{" "}
+        <a
+          className="cg-inline-link"
+          href="/projects/cellular-gaits/behaviors/perturbation"
+        >
+          Perturbation
+        </a>{" "}
+        tab (halves post-shove heading error). The v1 <em>walking</em> shown
+        across the other tabs is still open-loop — the arc is drawn dashed for
+        that default system.
       </p>
     ),
   },
@@ -381,9 +390,10 @@ export function SystemDiagram() {
         <desc id="sysd-desc">
           Two coupled loops. The runtime control loop (green, per 250 Hz control
           step) runs the NCA controller into the motor mapping into the MuJoCo
-          fly body, with a dashed proprioceptive feedback arc — sensing — that is
-          not yet implemented (the controller is open-loop today and closes in
-          Stage 2). The training loop (amber, per 3-second rollout) scores the
+          fly body, with a proprioceptive feedback arc — sensing — that is now
+          closed for the first closed-loop behavior (perturbation) but drawn
+          dashed because the v1 walking shown elsewhere is still open-loop. The
+          training loop (amber, per 3-second rollout) scores the
           body with a fitness function, feeds it to the CMA-ES optimizer, and
           sends the evolved parameters theta back into the controller.
         </desc>
@@ -427,7 +437,7 @@ export function SystemDiagram() {
           <line key={`f${i}`} x1={e[0]} y1={e[1]} x2={e[2]} y2={e[3]} stroke="rgba(232,230,223,0.45)" strokeWidth={1.4} strokeDasharray="5 4" markerEnd="url(#sysd-gray)" />
         ))}
         <text x={390} y={352} textAnchor="middle" fill={SUB} fontSize={10.5}>
-          proprioception · open-loop today → Stage 2
+          proprioception · closed for perturbation · v1 walk still open-loop
         </text>
 
         {/* Runtime edges (green, solid) */}
@@ -453,7 +463,7 @@ export function SystemDiagram() {
           <line x1={170} y1={520} x2={196} y2={520} stroke="#E89B3D" strokeWidth={1.5} markerEnd="url(#sysd-amber)" />
           <text x={204} y={524} fill={SUB}>training</text>
           <line x1={300} y1={520} x2={326} y2={520} stroke="rgba(232,230,223,0.45)" strokeWidth={1.4} strokeDasharray="5 4" markerEnd="url(#sysd-gray)" />
-          <text x={334} y={524} fill={SUB}>planned (sensing)</text>
+          <text x={334} y={524} fill={SUB}>sensing (v1 walk open-loop)</text>
         </g>
       </svg>
 

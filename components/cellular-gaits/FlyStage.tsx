@@ -41,6 +41,21 @@ type Props = {
   fallbackClipSrc?: string;
   height?: number;
   className?: string;
+  /**
+   * Increment to fire a calibrated lateral impulse on the thorax (the
+   * "shove"). The force is applied at control-step granularity for
+   * `shoveDurationS` so the disturbance is fps-independent.
+   */
+  shoveSignal?: number;
+  /** Lateral force magnitude (model units). Matches the C2-A sweep (6.0). */
+  shoveMagnitude?: number;
+  /** How long the impulse is held, seconds (C2-A: 0.05). */
+  shoveDurationS?: number;
+  /**
+   * Increment to reset the sim from the parent (re-pose + restart the
+   * controller). The on-canvas reset button does the same thing.
+   */
+  resetSignal?: number;
 };
 
 // Real-time pacing: 1 control step = 4 ms sim. Run a wall-clock accumulator so
@@ -58,6 +73,10 @@ export function FlyStage({
   fallbackClipSrc,
   height = 380,
   className,
+  shoveSignal = 0,
+  shoveMagnitude = 6,
+  shoveDurationS = 0.05,
+  resetSignal = 0,
 }: Props) {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const [phase, setPhase] = useState<"loading" | "ready" | "error" | "fallback">("loading");
@@ -69,7 +88,9 @@ export function FlyStage({
   const runningRef = useRef(running);
   const controllerRef = useRef<FlyStageController | undefined>(controller);
   const trackingRef = useRef(cameraTracking);
-  const resetSignal = useRef(0);
+  const resetTick = useRef(0); // internal reset counter (button + resetSignal prop)
+  const shoveTick = useRef(0); // latest shove request the loop has not yet started
+  const shoveCfg = useRef({ magnitude: shoveMagnitude, durationS: shoveDurationS });
 
   useEffect(() => {
     runningRef.current = isRunning;
@@ -80,6 +101,17 @@ export function FlyStage({
   useEffect(() => {
     trackingRef.current = cameraTracking;
   }, [cameraTracking]);
+  useEffect(() => {
+    shoveCfg.current = { magnitude: shoveMagnitude, durationS: shoveDurationS };
+  }, [shoveMagnitude, shoveDurationS]);
+  // A parent shoveSignal bump becomes a pending shove the loop picks up.
+  useEffect(() => {
+    if (shoveSignal > 0) shoveTick.current = shoveSignal;
+  }, [shoveSignal]);
+  // A parent resetSignal bump routes through the same path as the reset button.
+  useEffect(() => {
+    if (resetSignal > 0) resetTick.current++;
+  }, [resetSignal]);
 
   const onStepRef = useRef(onStep);
   useEffect(() => {
@@ -193,7 +225,10 @@ export function FlyStage({
         const tmp = new THREE.Matrix4();
         const camTarget = new THREE.Vector3();
         let controlStep = 0;
-        let lastReset = resetSignal.current;
+        let lastReset = resetTick.current;
+        let lastShove = shoveTick.current;
+        let shoveStepsLeft = 0;
+        let shoveSign = 1;
         let prevT = performance.now();
         let acc = 0;
         let fps = 0;
@@ -232,13 +267,22 @@ export function FlyStage({
           const inst = dt > 0 ? 1 / dt : 0;
           fps = fps === 0 ? inst : fps * 0.9 + inst * 0.1;
 
-          // Reset requested from the UI.
-          if (resetSignal.current !== lastReset) {
-            lastReset = resetSignal.current;
-            sim!.reset();
+          // Reset requested from the UI (button or parent resetSignal).
+          if (resetTick.current !== lastReset) {
+            lastReset = resetTick.current;
+            sim!.reset(); // also clears any applied force
             (sim as FlySim & { _ncaReset?: () => void })._ncaReset?.();
             controlStep = 0;
             acc = 0;
+            shoveStepsLeft = 0;
+          }
+
+          // A new shove request → hold the lateral impulse for the pert window,
+          // alternating direction each time so repeated shoves stay interesting.
+          if (shoveTick.current !== lastShove) {
+            lastShove = shoveTick.current;
+            shoveStepsLeft = Math.max(1, Math.round(shoveCfg.current.durationS / CONTROL_DT_S));
+            shoveSign = -shoveSign;
           }
 
           const ctrl = controllerRef.current;
@@ -246,6 +290,12 @@ export function FlyStage({
             acc += dt;
             let steps = 0;
             while (acc >= CONTROL_DT_S && steps < MAX_STEPS_PER_FRAME) {
+              // Apply the shove force for the control steps inside its window.
+              if (shoveStepsLeft > 0) {
+                sim!.setThoraxForce(0, shoveSign * shoveCfg.current.magnitude, 0);
+                shoveStepsLeft--;
+                if (shoveStepsLeft === 0) sim!.clearThoraxForce();
+              }
               const u = ctrl({ time: sim!.metrics().time, controlStep, sim: sim! });
               sim!.controlStep(u);
               acc -= CONTROL_DT_S;
@@ -303,7 +353,7 @@ export function FlyStage({
   }, [fallbackClipSrc, height]);
 
   const onReset = useCallback(() => {
-    resetSignal.current++;
+    resetTick.current++;
   }, []);
 
   if (phase === "fallback" && fallbackClipSrc) {

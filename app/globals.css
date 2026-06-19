@@ -2205,3 +2205,231 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
 @media (max-width: 700px) {
   .cg-footer { flex-direction: column; gap: 6px; }
 }
+
+/* ══ Behaviors group (C2-B) ══════════════════════════════════════════════ */
+
+/* ClosedLoopDiagram — open vs closed loop, before/after (house style; reuses
+   .sysdiagram + .sysdiagram-pop for the popout). */
+.cg-loop-paths {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+.cg-loop-fig { margin: 0; }
+.cg-loop-panel { padding: 14px; }
+.cg-loop-cap {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--ink-faint);
+  margin-bottom: 10px;
+}
+.cg-loop-tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 2px;
+  margin-right: 8px;
+  vertical-align: 1px;
+  border: 1px solid currentColor;
+}
+.cg-loop-tag[data-kind="now"] { color: var(--ink-faint); border-style: dashed; }
+.cg-loop-tag[data-kind="closed"] { color: var(--green); }
+
+/* Behaviors hub — one card per behavior. */
+.cg-beh-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.cg-beh-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid var(--rule);
+  background: var(--bg-raised);
+  border-radius: 4px;
+  padding: 16px 18px;
+  text-decoration: none;
+  color: inherit;
+}
+.cg-beh-card[data-link="1"] { transition: border-color 0.15s, background 0.15s; }
+.cg-beh-card[data-link="1"]:hover,
+.cg-beh-card[data-link="1"]:focus-visible {
+  border-color: var(--green-dim);
+  background: var(--bg-card);
+  outline: none;
+}
+.cg-beh-card[aria-disabled="true"] { opacity: 0.66; }
+.cg-beh-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.cg-beh-label {
+  font-family: var(--mono);
+  font-size: 13.5px;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+.cg-beh-card[data-link="1"]:hover .cg-beh-label,
+.cg-beh-card[data-link="1"]:focus-visible .cg-beh-label { color: var(--green); }
+.cg-beh-status {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 2px;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+}
+.cg-beh-status[data-status="building"] { color: var(--green); }
+.cg-beh-status[data-status="queued"] { color: var(--ink-faint); border-style: dashed; }
+.cg-beh-row {
+  display: flex;
+  gap: 10px;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.cg-beh-k {
+  flex: 0 0 56px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  padding-top: 2px;
+}
+.cg-beh-v { color: var(--ink-dim); min-width: 0; }
+.cg-beh-why {
+  margin-top: 2px;
+  color: var(--ink-faint);
+  font-size: 12.5px;
+  line-height: 1.55;
+  font-style: italic;
+}
+
+/* SensorChannels — proprioceptive bus → grid, with the routing toggle. */
+.cg-chan { margin: 0; }
+.cg-chan-toggle {
+  display: inline-flex;
+  gap: 0;
+  margin-bottom: 14px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.cg-chan-toggle button {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-dim);
+  background: var(--bg-raised);
+  border: none;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+.cg-chan-toggle button + button { border-left: 1px solid var(--rule); }
+.cg-chan-toggle button:hover { color: var(--ink); }
+.cg-chan-toggle button[data-active="1"] {
+  color: var(--bg);
+  background: var(--green);
+}
+.cg-chan-toggle button:focus-visible {
+  outline: 1px solid var(--green);
+  outline-offset: -1px;
+}
+.cg-chan-cap {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-faint);
+  max-width: 70ch;
+}
+.cg-chan-cap strong { color: var(--ink); font-weight: 500; }
+.cg-chan-cap code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  color: var(--ink);
+  background: rgba(232, 230, 223, 0.06);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* Perturbation tab — the SensorChannels visual + the C2-C live-demo placeholder. */
+.cg-perturb { display: flex; flex-direction: column; gap: 28px; }
+.cg-perturb-vis { min-width: 0; }
+.cg-perturb-placeholder {
+  border: 1px dashed var(--rule);
+  border-left: 2px solid var(--amber-dim);
+  border-radius: 4px;
+  background: var(--bg-raised);
+  padding: 18px 20px;
+}
+.cg-perturb-todo {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--amber);
+  opacity: 0.78;
+  margin: 12px 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .cg-loop-paths { grid-template-columns: 1fr; }
+}
+
+/* ── C2-C: live perturbation demo, recorded clips, heading-error visual ── */
+.cg-beh-status[data-status="live"] { color: var(--green); border-color: var(--green); }
+
+/* recorded open-loop / closed-loop clips, side by side under the same shove */
+.cg-perturb-clips {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.cg-perturb-clip { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.cg-perturb-clip video {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--bg);
+  display: block;
+}
+.cg-perturb-clip figcaption { display: flex; flex-direction: column; gap: 1px; }
+
+/* the standalone heading-error visual */
+.cg-heading-fig { margin: 0; }
+.cg-heading-cap {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-faint);
+  max-width: 70ch;
+}
+
+/* the live, shoveable stage (toggle controller + shove) */
+.cg-perturb-live { display: flex; flex-direction: column; gap: 12px; }
+.cg-perturb-live-head { display: flex; flex-direction: column; gap: 6px; }
+.cg-perturb-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.cg-shove-btn { font-weight: 500; }
+
+@media (max-width: 560px) {
+  .cg-perturb-clips { grid-template-columns: 1fr; }
+}

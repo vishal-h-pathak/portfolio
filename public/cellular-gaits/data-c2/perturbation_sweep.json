@@ -1,0 +1,62 @@
+{
+  "rows": [
+    {
+      "magnitude": 3.0,
+      "n_seeds": 18,
+      "degraded_fraction": 0.3888888888888889,
+      "fell_fraction": 0.0,
+      "no_recover_fraction": 0.1111111111111111,
+      "heading_error_deg_mean": 38.82782973035676,
+      "post_shove_dx_mean": 30.6623747411363
+    },
+    {
+      "magnitude": 4.0,
+      "n_seeds": 18,
+      "degraded_fraction": 0.4444444444444444,
+      "fell_fraction": 0.0,
+      "no_recover_fraction": 0.1111111111111111,
+      "heading_error_deg_mean": 46.60892721243887,
+      "post_shove_dx_mean": 26.113659929294528
+    },
+    {
+      "magnitude": 5.0,
+      "n_seeds": 18,
+      "degraded_fraction": 0.3333333333333333,
+      "fell_fraction": 0.0,
+      "no_recover_fraction": 0.1111111111111111,
+      "heading_error_deg_mean": 47.55217943344969,
+      "post_shove_dx_mean": 25.073991942541564
+    },
+    {
+      "magnitude": 6.0,
+      "n_seeds": 18,
+      "degraded_fraction": 0.5555555555555556,
+      "fell_fraction": 0.0,
+      "no_recover_fraction": 0.1111111111111111,
+      "heading_error_deg_mean": 56.58041449891018,
+      "post_shove_dx_mean": 20.81430685954874
+    }
+  ],
+  "chosen_magnitude": 6.0,
+  "seeds": [
+    101,
+    202,
+    303,
+    404,
+    505,
+    606,
+    707,
+    808,
+    909,
+    111,
+    222,
+    333,
+    444,
+    555,
+    666,
+    777,
+    888,
+    999
+  ],
+  "degrade_heading_deg": 45.0
+}
