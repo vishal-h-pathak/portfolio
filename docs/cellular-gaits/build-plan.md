@@ -52,7 +52,7 @@ Columns in the diagram are time; boxes in a column run in parallel.
 | D | Precompute rollouts (gain→gait sweep, evolution curve, clips; open/closed + CPG deferred) | cellular-gaits | 1 | — | done |
 | B | MuJoCo-WASM substrate (`<FlyStage>`, spike + perf validation) | portfolio | 2 | A | done |
 | E1 | Body tab | portfolio | 3 | B, C | planned |
-| E2 | Controller tab (criticality playground + rule swap) | portfolio | 3 | B, C | planned |
+| E2 | Controller tab (criticality playground + answered gain→gait result) | portfolio | 3 | B, C, D | done |
 | E3 | Sensing tab (open vs closed loop) | portfolio | 3 | B, C, D | planned |
 | E4 | Motor mapping tab | portfolio | 3 | B, C | planned |
 | E5 | Objective tab (reweight fitness) | portfolio | 3 | B, C, D | planned |
@@ -83,6 +83,18 @@ this; a future campaign is the build-out.
 
 ## Changelog
 
+- **2026-06-18** — **E2 done.** Controller tab rebuilt on `ConceptScaffold` (four-part
+  explainer, real constants). Kept the live `CriticalityPlayground` (it now reads as *posing*
+  the criticality question), and added the **answered result**: a themed dual-axis SVG
+  (`GainSweepChart`, house style — data-driven, `var(--mono)`, site palette) plotting distance
+  (mm) and λ vs gain from D's `gain_sweep.json`, with the native gain 1.0 peak (86.6 mm) marked
+  and the λ=0 crossing band (gain 1.3–1.5) highlighted. Copy flipped from "haven't run the
+  physics yet" → the finding (peak at native; collapse coincides with chaos onset), detuning-
+  sweep caveat kept. Added a recorded-rollout strip (`GaitClips`, D's lo/native/hi clips) + link
+  to the live fly on the Body tab — a second live `<FlyStage>` was *not* embedded to protect the
+  frame budget alongside the playground (precomputed-only, per the honesty rule). Build green
+  (webpack; the Turbopack symlink panic + the pre-existing `dashboard/login` PageProps error are
+  environment/base issues, not E2), 375px clean, 0 console errors.
 - **2026-06-18** — Initial plan. Architecture set (MuJoCo-WASM, sub-routes, math
   appendix, story removed). Decomposed into prompts A–F; diagram + this doc created and
   surfaced in the page appendix.

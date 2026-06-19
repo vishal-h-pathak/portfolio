@@ -1381,6 +1381,98 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   .cg-pg-stage { align-items: center; }
 }
 
+/* ---- Controller tab: playground + the answered result ---- */
+.cg-controller-module { display: flex; flex-direction: column; gap: 30px; }
+
+.cg-result {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--green-dim);
+  background: var(--bg-raised);
+  padding: 20px;
+}
+.cg-result-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin: 0;
+}
+.cg-result-lead {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.65;
+  letter-spacing: 0.01em;
+  color: var(--ink-dim);
+  margin: 0;
+  max-width: 72ch;
+}
+.cg-result-lead strong { color: var(--ink); font-weight: 500; }
+.cg-result-lead em { color: var(--ink-faint); font-style: italic; }
+
+.cg-chart { margin: 0; }
+.cg-chart svg {
+  border: 1px solid var(--rule);
+  background: var(--bg);
+  border-radius: 4px;
+}
+.cg-chart-cap {
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  color: var(--ink-faint);
+  margin: 12px 0 0;
+  max-width: 80ch;
+}
+.cg-chart-cap strong { color: var(--ink); font-weight: 500; }
+.cg-chart-cap em { font-style: italic; color: var(--ink-dim); }
+
+.cg-gaitclips-wrap { display: flex; flex-direction: column; gap: 8px; }
+.cg-gaitclips {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.cg-gaitclip { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.cg-gaitclip video {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--bg);
+  display: block;
+}
+.cg-gaitclip figcaption { display: flex; flex-direction: column; gap: 1px; }
+.cg-gaitclip-k {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+.cg-gaitclip-sub {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+}
+.cg-inline-link {
+  color: var(--green);
+  border-bottom: 1px solid var(--green-dim);
+  text-decoration: none;
+}
+.cg-inline-link:hover { border-bottom-color: var(--green); }
+
+@media (max-width: 560px) {
+  .cg-result { padding: 16px; }
+  .cg-gaitclips { grid-template-columns: 1fr; gap: 10px; }
+  .cg-gaitclip video { aspect-ratio: 16 / 9; }
+}
+
 /* ── the math section (KaTeX) ───────────────────────────────────────── */
 .cg-math { color: var(--ink); }
 .cg-math-block {
