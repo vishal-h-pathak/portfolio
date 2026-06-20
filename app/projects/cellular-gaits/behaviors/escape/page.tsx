@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ConceptScaffold } from "@/components/cellular-gaits/ConceptScaffold";
 import { EscapeCircuit } from "@/components/cellular-gaits/EscapeCircuit";
+import { EscapeDemo, type EscapeConfig } from "@/components/cellular-gaits/EscapeDemo";
+import {
+  EscapeTrajectories,
+  type EscapeEpisode,
+} from "@/components/cellular-gaits/EscapeTrajectories";
 import { CG_BASE } from "@/components/cellular-gaits/tabs";
 
 export const metadata: Metadata = {
@@ -16,7 +23,58 @@ const PARTS = [
   { key: "connectome", label: "Connectome link" },
 ];
 
-export default function EscapeTabPage() {
+type Metrics = {
+  config: EscapeConfig;
+  trained: {
+    per_azimuth: {
+      azimuth_deg: number;
+      escaped: boolean;
+      min_dist: number;
+      reaction_latency_s: number | null;
+      total_away_turn: number;
+    }[];
+    aggregate: {
+      escape_success_rate: number;
+      mean_min_dist: number;
+      mean_reaction_latency_s: number;
+    };
+  };
+  held_out: {
+    aggregate: { escape_success_rate: number; mean_min_dist: number };
+  };
+};
+
+type Trajectories = { episodes: EscapeEpisode[] };
+
+/** Read the real X-A escape metrics + recorded trajectories (server-side). */
+async function readData(): Promise<{ metrics: Metrics; trajectories: Trajectories }> {
+  const base = join(process.cwd(), "public/cellular-gaits/data-x");
+  const [m, t] = await Promise.all([
+    readFile(join(base, "escape_metrics.json"), "utf8"),
+    readFile(join(base, "trajectories.json"), "utf8"),
+  ]);
+  return {
+    metrics: JSON.parse(m.replace(/-?Infinity/g, "null").replace(/\bNaN\b/g, "null")) as Metrics,
+    trajectories: JSON.parse(t) as Trajectories,
+  };
+}
+
+const ms = (s: number | null) => (s == null ? "—" : `${Math.round(s * 1000)} ms`);
+const turn = (v: number) => (v >= 0 ? "+" : "") + v.toFixed(2);
+
+export default async function EscapeTabPage() {
+  const { metrics, trajectories } = await readData();
+  const { config, trained, held_out } = metrics;
+
+  const byAz = (deg: number) => trained.per_azimuth.find((a) => Math.round(a.azimuth_deg) === deg);
+  const front = byAz(0);
+  const left = byAz(90);
+  const right = byAz(270);
+  const escapedCount = trained.per_azimuth.filter((a) => a.escaped).length;
+  const total = trained.per_azimuth.length;
+  const trainedRate = Math.round(trained.aggregate.escape_success_rate * total);
+  const heldRate = Math.round(held_out.aggregate.escape_success_rate * 3);
+
   return (
     <ConceptScaffold
       name="Escape"
@@ -50,19 +108,128 @@ export default function EscapeTabPage() {
             </p>
           </div>
 
-          {/* 2 — placeholder for the live demo (X-C wires this in) */}
+          {/* 2 — the live launch-the-threat demo (X-C) */}
           <div>
-            <p className="cg-sense-h">Launch the threat (coming soon)</p>
+            <p className="cg-sense-h">Launch the threat</p>
             <p className="cg-sense-p">
-              The live, in-browser escape: a MuJoCo fly running the trained
-              controller, a threat you launch at it, recorded flee clips, and a
-              top-down trajectory map showing the escape direction emerging from
-              the L/R looming asymmetry.
+              The live, in-browser escape: a MuJoCo fly running the{" "}
+              <strong>trained</strong> controller, and a looming threat you launch
+              at it from any azimuth. Each control step the loop reads the fly&apos;s
+              pose from the sim, evaluates the analytic looming front-end against the
+              live pose, and feeds the two eye magnitudes in — the fly bolts, and the{" "}
+              <em>direction</em> falls out of the <code>loom_L − loom_R</code>{" "}
+              asymmetry, never a hard-coded rule.
             </p>
-            <div className="cg-tab-module-stub">
-              {/* TODO: X-C wires the live launch-the-threat escape FlyStage + recorded flee clips + top-down trajectory viz here. */}
-              <span className="cg-tab-todo">{`// TODO: X-C — live launch-the-threat escape FlyStage + flee clips + trajectory viz`}</span>
+            <EscapeDemo config={config} />
+          </div>
+
+          {/* 3 — the guaranteed headline: recorded flee clips both ways */}
+          <div>
+            <p className="cg-sense-h">Same controller, opposite threats → opposite bolts</p>
+            <p className="cg-sense-p">
+              Two recorded rollouts of the trained fly: a threat from the{" "}
+              <strong>left</strong> and from the <strong>right</strong>. Same
+              controller, opposite turns — and the direction is{" "}
+              <strong>emergent</strong>, the response to a left-vs-right looming
+              difference, never a hard-coded rule. Left threat (90°) →{" "}
+              <strong>bolts right</strong> (away-turn {left ? turn(left.total_away_turn) : "—"},{" "}
+              {left ? ms(left.reaction_latency_s) : "—"}); right threat (270°) →{" "}
+              <strong>bolts left</strong> (
+              {right ? turn(right.total_away_turn) : "—"},{" "}
+              {right ? ms(right.reaction_latency_s) : "—"}); head-on (0°) escapes by{" "}
+              displacement ({front ? front.min_dist.toFixed(1) : "—"} units).
+            </p>
+            <div
+              className="cg-perturb-clips"
+              role="group"
+              aria-label="Recorded escape flees with a threat from the left and from the right"
+            >
+              <figure className="cg-perturb-clip">
+                <video
+                  src="/cellular-gaits/data-x/flee_left.mp4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  aria-label="Recorded rollout: a threat looms from the left, the fly bolts right"
+                />
+                <figcaption>
+                  <span className="cg-gaitclip-k" style={{ color: "var(--green)" }}>
+                    threat left · 90°
+                  </span>
+                  <span className="cg-gaitclip-sub">looms left → bolts right</span>
+                </figcaption>
+              </figure>
+              <figure className="cg-perturb-clip">
+                <video
+                  src="/cellular-gaits/data-x/flee_right.mp4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  aria-label="Recorded rollout: a threat looms from the right, the fly bolts left"
+                />
+                <figcaption>
+                  <span className="cg-gaitclip-k" style={{ color: "var(--green)" }}>
+                    threat right · 270°
+                  </span>
+                  <span className="cg-gaitclip-sub">looms right → bolts left</span>
+                </figcaption>
+              </figure>
             </div>
+          </div>
+
+          {/* 4 — the top-down trajectory map (real recorded paths) */}
+          <div>
+            <p className="cg-sense-h">Every escape, top-down — and it generalizes</p>
+            <p className="cg-sense-p">
+              The recorded rollouts as a map: each panel a fly bolting away from a
+              threat streaking in toward its target-leading aim point. It survives on{" "}
+              <strong>
+                {escapedCount} of {total}
+              </strong>{" "}
+              trained azimuths (mean closest {trained.aggregate.mean_min_dist.toFixed(1)}{" "}
+              units, mean reaction {ms(trained.aggregate.mean_reaction_latency_s)}) — and on
+              the <strong>held-out</strong> diagonals {"{45°, 135°, 315°}"} it survives{" "}
+              <strong>{heldRate}/3</strong> too. Survival generalizes beyond the panel it
+              was selected on.
+            </p>
+            <EscapeTrajectories
+              episodes={trajectories.episodes}
+              trainedAzimuths={config.azimuths_deg}
+            />
+          </div>
+
+          {/* 5 — honesty caveats, surfaced not buried */}
+          <div className="cg-escape-caveats">
+            <p className="cg-sense-h">Honest about what this is</p>
+            <ul className="cg-escape-caveat-list">
+              <li>
+                <strong>The looming front-end is hand-built.</strong> The threat
+                geometry → loom signal is an analytic stand-in for the real
+                LC4/LPLC2 → DNp01 (Giant Fiber) circuit — the connectome swap is the
+                endgame; the two bilateral loom channels are the clean seam. Only the{" "}
+                <em>response</em> is learned.
+              </li>
+              <li>
+                <strong>loom_input_gain = {config.loom_input_gain.toFixed(0)}.</strong>{" "}
+                The [0,1] loom cue is amplified before conv1 — the bang-bang warm-start
+                gait can&apos;t be moved by an unamplified cue (the escape analog of
+                chemotaxis&apos;s deliberately strong antenna baseline). It is
+                A/B-preserving: amplifying a zero loom is still zero, so with no threat
+                the fly reproduces the closed-loop walking dynamics exactly.
+              </li>
+              <li>
+                <strong>180° (behind) is omitted.</strong> A full U-turn won&apos;t
+                fit the ~{(config.rollout_seconds ?? 1.2).toFixed(1)} s episode; the panel is{" "}
+                {"{front, left, right}"} plus the held-out diagonals.
+              </li>
+              <li>
+                <strong>The escape fitness scalar isn&apos;t comparable across
+                behaviors.</strong> Its reward shaping is task-specific — don&apos;t
+                read it against walking or chemotaxis.
+              </li>
+            </ul>
           </div>
         </div>
       }
@@ -99,17 +266,21 @@ export default function EscapeTabPage() {
           <p>
             <strong>The direction of escape emerges from the L/R looming
             asymmetry.</strong>{" "}
-            A threat looming from the left grows faster on the left eye; the
-            controller should turn and flee right, and the mirror case should
-            flip — with nothing in the controller saying &ldquo;flee away from
-            the bigger side.&rdquo; That reflex should fall out of the
-            left−right channels under selection, exactly as steering did in{" "}
+            A threat looming from the left grows faster on the left eye; the same
+            controller turns and flees <strong>right</strong> (away-turn{" "}
+            {left ? turn(left.total_away_turn) : "—"}, {left ? ms(left.reaction_latency_s) : "—"}),
+            and the mirror case flips — a right threat → flee{" "}
+            <strong>left</strong> ({right ? turn(right.total_away_turn) : "—"},{" "}
+            {right ? ms(right.reaction_latency_s) : "—"}) — with nothing in the
+            controller saying &ldquo;flee away from the bigger side.&rdquo; It
+            survives <strong>{trainedRate}/{total}</strong> trained azimuths and the{" "}
+            <strong>{heldRate}/3</strong> held-out diagonals, exactly as steering
+            emerged in{" "}
             <a className="cg-inline-link" href={`${CG_BASE}/behaviors/chemotaxis`}>
               chemotaxis
             </a>
-            . This tab is the <strong>scaffold</strong>: the circuit visual and
-            framing land now; the trained controller and the live demo are the
-            next step (X-A trains it, X-C wires the demo in).
+            . The live demo and the recorded map below are this result, in your
+            browser.
           </p>
         ),
         connectome: (

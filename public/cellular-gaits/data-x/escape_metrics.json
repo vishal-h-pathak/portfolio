@@ -1,0 +1,99 @@
+{
+  "config": {
+    "threat_speed": 45.0,
+    "threat_radius": 2.0,
+    "threat_start_distance": 18.0,
+    "threat_hit_radius": 3.0,
+    "threat_lead_distance": 15.0,
+    "loom_input_gain": 8.0,
+    "azimuths_deg": [
+      0.0,
+      90.0,
+      270.0
+    ],
+    "rollout_steps": 300,
+    "rollout_seconds": 1.2
+  },
+  "trained": {
+    "per_azimuth": [
+      {
+        "azimuth_deg": 0.0,
+        "escaped": true,
+        "hit": false,
+        "min_dist": 19.308588156366124,
+        "final_dist": 19.94934412064456,
+        "reaction_latency_s": 0.044,
+        "total_away_turn": -0.0,
+        "early_away_turn": -0.0
+      },
+      {
+        "azimuth_deg": 90.0,
+        "escaped": true,
+        "hit": false,
+        "min_dist": 19.14087186776133,
+        "final_dist": 21.843398213925507,
+        "reaction_latency_s": 0.028,
+        "total_away_turn": 2.0731364388556486,
+        "early_away_turn": 1.8764837340088965
+      },
+      {
+        "azimuth_deg": 270.0,
+        "escaped": true,
+        "hit": false,
+        "min_dist": 15.065944044837398,
+        "final_dist": 15.697404720322512,
+        "reaction_latency_s": 0.048,
+        "total_away_turn": 1.4781490805092339,
+        "early_away_turn": 0.752192578550539
+      }
+    ],
+    "aggregate": {
+      "escape_success_rate": 1.0,
+      "mean_min_dist": 17.838468022988284,
+      "mean_final_dist": 19.163382351630858,
+      "mean_reaction_latency_s": 0.04,
+      "reacted_frac": 1.0
+    }
+  },
+  "held_out": {
+    "per_azimuth": [
+      {
+        "azimuth_deg": 45.0,
+        "escaped": true,
+        "hit": false,
+        "min_dist": 17.363648971374484,
+        "final_dist": 17.539201194000384,
+        "reaction_latency_s": 0.028,
+        "total_away_turn": 2.469400314788017,
+        "early_away_turn": 1.5678562642402438
+      },
+      {
+        "azimuth_deg": 315.0,
+        "escaped": true,
+        "hit": false,
+        "min_dist": 18.893836666626534,
+        "final_dist": 26.167778735868016,
+        "reaction_latency_s": null,
+        "total_away_turn": -0.5469902123969943,
+        "early_away_turn": -1.714561045665147
+      },
+      {
+        "azimuth_deg": 135.0,
+        "escaped": true,
+        "hit": false,
+        "min_dist": 11.605793020470824,
+        "final_dist": 27.638921294861444,
+        "reaction_latency_s": 0.02,
+        "total_away_turn": -2.0290311920478903,
+        "early_away_turn": 2.5768184548913915
+      }
+    ],
+    "aggregate": {
+      "escape_success_rate": 1.0,
+      "mean_min_dist": 15.954426219490614,
+      "mean_final_dist": 23.781967074909947,
+      "mean_reaction_latency_s": 0.024,
+      "reacted_frac": 0.6666666666666666
+    }
+  }
+}

@@ -44,7 +44,7 @@ const BEHAVIORS: Behavior[] = [
   {
     label: "Escape response",
     href: `${CG_BASE}/behaviors/escape`,
-    status: "building",
+    status: "live",
     sense: "looming detector — angular size + expansion, bilateral",
     reward: "react fast + flee in the correct direction",
     why: "maps onto a real, mapped circuit (LC4 / LPLC2 → the Giant Fiber) — the bridge to a real connectome.",
@@ -103,9 +103,10 @@ export default function BehaviorsHubPage() {
           Four behaviors, each a closed-loop demo: a new sense, a reward, and the
           fly learning to use one to earn the other. They are sequenced cheapest-
           and-most-diagnostic first.{" "}
-          <strong>Perturbation</strong> and <strong>chemotaxis</strong> are live,{" "}
-          <strong>escape</strong> is building (its connectome-bridge visual is up);
-          navigation is queued.
+          <strong>Perturbation</strong>, <strong>chemotaxis</strong>, and{" "}
+          <strong>escape</strong> are live (escape is the connectome-aligned one —
+          its real-circuit bridge, live launch-the-threat demo, and trajectory map
+          are up); navigation is queued.
         </p>
         <ul className="cg-beh-list">
           {BEHAVIORS.map((b) => {

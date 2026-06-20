@@ -4,7 +4,7 @@
 > `build-plan.md`, which tracks the *page* build). Every behavior, the bigger arc, the
 > compute envelope, and how each lands on the site. Update as ideas land or change.
 >
-> Last updated: 2026-06-19 (chemotaxis → done (live) — CH-C live place-the-source demo + recorded headline landed)
+> Last updated: 2026-06-20 (escape → **done (live)**: X-C wired the live launch-the-threat demo + flee clips + top-down trajectory map into `/behaviors/escape`)
 
 ## Thesis (the through-line)
 
@@ -37,7 +37,7 @@ All require the closed loop. Each becomes a page tab with a live FlyStage demo +
 |----------|-----------|--------|----------------------|---------|--------|
 | **Perturbation / robustness** | proprioception (joint angles + foot contacts) | stay upright + hold heading after a shove / on rough ground | cleanest proof feedback matters; stark open-vs-closed A/B; cheapest | low | **chosen first** |
 | **Chemotaxis / foraging** | bilateral odor/taste gradient (L−R antenna) | reduce distance to / reach the source | most "alive" story; emergent steering from a sensor asymmetry; mirrors Eon's foraging | low–med | **done (live)** |
-| **Escape response** | looming detector (size + expansion, bilateral) | react fast + flee in the correct direction | maps to a real, mapped circuit (see below); short episodes = cheap; bridge to connectome | low | **building** |
+| **Escape response** | looming detector (size + expansion, bilateral) | react fast + flee in the correct direction | maps to a real, mapped circuit (see below); short episodes = cheap; bridge to connectome | low | **done (live)** |
 | **Obstacle navigation** | short-range distance "feelers" + goal bearing | reach goal, penalize collisions | fuses seek + avoid; most robot-demo-compelling | med | queued |
 
 ### Chosen sequence & rationale
@@ -147,3 +147,50 @@ NCA null model → CPG → **closed loop (now)** → behaviors → **real connec
   route. **X-A** trains the escape controller, **X-C** wires the live launch-the-threat demo + flee
   clips + trajectory viz into the placeholder slot. Then obstacle navigation, then the real-
   connectome sub-circuit (the Eon-aligned endgame).
+- **2026-06-20** — **Escape → trained (X-A full run, live demo X-C next).** The connectome-aligned
+  behavior has a working controller. Two bilateral **loom** channels join the proprioceptive loop
+  (controller stays 8→16, 1236 params, warm-started from the closed-loop walker so loom-zeroed ==
+  C2-A dynamics **bit-exact**): an LPLC2-like **angular-size** term + an LC4-like **expansion-rate**
+  term, combined into one [0,1] magnitude per eye (`m = clip(size·θ/π + exp·min(1, rate/6), 0, 1)`),
+  split L/R by bearing and written over the motor block each control step. Trained with parallel
+  CMA-ES (pop 32, 50 gens, best fitness 13.23, 4.98× on 9 workers) against a **target-leading**
+  threat (so a fly that keeps walking straight is hit from every azimuth and only a real maneuver
+  survives). **Result — emergent directed escape:** the *same* controller turns **opposite ways** for
+  opposite threats, driven purely by `loom_L` vs `loom_R` — left threat (90°) → bolt **right**
+  (away-turn +2.07, 28 ms), right threat (270°) → bolt **left** (+1.48, 48 ms), head-on (0°) → escape
+  by displacement. Escape/survival by azimuth: **untrained 0/3** (mean closest 1.6) → **trained 3/3**
+  (mean closest 17.8); held-out azimuths {45°, 135°, 315°} also **escape 3/3** — survival
+  generalizes beyond the trained panel. A/B and parallel checks bit-exact; flee clips turn opposite
+  ways. **Honest caveats (all documented in REPORT_x_a.md):** (1) the looming front-end is
+  **hand-built** — a stand-in for LC4/LPLC2→DNp01, not the real circuit (that swap is the endgame;
+  the two loom channels are the clean seam); (2) **`loom_input_gain=8`** amplifies the [0,1] cue
+  before conv1 because the warm-start gait is **bang-bang** (motors pinned at ±1), so an unamplified
+  cue sits on a flat fitness plateau CMA-ES can't climb — the escape analog of chemotaxis's
+  deliberately strong antenna baseline, A/B-preserving (amplifying zero is still zero); (3) **180°
+  (behind) omitted** (needs a U-turn inside the ~1.2 s episode); (4) the escape fitness scalar is
+  **not** comparable across behaviors. Data exported to `data-x/` (escape_controller.json + flee
+  clips + trajectories + metrics). Next: **X-C** wires the live launch-the-threat demo + flee clips +
+  top-down trajectory map into the `/behaviors/escape` placeholder, then **X-INT** consolidates. Then
+  obstacle navigation, then the real FlyWire LC4/LPLC2→DNp01 sub-circuit (the endgame).
+- **2026-06-20** — **Escape → done (live).** X-C wired X-A's trained controller into the live
+  **launch-the-threat** demo and the guaranteed recorded headline at `/behaviors/escape`, replacing
+  the X-B placeholder slot. `lib/nca.ts` gained the **escape path** (additive, all four existing
+  controllers intact): `loadEscape` (collapses `conv2 [4][16][1][1]→[4][16]`, pulls v1 `motor_cells`,
+  lifts the loom geometry + `loom_input_gain` from the export's `sensors` into a `LoomSensing` struct),
+  a pure `loomSignal(...)` front-end ported verbatim from `sensors.loom_geometry`/`eye_projection`
+  (θ = 2·atan2(R, d); rate = max(0, dθ/dt); m = clip(size·θ/π + exp·min(1, rate/6), 0, 1); loom_L =
+  m·0.5·(1+sin φ), loom_R = m·0.5·(1−sin φ)), `stepEscape` (byte-for-byte the chemo step with the two
+  **amplified** loom planes), and `makeEscapeController(angles, contacts, loomL, loomR)`. **A/B
+  confirmed bit-exact:** the 8-channel forward pass with both loom planes zeroed equals the 6-channel
+  closed-loop pass on the same conv1 weights (max abs diff = 0) — amplifying a zero loom is still zero.
+  New **`EscapeDemo.tsx`** (`"use client"`, dynamic `FlyStage`, `ssr:false`): one live MuJoCo fly,
+  azimuth buttons (front/left/right) + click-in-arena to launch from any bearing, a constant-velocity
+  target-leading threat, a fly-centred top-down `<canvas>` arena, a bilateral `loom_L`/`loom_R` readout
+  with an `aria-live` status (idle/incoming/hit/escaped), NaN self-heal, and a `flee_left.mp4` fallback.
+  New server-rendered **`EscapeTrajectories.tsx`** (pure SVG, no client JS): small-multiple panels of
+  the recorded rollouts, **trained {0,90,270}** separated from **held-out {45,135,315}**, each panel
+  drawing the fly bolt (green), threat course (orange, nulls skipped), aim point + hit-radius ring,
+  onset marker, and escaped/closest/away-turn — all read from `trajectories.json`/`escape_metrics.json`,
+  nothing hard-coded. The route reads both JSONs server-side; the four honest caveats (hand-built
+  front-end, `loom_input_gain=8`, 180° omitted, fitness not cross-comparable) are surfaced on the page.
+  Behaviors hub: escape `building → live`. Clean at 375px; `npx tsc --noEmit` + `npm run build` green.

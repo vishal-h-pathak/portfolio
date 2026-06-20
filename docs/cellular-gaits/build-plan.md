@@ -6,7 +6,7 @@
 > design) and they must stay in sync with the tables below. When the plan changes,
 > edit **all** of them.
 >
-> Last updated: 2026-06-20 (Campaign 2 consolidated onto `feat/cg-campaign2` — live perturbation + live chemotaxis + fly-page review all landed and building green)
+> Last updated: 2026-06-20 (X-C done — escape is live: launch-the-threat demo + flee clips + trajectory map wired into `/behaviors/escape`, hub flipped to live)
 
 ## Goal
 
@@ -420,3 +420,31 @@ Boxes in a wave run in parallel.
   (trains the escape controller) and **X-C** (wires the live demo) are the
   remaining waves. Clean at 375px (0px overflow); keyboard/aria verified on the
   circuit; zero console errors; `npm run build` green (Turbopack).
+- **2026-06-20** — **X-C done (escape goes live).** Wired X-A's trained controller +
+  the recorded headline into `/behaviors/escape`, replacing X-B's placeholder slot
+  (`cg-tab-module-stub`). The route now reads `escape_metrics.json` + `trajectories.json`
+  server-side and renders, with **no client JS for the headline**: the two recorded flee
+  clips (`flee_left.mp4` / `flee_right.mp4` — same controller, opposite emergent bolts) and
+  a new server-rendered **`EscapeTrajectories.tsx`** (pure SVG small multiples — the recorded
+  rollouts top-down, **trained {0,90,270}** separated from **held-out {45,135,315}** to show
+  the generalization; each panel draws the fly bolt, the threat's incoming course with nulls
+  skipped, the target-leading aim point + hit-radius ring, the onset marker, and
+  escaped/closest/away-turn, all from the JSON). The interactive cherry is **`EscapeDemo.tsx`**
+  (`"use client"`, dynamic `FlyStage`, `ssr:false`): one live MuJoCo fly running the trained
+  controller, azimuth buttons (front/left/right) + click-in-arena to launch from any bearing,
+  a constant-velocity **target-leading** threat, a fly-centred top-down `<canvas>` arena, and a
+  bilateral `loom_L`/`loom_R` readout with an `aria-live` status (idle/incoming/hit/escaped) +
+  NaN self-heal + a `flee_left.mp4` fallback. `lib/nca.ts` gained the **escape path** (additive;
+  all four existing controllers intact): `loadEscape`, the pure `loomSignal` front-end ported
+  verbatim from the export's `sensors.loom_geometry`/`eye_projection`, `stepEscape` (the chemo
+  step with the two **amplified** loom planes), and `makeEscapeController(angles, contacts,
+  loomL, loomR)`; it lifts the loom geometry + `loom_input_gain` from the export so the loop is
+  data-driven (the demo passes the authoritative gain from the metrics config). **A/B confirmed
+  bit-exact** (scratch check, then removed): the 8-channel pass with both loom planes zeroed
+  equals the 6-channel closed-loop pass on the same conv1 weights — max abs diff = 0, so
+  loom-zeroed reproduces the C2-A dynamics exactly. **Honesty surfaced (not buried):** the
+  looming front-end is hand-built (the seam for the real LC4/LPLC2→DNp01 swap), `loom_input_gain=8`
+  amplifies the [0,1] cue before the bang-bang conv1 (A/B-preserving), **180° behind is omitted**,
+  and the escape fitness scalar is **not** cross-comparable. Behaviors hub: escape `building → live`.
+  three.js/WASM load only on this route (dynamic). Clean at 375px; `npx tsc --noEmit` +
+  `npm run build` green (Turbopack).

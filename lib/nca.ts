@@ -568,6 +568,336 @@ export function makeChemoController(
   };
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Escape controller (X-A) — the 8→16 architecture that *flees a looming threat*.
+//
+// Structurally a TWIN of the chemotaxis controller: identical 4-channel recurrent
+// state, identical motor readout, identical ch4 (joint angles) + ch5 (foot
+// contacts) proprioception. The only differences are the last two input channels
+// and one amplification:
+//   ch6 — loom_left  : a single [0,1] magnitude for the LEFT eye, laid over the
+//                      left half of the motor block (rows 0–6, cols 0–2);
+//   ch7 — loom_right : the RIGHT-eye magnitude, over the right half (rows 0–6,
+//                      cols 3–5)  — same topographic placement the odor channels use.
+// The loom magnitude is read out in [0,1] (interpretable, logged as such) but is
+// multiplied by `loom_input_gain` (=8.0) BEFORE it enters conv1: the warm-start
+// gait is bang-bang (every motor cell pinned at the ±1 clamp), so an unamplified
+// cue can't move a motor cell — a flat fitness plateau CMA-ES can't climb. This is
+// the escape analog of chemotaxis's deliberately strong antenna baseline. A/B
+// integrity is exact: amplifying a zero loom (or through zero loom weights) is
+// still zero, so with both loom planes zeroed the rule reproduces the C2-A
+// closed-loop walking dynamics byte-for-byte.
+//
+// The looming front-end (Threat geometry → bilateral loom) is HAND-BUILT — a
+// stand-in for the real LC4/LPLC2 → DNp01 (Giant Fiber) escape circuit. The
+// analytic geometry below is ported verbatim from the export's
+// `sensors.loom_geometry` + `eye_projection`; nothing here is invented.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** conv1 input channels: 4 recurrent state + 2 proprio + 2 loom (== CHEMO_IN). */
+export const ESCAPE_IN = 8;
+
+/** The analytic looming front-end constants, read from the export's geometry. */
+export type LoomGeometry = {
+  /** Threat disk radius R (world units) for the angular-size term. */
+  threat_radius: number;
+  /** size_gain in m = clip(size_gain·θ/π + exp_gain·min(1, rate/exp_ref), 0, 1). */
+  loom_size_gain: number;
+  /** exp_gain (the expansion-rate weight). */
+  loom_exp_gain: number;
+  /** exp_ref — the rate that saturates the expansion term. */
+  loom_exp_ref: number;
+};
+
+export type LoomSensing = {
+  /** The angular-size / expansion-rate / eye-split geometry. */
+  geometry: LoomGeometry;
+  /** ×gain applied to each loom plane before conv1 (bang-bang warm-start). */
+  loom_input_gain: number;
+};
+
+export type EscapeController = {
+  meta: { best_fitness: number; grid: [number, number]; gain: number };
+  conv1_w: number[][][][]; // [16][8][3][3]
+  conv1_b: number[]; // [16]
+  conv2_w: number[][]; // [4][16]  (1×1 spatial dropped)
+  conv2_b: number[]; // [4]
+  /** Motor readout cells, in actuator order — shared with v1 (same body). */
+  motor_cells: [number, number][];
+  /** The four sensor-channel specs, in input-channel order (ch4..ch7). */
+  sensors: SensorChannelSpec[];
+  /** Loom geometry + input gain, lifted from the `sensors` spec. */
+  sensing: LoomSensing;
+};
+
+/** Raw shape of escape_controller.json (flat dotted weight keys, like CH-A). */
+type EscapeJson = {
+  meta: { grid: [number, number]; gain: number; best_fitness: number };
+  weights: {
+    "conv1.weight": number[][][][]; // [16][8][3][3]
+    "conv1.bias": number[];
+    "conv2.weight": number[][][][]; // [4][16][1][1]
+    "conv2.bias": number[];
+  };
+  sensors: {
+    channels: SensorChannelSpec[];
+    loom_geometry: {
+      loom_size_gain: number;
+      loom_exp_gain: number;
+      loom_exp_ref: number;
+      threat_radius: number;
+    };
+  };
+};
+
+/**
+ * Pull `loom_input_gain` out of the export. It isn't a standalone numeric field
+ * in the controller JSON, but the loom channel specs document it verbatim
+ * ("…multiplied by loom_input_gain=8.0 before conv1"), so we parse it from there
+ * to keep the controller self-contained. Falls back to 1.0 (identity, A/B-safe)
+ * if absent; the live demo also passes the authoritative value from
+ * `escape_metrics.json` `config.loom_input_gain` via `makeEscapeController` opts.
+ */
+function parseLoomInputGain(channels: SensorChannelSpec[]): number {
+  for (const ch of channels) {
+    const m = /loom_input_gain\s*=\s*([0-9.]+)/.exec(ch.normalization ?? "");
+    if (m) return parseFloat(m[1]);
+  }
+  return 1.0;
+}
+
+/**
+ * Fetch the escape weights and normalize them to `EscapeController`. Like the
+ * chemo/closed-loop exports it omits `motor_cells` (identical readout — same
+ * body), so we pull that from the v1 controller, and it carries the loom geometry
+ * in its `sensors` spec so the live loop is fully data-driven.
+ */
+export async function loadEscape(
+  src = "/cellular-gaits/data-x/escape_controller.json",
+  motorCellsSrc = "/cellular-gaits/controller_best.json",
+): Promise<EscapeController> {
+  const [esR, v1] = await Promise.all([
+    fetch(src).then((r) => {
+      if (!r.ok) throw new Error(`escape fetch failed: ${r.status}`);
+      return r.json() as Promise<EscapeJson>;
+    }),
+    loadController(motorCellsSrc),
+  ]);
+  // conv2.weight is [4][16][1][1]; collapse the trailing 1×1 to [4][16].
+  const conv2_w = esR.weights["conv2.weight"].map((o) => o.map((i) => i[0][0]));
+  const lg = esR.sensors.loom_geometry;
+  return {
+    meta: esR.meta,
+    conv1_w: esR.weights["conv1.weight"],
+    conv1_b: esR.weights["conv1.bias"],
+    conv2_w,
+    conv2_b: esR.weights["conv2.bias"],
+    motor_cells: v1.motor_cells,
+    sensors: esR.sensors.channels,
+    sensing: {
+      geometry: {
+        threat_radius: lg.threat_radius,
+        loom_size_gain: lg.loom_size_gain,
+        loom_exp_gain: lg.loom_exp_gain,
+        loom_exp_ref: lg.loom_exp_ref,
+      },
+      loom_input_gain: parseLoomInputGain(esR.sensors.channels),
+    },
+  };
+}
+
+/** The bilateral looming readout for one control step (all in [0,1], φ in rad). */
+export type LoomReading = {
+  /** Left-eye loom magnitude (already split, NOT yet ×loom_input_gain). */
+  loomL: number;
+  /** Right-eye loom magnitude. */
+  loomR: number;
+  /** Pre-split loom magnitude m = clip(size + expansion, 0, 1). */
+  magnitude: number;
+  /** Angular size θ = 2·atan2(R, d). */
+  theta: number;
+  /** Expansion rate max(0, dθ/dt) (approach only). */
+  rate: number;
+  /** Threat bearing φ in the fly's body frame (CCW positive = left), radians. */
+  bearing: number;
+};
+
+/**
+ * The analytic looming front-end — a verbatim port of the export's
+ * `sensors.loom_geometry` + `eye_projection` (`env.read_loom`). Given the fly
+ * thorax xy + world yaw and the threat xy, returns the bilateral loom reading:
+ *   θ    = 2·atan2(R, d)                         (LPLC2-like angular size)
+ *   rate = max(0, dθ/dt)                          (LC4-like expansion, approach only)
+ *   m    = clip(size_gain·θ/π + exp_gain·min(1, rate/exp_ref), 0, 1)
+ *   loomL = m·0.5·(1 + sin φ),  loomR = m·0.5·(1 − sin φ)
+ * where φ is the threat bearing in the body frame (CCW = left). The previous θ
+ * and Δt are passed in (the driver keeps that state, not a global), so dθ/dt is
+ * well-defined; pass `prevTheta = null` on the first step (rate = 0).
+ */
+export function loomSignal(
+  flyX: number,
+  flyY: number,
+  yaw: number,
+  threatX: number,
+  threatY: number,
+  geom: LoomGeometry,
+  prevTheta: number | null,
+  dt: number,
+): LoomReading {
+  const dx = threatX - flyX;
+  const dy = threatY - flyY;
+  const d = Math.hypot(dx, dy);
+  const theta = 2 * Math.atan2(geom.threat_radius, d);
+  let rate = 0;
+  if (prevTheta != null && dt > 0) rate = Math.max(0, (theta - prevTheta) / dt);
+  const size = geom.loom_size_gain * (theta / Math.PI);
+  const expansion = geom.loom_exp_gain * Math.min(1, rate / geom.loom_exp_ref);
+  let m = size + expansion;
+  m = m < 0 ? 0 : m > 1 ? 1 : m;
+  // Bearing of the threat in the body frame; CCW positive = left.
+  let phi = Math.atan2(dy, dx) - yaw;
+  phi = Math.atan2(Math.sin(phi), Math.cos(phi)); // wrap to (−π, π]
+  const sinPhi = Math.sin(phi);
+  return {
+    loomL: m * 0.5 * (1 + sinPhi),
+    loomR: m * 0.5 * (1 - sinPhi),
+    magnitude: m,
+    theta,
+    rate,
+    bearing: phi,
+  };
+}
+
+/**
+ * One escape NCA tick — byte-for-byte `stepChemo`, with the last two planes being
+ * the **already-amplified** loom planes (loom_left ch6, loom_right ch7). The
+ * driver (`makeEscapeController`) writes loom_input_gain into the planes before
+ * calling this, exactly as `read_loom` feeds conv1; `s` is the 8×8×4 recurrent
+ * state, `joints`/`contacts` the live proprioception planes, `gain` the tanh gain.
+ */
+export function stepEscape(
+  s: Float32Array,
+  joints: Float32Array,
+  contacts: Float32Array,
+  loomL: Float32Array,
+  loomR: Float32Array,
+  ctrl: EscapeController,
+  gain: number,
+): Float32Array {
+  const { conv1_w, conv1_b, conv2_w, conv2_b } = ctrl;
+  const out = new Float32Array(N);
+  const hvec = new Float32Array(HID);
+  // Input planes 0..3 = recurrent state, 4 = joints, 5 = contacts, 6/7 = loom L/R.
+  const planes: Float32Array[] = [
+    s.subarray(0, 64),
+    s.subarray(64, 128),
+    s.subarray(128, 192),
+    s.subarray(192, 256),
+    joints,
+    contacts,
+    loomL,
+    loomR,
+  ];
+
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      for (let o = 0; o < HID; o++) {
+        let acc = conv1_b[o];
+        const wo = conv1_w[o];
+        for (let i = 0; i < ESCAPE_IN; i++) {
+          const wi = wo[i];
+          const plane = planes[i];
+          for (let ky = 0; ky < 3; ky++) {
+            const yy = y + ky - 1;
+            if (yy < 0 || yy >= H) continue;
+            const wik = wi[ky];
+            for (let kx = 0; kx < 3; kx++) {
+              const xx = x + kx - 1;
+              if (xx < 0 || xx >= W) continue;
+              acc += wik[kx] * plane[yy * 8 + xx];
+            }
+          }
+        }
+        hvec[o] = Math.tanh(gain * acc);
+      }
+      for (let o = 0; o < C; o++) {
+        let acc = conv2_b[o];
+        const w2 = conv2_w[o];
+        for (let i = 0; i < HID; i++) acc += w2[i] * hvec[i];
+        out[o * 64 + y * 8 + x] = acc < -1 ? -1 : acc > 1 ? 1 : acc;
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * A stateful escape driver for FlyStage. Each `motors(angles, contacts, loomL,
+ * loomR)` call lays live proprioception + the two **amplified** loom planes onto
+ * ch4–ch7 *exactly* as the exported `sensors` spec dictates, advances one tick,
+ * and returns the 42 motor targets. `loomL`/`loomR` are the already-split [0,1]
+ * eye magnitudes (the demo computes them with `loomSignal` from the live pose +
+ * threat); this driver multiplies them by `loom_input_gain` as it writes the
+ * planes. With `loomL = loomR = 0` the loom planes are zero regardless of gain,
+ * so the rule reproduces the C2-A closed-loop walking dynamics exactly (A/B).
+ *   ch4 — 42 joint angles  (θ/3.14, clipped)  → 7×6 motor block (rows 0–6, cols 0–5)
+ *   ch5 — 6 foot contacts  {0,1}              → bottom row (row 7, cols 0–5)
+ *   ch6 — loom_left·gain                       → LEFT half of block (rows 0–6, cols 0–2)
+ *   ch7 — loom_right·gain                      → RIGHT half of block (rows 0–6, cols 3–5)
+ */
+export function makeEscapeController(
+  ctrl: EscapeController,
+  opts?: { seed?: number; gain?: number; loomInputGain?: number },
+) {
+  const gain = opts?.gain ?? ctrl.meta.gain ?? 1.0;
+  const loomGain = opts?.loomInputGain ?? ctrl.sensing.loom_input_gain ?? 1.0;
+  let state = initState(opts?.seed ?? 7);
+  const joints = new Float32Array(64); // ch4 — joint angles on the motor block
+  const contacts = new Float32Array(64); // ch5 — foot contacts on the bottom row
+  const loomLPlane = new Float32Array(64); // ch6 — amplified loom_left, left half
+  const loomRPlane = new Float32Array(64); // ch7 — amplified loom_right, right half
+  const out = new Float32Array(42);
+  const cells = ctrl.motor_cells;
+  return {
+    /** Advance one tick from live proprioception + bilateral loom; 42 targets. */
+    motors(
+      angles: ArrayLike<number>,
+      contactBools: ArrayLike<number>,
+      loomL: number,
+      loomR: number,
+    ): Float32Array {
+      joints.fill(0);
+      for (let i = 0; i < cells.length; i++) {
+        const [row, col] = cells[i];
+        let v = angles[i] / 3.14;
+        v = v < -1 ? -1 : v > 1 ? 1 : v;
+        joints[row * 8 + col] = v;
+      }
+      contacts.fill(0);
+      for (let leg = 0; leg < 6; leg++) contacts[7 * 8 + leg] = contactBools[leg] ? 1 : 0;
+      // Topographic loom, amplified: loomL·gain over rows 0–6 cols 0–2,
+      // loomR·gain over rows 0–6 cols 3–5 (mirrors read_loom feeding conv1).
+      const aL = loomL * loomGain;
+      const aR = loomR * loomGain;
+      loomLPlane.fill(0);
+      loomRPlane.fill(0);
+      for (let row = 0; row <= 6; row++) {
+        for (let col = 0; col <= 2; col++) loomLPlane[row * 8 + col] = aL;
+        for (let col = 3; col <= 5; col++) loomRPlane[row * 8 + col] = aR;
+      }
+
+      state = stepEscape(state, joints, contacts, loomLPlane, loomRPlane, ctrl, gain);
+      return motorTargets(state, cells, out);
+    },
+    get state() {
+      return state;
+    },
+    reset(seed?: number) {
+      state = initState(seed ?? opts?.seed ?? 7);
+    },
+  };
+}
+
 /**
  * A stateful, allocation-light NCA driver for FlyStage: holds its own 8×8×4
  * state, advances one tick per `motors()` call, and returns the 42-vector of
