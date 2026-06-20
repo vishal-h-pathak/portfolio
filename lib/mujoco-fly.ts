@@ -298,6 +298,16 @@ export class FlySim {
     return [this.xposView[o], this.xposView[o + 1], this.xposView[o + 2]];
   }
 
+  /**
+   * World yaw of the thorax (radians, atan2(y, x) of the body-forward axis) —
+   * the absolute heading the chemotaxis loop needs to place the two antennae in
+   * world space each control step. Unlike `metrics().headingDeg` (which is
+   * relative to the spawn facing), this is the raw world angle.
+   */
+  thoraxYaw(): number {
+    return this.rawHeading();
+  }
+
   /** Run one control step: write ctrl from u ∈ [-1,1]^42, then 40 mj_step's. */
   controlStep(u: Float32Array): void {
     const s = this.ctrlScale;

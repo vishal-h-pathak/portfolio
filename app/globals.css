@@ -2540,3 +2540,209 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
 @media (max-width: 560px) {
   .cg-perturb-clips { grid-template-columns: 1fr; }
 }
+
+/* ── CH-B: chemotaxis bilateral-gradient visual (GradientField) ── */
+.cg-chemo { display: flex; flex-direction: column; gap: 28px; }
+
+.cg-grad-fig { margin: 0; }
+
+/* field SVG on the left, the cL−cR → turn readout on the right */
+.cg-grad-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(210px, 0.85fr);
+  gap: 18px;
+  align-items: start;
+}
+.cg-grad-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-family: var(--mono);
+  background: var(--bg);
+  border-radius: 8px;
+  touch-action: none;
+}
+.cg-grad-svg :focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+
+.cg-grad-readout {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.cg-grad-readout-eyebrow {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.cg-grad-bars { display: flex; flex-direction: column; gap: 8px; }
+.cg-grad-bar-row {
+  display: grid;
+  grid-template-columns: 22px 1fr 46px;
+  align-items: center;
+  gap: 8px;
+}
+.cg-grad-bar-k {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-faint);
+}
+.cg-grad-bar-k[data-lead="1"] { color: var(--green); }
+.cg-grad-bar-track {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--bg-raised);
+  border: 1px solid var(--rule);
+  overflow: hidden;
+}
+.cg-grad-bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--amber);
+  opacity: 0.7;
+  transition: width 0.08s linear;
+}
+.cg-grad-bar-v {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink);
+  text-align: right;
+}
+
+.cg-grad-turn {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 10px;
+  margin: 2px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--mono);
+}
+.cg-grad-turn-k { font-size: 11.5px; color: var(--ink-faint); }
+.cg-grad-turn-v { font-size: 13px; color: var(--ink); }
+.cg-grad-turn-arrow {
+  font-size: 12.5px;
+  font-weight: 500;
+  margin-left: auto;
+}
+.cg-grad-turn-arrow[data-turn="left"],
+.cg-grad-turn-arrow[data-turn="right"] { color: var(--green); }
+.cg-grad-turn-arrow[data-turn="straight"] { color: var(--ink-faint); }
+
+.cg-grad-live {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-faint);
+}
+
+.cg-grad-cap {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-faint);
+  max-width: 74ch;
+}
+.cg-grad-cap code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+  color: var(--ink);
+}
+.cg-grad-cap strong { color: var(--ink); font-weight: 500; }
+
+@media (max-width: 720px) {
+  .cg-grad-stage { grid-template-columns: 1fr; }
+}
+
+/* ── CH-C: recorded trajectory viz + live place-the-source forager ── */
+.cg-traj-fig { margin: 0; }
+.cg-traj-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-family: var(--mono);
+  background: var(--bg);
+  border-radius: 8px;
+}
+.cg-traj-cap {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-faint);
+  max-width: 74ch;
+}
+.cg-traj-cap code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+  color: var(--ink);
+}
+.cg-traj-cap strong { color: var(--ink); font-weight: 500; }
+
+/* the live, place-the-source stage (3D fly + a 2D fly-centred control arena) */
+.cg-chemo-live { display: flex; flex-direction: column; gap: 12px; }
+.cg-chemo-stages {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+.cg-chemo-stage3d { min-width: 0; }
+.cg-chemo-arena-wrap { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.cg-chemo-arena {
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: var(--bg);
+  overflow: hidden;
+}
+.cg-chemo-canvas { cursor: crosshair; }
+.cg-chemo-source-handle {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  margin: 0;
+  padding: 0;
+  transform: translate(-50%, -50%);
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: grab;
+  touch-action: none;
+}
+.cg-chemo-source-handle:active { cursor: grabbing; }
+.cg-chemo-source-handle:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 0;
+  background: rgba(111, 227, 154, 0.12);
+}
+.cg-chemo-arena-cap {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: var(--ink-faint);
+}
+.cg-chemo-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+}
+.cg-chemo-readout { flex-wrap: wrap; }
+.cg-chemo-live-readout {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-faint);
+}
+
+@media (max-width: 640px) {
+  .cg-chemo-stages { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,108 @@
+{
+  "config": {
+    "source_distance": 18.0,
+    "odor_lambda": 12.0,
+    "reach_radius": 3.0,
+    "antenna_forward": 1.0,
+    "antenna_lateral": 2.0,
+    "azimuths_deg": [
+      0.0,
+      90.0,
+      270.0
+    ],
+    "fitness_mode": "closest",
+    "rollout_steps": 750
+  },
+  "trained": {
+    "per_azimuth": [
+      {
+        "azimuth_deg": 0.0,
+        "source_xy": [
+          18.0,
+          0.0
+        ],
+        "reached": true,
+        "min_dist": 0.36100600053937404,
+        "approach": 17.059775646764923,
+        "tortuosity": 1.543205844617445,
+        "dyaw_final": -1.126277958480671
+      },
+      {
+        "azimuth_deg": 90.0,
+        "source_xy": [
+          1.102182119232618e-15,
+          18.0
+        ],
+        "reached": true,
+        "min_dist": 2.022687690356968,
+        "approach": 15.986596693977507,
+        "tortuosity": 4.825287019497004,
+        "dyaw_final": -2.8132676789006315
+      },
+      {
+        "azimuth_deg": 270.0,
+        "source_xy": [
+          -3.3065463576978533e-15,
+          -18.0
+        ],
+        "reached": true,
+        "min_dist": 0.516397113687119,
+        "approach": 17.492952229544237,
+        "tortuosity": 3.6798561723475887,
+        "dyaw_final": 0.7161928596059416
+      }
+    ],
+    "aggregate": {
+      "success_rate": 1.0,
+      "mean_min_dist": 0.9666969348611536,
+      "mean_approach": 16.84644152342889,
+      "mean_tortuosity": 3.3494496788206796
+    }
+  },
+  "held_out": {
+    "per_azimuth": [
+      {
+        "azimuth_deg": 45.0,
+        "source_xy": [
+          12.727922061357857,
+          12.727922061357855
+        ],
+        "reached": false,
+        "min_dist": 5.817849860407086,
+        "approach": 11.777324892389604,
+        "tortuosity": 4.901424463501688,
+        "dyaw_final": 0.6038127173780562
+      },
+      {
+        "azimuth_deg": 135.0,
+        "source_xy": [
+          -12.727922061357855,
+          12.727922061357857
+        ],
+        "reached": false,
+        "min_dist": 12.97833866854828,
+        "approach": 5.435763502925438,
+        "tortuosity": 4.514022829741651,
+        "dyaw_final": 1.667432481064905
+      },
+      {
+        "azimuth_deg": 315.0,
+        "source_xy": [
+          12.727922061357852,
+          -12.727922061357859
+        ],
+        "reached": false,
+        "min_dist": 16.473350434975824,
+        "approach": 1.1218713317683537,
+        "tortuosity": 35.979681551053865,
+        "dyaw_final": -1.5729742240130669
+      }
+    ],
+    "aggregate": {
+      "success_rate": 0.0,
+      "mean_min_dist": 11.756512987977063,
+      "mean_approach": 6.111653242361132,
+      "mean_tortuosity": 15.131709614765734
+    }
+  }
+}

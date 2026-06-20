@@ -4,7 +4,7 @@
 > `build-plan.md`, which tracks the *page* build). Every behavior, the bigger arc, the
 > compute envelope, and how each lands on the site. Update as ideas land or change.
 >
-> Last updated: 2026-06-18
+> Last updated: 2026-06-19 (chemotaxis → done (live) — CH-C live place-the-source demo + recorded headline landed)
 
 ## Thesis (the through-line)
 
@@ -36,7 +36,7 @@ All require the closed loop. Each becomes a page tab with a live FlyStage demo +
 | Behavior | New sense | Reward | Why it's interesting | Compute | Status |
 |----------|-----------|--------|----------------------|---------|--------|
 | **Perturbation / robustness** | proprioception (joint angles + foot contacts) | stay upright + hold heading after a shove / on rough ground | cleanest proof feedback matters; stark open-vs-closed A/B; cheapest | low | **chosen first** |
-| **Chemotaxis / foraging** | bilateral odor/taste gradient (L−R antenna) | reduce distance to / reach the source | most "alive" story; emergent steering from a sensor asymmetry; mirrors Eon's foraging | low–med | queued |
+| **Chemotaxis / foraging** | bilateral odor/taste gradient (L−R antenna) | reduce distance to / reach the source | most "alive" story; emergent steering from a sensor asymmetry; mirrors Eon's foraging | low–med | **done (live)** |
 | **Escape response** | looming detector (size + expansion, bilateral) | react fast + flee in the correct direction | maps to a real, mapped circuit (see below); short episodes = cheap; bridge to connectome | low | queued |
 | **Obstacle navigation** | short-range distance "feelers" + goal bearing | reach goal, penalize collisions | fuses seek + avoid; most robot-demo-compelling | med | queued |
 
@@ -114,3 +114,25 @@ NCA null model → CPG → **closed loop (now)** → behaviors → **real connec
   on site as the live `/behaviors/perturbation` demo (shove + open/closed toggle), the recorded
   open-vs-closed clips, and a standalone heading-error visual; Sensing tab + SystemDiagram updated
   (feedback arc closed for this behavior, v1 walking still open-loop). Next: chemotaxis.
+- **2026-06-19** — **Chemotaxis / foraging → done (live).** The flagship "alive" behavior is
+  closed-loop and on the site. Two new chemo channels join the proprioceptive loop (controller
+  grows **6→16 → 8→16**, 1236 params, warm-started from the closed-loop walker so it still walks
+  and stays robust): the odor concentration at the **left** and **right** antenna, laid out
+  topographically over the motor block, written into `conv1` every control step. The field is
+  `C(p)=exp(−‖p−src‖/λ)`, λ=12; antennae sit forward 1.0 / lateral 2.0 from the thorax. **Result:**
+  trained on three azimuths — source **ahead (0°), left (90°), right (270°)** — it **reaches the
+  source on all three** (closest-approach 0.36 / 2.02 / 0.52 world units; 3/3), and the turn is
+  **emergent**: nothing says "turn toward the stronger antenna," that reflex falls out of `cL − cR`
+  under CMA-ES. **Honest caveats:** (1) the **2.0-unit antenna baseline is deliberately wider than
+  biological** — at a realistic narrow baseline the per-step |cL−cR| (~0.02–0.04) is too weak for
+  CMA-ES to exploit; 2.0 makes the cue ~0.07–0.26, standing in for the temporal **casting** a real
+  fly uses to amplify a weak instantaneous gradient. (2) Only the symmetric **ahead/left/right**
+  cases were trained; **180° (behind)** is out of scope (a ~180° U-turn inside the 3 s rollout) and
+  stayed unreached — the headline is carried by the symmetric L/R pair. (3) Fitness scores
+  **closest approach** (`d_start − min_dist` + reach bonus), a documented deviation from a literal
+  end-distance reward: the warm-started walker overshoots, so closest-approach is what cleanly
+  rewards how well it *steered*; arrive-and-stop is future work. The fitness scalar (21.08) is not
+  comparable across behaviors (different objective). Landed as the live `/behaviors/chemotaxis`
+  **place-the-source** demo (drag the food source; the fly turns toward the stronger side and walks
+  to it), the two recorded approach clips (emergent turns both ways), and a server-rendered top-down
+  trajectory map. Next: escape (the bridge to a real connectome circuit — LC4/LPLC2→DNp01).

@@ -35,7 +35,8 @@ const BEHAVIORS: Behavior[] = [
   },
   {
     label: "Chemotaxis / foraging",
-    status: "queued",
+    href: `${CG_BASE}/behaviors/chemotaxis`,
+    status: "live",
     sense: "bilateral odor / taste gradient (L − R antenna)",
     reward: "reduce distance to / reach the source",
     why: "the most ‘alive’ story — emergent steering out of a sensor asymmetry; mirrors Eon's foraging.",
@@ -101,7 +102,8 @@ export default function BehaviorsHubPage() {
           Four behaviors, each a closed-loop demo: a new sense, a reward, and the
           fly learning to use one to earn the other. They are sequenced cheapest-
           and-most-diagnostic first.{" "}
-          <strong>Perturbation</strong> is live; the rest are queued.
+          <strong>Perturbation</strong> and <strong>chemotaxis</strong> are live;
+          the rest are queued.
         </p>
         <ul className="cg-beh-list">
           {BEHAVIORS.map((b) => {

@@ -6,7 +6,7 @@
 > design) and they must stay in sync with the tables below. When the plan changes,
 > edit **all** of them.
 >
-> Last updated: 2026-06-18 (C2-B landed — Behaviors group scaffolded; closed-loop visuals; loop framing closed)
+> Last updated: 2026-06-20 (Campaign 2 consolidated onto `feat/cg-campaign2` — live perturbation + live chemotaxis + fly-page review all landed and building green)
 
 ## Goal
 
@@ -90,12 +90,17 @@ Boxes in a wave run in parallel.
 
 | ID | Prompt | Repo | Wave | Depends on | Status |
 |----|--------|------|------|-----------|--------|
-| C2-A | Closed-loop controller + perturbation training (sensors → grid, re-evolve) | cellular-gaits | C2·1 | redesign | in-progress |
+| C2-A | Closed-loop controller + perturbation training (sensors → grid, re-evolve) | cellular-gaits | C2·1 | redesign | done |
 | C2-B | Behaviors tab group + closed-loop visuals (scaffold, content/visuals only) | portfolio | C2·1 | redesign | done |
-| C2-C | Wire C2-A's trained controller + open/closed recovery clips into `/behaviors/perturbation` | portfolio | C2·2 | C2-A, C2-B | planned |
+| C2-C | Wire C2-A's trained controller + open/closed recovery clips into `/behaviors/perturbation` | portfolio | C2·2 | C2-A, C2-B | done |
+| CH-A | Closed-loop **chemotaxis** controller (bilateral odor → grid, warm-start from C2-A, re-evolve 3 azimuths) | cellular-gaits | CH·1 | C2-A | done |
+| CH-B | Chemotaxis behavior tab scaffold + `GradientField` visual (content/visuals only, no trained data) | portfolio | CH·1 | C2-B | done |
+| CH-C | Wire CH-A's trained controller + recorded approach clips + trajectory viz into `/behaviors/chemotaxis` | portfolio | CH·2 | CH-A, CH-B | done |
+| R | Fly-page review (fix garbled/clipped diagrams, de-dup walking clip, fly-direct visuals) | portfolio | C2·3 | all C2/CH | done |
 
 - **C2-A and C2-B run in parallel** — C2-B is content + visuals only, no trained data, so it
-  doesn't block on the compute job.
+  doesn't block on the compute job. The chemotaxis wave (CH-*) mirrors the same split and
+  warm-starts off the closed-loop walker from C2-A.
 - **C2-B delivers:** the `/behaviors` hub + `/behaviors/perturbation` scaffold, `ClosedLoopDiagram`
   (open dashed → closed solid, before/after) and `SensorChannels` (42 joint angles + 6 foot
   contacts → grid), and the Sensing-tab / `SystemDiagram` reframe (the dashed feedback arc is now
@@ -104,6 +109,14 @@ Boxes in a wave run in parallel.
 
 ## Changelog
 
+- **2026-06-20** — **Campaign 2 consolidated.** The perturbation + chemotaxis waves and the
+  fly-page review — which the wave agents had left uncommitted in a shared working tree — were
+  reconciled onto a single branch, `feat/cg-campaign2`, building green under Turbopack. The
+  Campaign 2 status table above now reflects reality: C2-A/C2-C **done**, the chemotaxis wave
+  (CH-A/CH-B/CH-C) **done**, and the fly-page review (**R**) **done**. No code change in this
+  step beyond doc reconciliation; it groups the already-landed work into one coherent commit.
+- **2026-06-19** — **R done — fly-page review.** Pass over the redesign + behaviors pages:
+  fixed garbled/clipped diagrams, de-duplicated the walking clip, and added fly-direct visuals.
 - **2026-06-18** — **C2-B done — Behaviors group scaffolded.** New routes under
   `/projects/cellular-gaits/behaviors/`: a **hub** (closed-loop framing + one card per roadmap
   behavior — perturbation *live soon*, chemotaxis / escape / navigation *queued*) and the
@@ -321,3 +334,66 @@ Boxes in a wave run in parallel.
   win is course correction / disturbance rejection, not catching a fall; the
   closed-loop fitness scalar (69.97) is *not* compared to v1's 86.6 (different
   objective). three.js/WASM load only on this route (dynamic, `ssr:false`).
+- **2026-06-19** — **CH-B done.** Stood up the **chemotaxis** behavior tab —
+  content + visuals only, **no trained data**, so it runs in parallel with CH-A
+  (trains the controller) and CH-C (wires the live demo). New route
+  `app/projects/cellular-gaits/behaviors/chemotaxis/page.tsx` reusing the
+  `ConceptScaffold` shell with the Behaviors four-part framing (sense = bilateral
+  odor gradient, L vs R antenna; reward = reduce distance to / reach the source;
+  expectation = steering **emerges** from the `cL − cR` asymmetry, no hard-coded
+  turn; connectome link = insect tropotaxis / Eon's foraging demo). Registered in
+  the Behaviors hub (`behaviors/page.tsx`: chemotaxis card `queued → building`,
+  now linked). New **`GradientField.tsx`** is the key standalone visual and has
+  **no data dependency**: a top-down odor field (analytic Gaussian bump → SVG
+  `radialGradient` heatmap + dashed contour rings) with a draggable source, the
+  fly with two antennae sampling `cL` vs `cR`, and an explicit `cL − cR → turn`
+  readout (per-antenna bars, the signed difference, and the implied turn
+  left/straight/right). Interactive in the house style (drag the source or grab
+  the fly's nose to rotate its heading; the turn flips live), keyboard-accessible
+  (both handles focusable; arrow keys move the source / rotate the fly; Shift =
+  bigger step) with an `aria-live` readout + SVG `title`/`desc`; reuses the
+  `SystemDiagram`/`HeadingError` SVG language (`var(--mono)`, site green/amber).
+  The live trained demo is a **placeholder slot** carrying the exact CH-C TODO
+  (live `place-the-source` FlyStage + recorded approach clips + top-down
+  trajectory viz). New CSS under `.cg-chemo` / `.cg-grad-*` in globals.css; clean
+  at 375px. **No three.js / WASM on this content route yet** — the page imports
+  only `ConceptScaffold` + the pure-SVG `GradientField`. `npm run build` green
+  (Turbopack). **Notes:** behavior sub-routes are not top-level `tabs.ts` entries
+  by existing convention (perturbation isn't either — `CgTabNav` keeps the
+  "Behaviors" tab active for nested routes and the hub's `BEHAVIORS` array is the
+  real registry), so CH-B registers chemotaxis there rather than adding an
+  inconsistent top tab. CH-A will export the trained chemotaxis controller +
+  metrics; CH-C wires the live FlyStage + clips + trajectory into this scaffold.
+- **2026-06-19** — **CH-C done.** Wired the **live chemotaxis demo** + the
+  guaranteed recorded headline into `/behaviors/chemotaxis`, on top of CH-B's
+  scaffold and CH-A's trained data (`public/cellular-gaits/data-ch/`). The page
+  (server) reads `chemotaxis_metrics.json` + `trajectories.json` via fs and
+  renders, with **no client JS for the headline**: the two recorded approach
+  clips (`approach_left.mp4` / `approach_right.mp4` — same controller, opposite
+  emergent turns) and a new server-rendered **`ChemoTrajectories.tsx`** SVG (the
+  three trained rollouts top-down, each path curving to its source, source +
+  dashed reach ring marked, closest-approach annotated; house green/amber, uniform
+  world→screen scale so the reach rings stay circular). Numbers are pulled from
+  the metrics JSON, never hardcoded (reaches the source on **3/3** trained
+  azimuths — ahead 0.36, left 2.02, right 0.52). The interactive cherry is
+  **`ChemotaxisDemo.tsx`** (`"use client"`, dynamic `FlyStage`, `ssr:false`): one
+  live MuJoCo fly running the trained controller + a fly-centred top-down `<canvas>`
+  arena where you **drag the food source** (pointer + click-to-place + keyboard
+  arrow nudge, focusable handle with an `aria-live` cL/cR readout). Each control
+  step the loop reads thorax xy + yaw from the sim (new public
+  `FlySim.thoraxYaw()`), places the two antennae per the export's geometry
+  (forward 1.0, lateral 2.0), evaluates `C(p)=exp(−‖p−src‖/λ)` (λ=12) at each
+  antenna against the draggable source, and feeds `cL`/`cR` in — the turn is
+  emergent. `lib/nca.ts` gained the **8→16 chemo architecture** (`loadChemo`,
+  `stepChemo`, `makeChemoController(angles, contacts, cL, cR)`, plus
+  `odorConcentration` / `antennaPositions` helpers); it reads the export's
+  `sensors` spec for the topographic chemo layout (odor_left → motor-block cols
+  0–2, odor_right → cols 3–5) and lifts the antenna geometry + λ from the JSON
+  (data-driven, not hardcoded). **Honesty (reflected in copy):** the 2.0-unit
+  antenna baseline is deliberately wider than biological — it stands in for the
+  temporal "casting" a real fly uses; only **0/90/270** were trained (**180°
+  behind is out of scope**); fitness is **closest-approach** (documented deviation
+  from literal `d_end`); the fitness scalar is **not** compared across behaviors.
+  Behaviors hub: chemotaxis `building → live`. three.js/WASM load only on this
+  route (dynamic). Clean at 375px; keyboard/aria on the source control. `npm run
+  build` green (Turbopack).
