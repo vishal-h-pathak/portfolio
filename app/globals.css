@@ -2541,6 +2541,30 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   .cg-perturb-clips { grid-template-columns: 1fr; }
 }
 
+/* ── X-B: escape behavior — the connectome-bridge visual (EscapeCircuit) ── */
+.cg-escape { display: flex; flex-direction: column; gap: 28px; }
+
+/* the EscapeCircuit reuses the .sysdiagram shell + popout; give it room so the
+   wide real-circuit + stand-in diagram scales without crowding. */
+.cg-escape-circuit { padding: 16px 14px; }
+
+/* small caption under a standalone visual (citations / seam note) */
+.cg-sense-cap {
+  margin: 10px 0 0;
+  color: var(--ink-faint);
+  font-size: 12px;
+  line-height: 1.55;
+  max-width: 70ch;
+}
+.cg-sense-cap code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  color: var(--ink-dim);
+  background: rgba(232, 230, 223, 0.06);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
 /* ── CH-B: chemotaxis bilateral-gradient visual (GradientField) ── */
 .cg-chemo { display: flex; flex-direction: column; gap: 28px; }
 

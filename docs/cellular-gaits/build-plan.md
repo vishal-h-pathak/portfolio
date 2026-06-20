@@ -397,3 +397,26 @@ Boxes in a wave run in parallel.
   Behaviors hub: chemotaxis `building → live`. three.js/WASM load only on this
   route (dynamic). Clean at 375px; keyboard/aria on the source control. `npm run
   build` green (Turbopack).
+- **2026-06-20** — **X-B done (escape scaffold + the connectome-bridge visual).**
+  Stood up `/behaviors/escape` and its centerpiece, the most connectome-forward
+  diagram on the site yet. New **`EscapeCircuit.tsx`** (`"use client"`, pure SVG,
+  **no three.js/WASM** — content route) draws the *real* Drosophila escape circuit
+  as the amber backbone — looming → **LC4** (angular velocity) + **LPLC2** (angular
+  size) → **Giant Fiber / DNp01** (sums size + velocity; single-spike timing →
+  short vs long takeoff) → motor / takeoff — and maps our hand-built stand-in (the
+  green rail) onto it: two bilateral loom channels ↔ LC4 + LPLC2, the learned NCA
+  controller ↔ the descending readout, joined by dashed `↔` mapping arrows. A
+  dashed band on the LC→DNp01 edge is the endgame seam, labelled verbatim *"the
+  real FlyWire LC4/LPLC2 → DNp01 wiring drops in HERE."* Reuses the
+  `SystemDiagram`/`ClosedLoopDiagram` house style + popout interaction (hover · tap
+  · focus reveals each part's one-line role; 8 focusable parts, `role="button"` +
+  aria-label + Esc-to-dismiss; pop variants real→amber, ours→green, seam→dashed).
+  The route is `ConceptScaffold` four-part (sense = bilateral looming · reward =
+  flee fast in the right direction · result = direction emerges from the L/R
+  looming asymmetry · connectome link = the real circuit), cites Ache et al. 2019 /
+  von Reyn et al. 2017, with a placeholder module slot for the live demo
+  (`// TODO: X-C — live launch-the-threat escape FlyStage + flee clips + trajectory
+  viz`). Behaviors hub: escape `queued → building` (href + "live soon"). **X-A**
+  (trains the escape controller) and **X-C** (wires the live demo) are the
+  remaining waves. Clean at 375px (0px overflow); keyboard/aria verified on the
+  circuit; zero console errors; `npm run build` green (Turbopack).

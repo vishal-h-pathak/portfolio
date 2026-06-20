@@ -37,7 +37,7 @@ All require the closed loop. Each becomes a page tab with a live FlyStage demo +
 |----------|-----------|--------|----------------------|---------|--------|
 | **Perturbation / robustness** | proprioception (joint angles + foot contacts) | stay upright + hold heading after a shove / on rough ground | cleanest proof feedback matters; stark open-vs-closed A/B; cheapest | low | **chosen first** |
 | **Chemotaxis / foraging** | bilateral odor/taste gradient (L−R antenna) | reduce distance to / reach the source | most "alive" story; emergent steering from a sensor asymmetry; mirrors Eon's foraging | low–med | **done (live)** |
-| **Escape response** | looming detector (size + expansion, bilateral) | react fast + flee in the correct direction | maps to a real, mapped circuit (see below); short episodes = cheap; bridge to connectome | low | queued |
+| **Escape response** | looming detector (size + expansion, bilateral) | react fast + flee in the correct direction | maps to a real, mapped circuit (see below); short episodes = cheap; bridge to connectome | low | **building** |
 | **Obstacle navigation** | short-range distance "feelers" + goal bearing | reach goal, penalize collisions | fuses seek + avoid; most robot-demo-compelling | med | queued |
 
 ### Chosen sequence & rationale
@@ -136,3 +136,14 @@ NCA null model → CPG → **closed loop (now)** → behaviors → **real connec
   **place-the-source** demo (drag the food source; the fly turns toward the stronger side and walks
   to it), the two recorded approach clips (emergent turns both ways), and a server-rendered top-down
   trajectory map. Next: escape (the bridge to a real connectome circuit — LC4/LPLC2→DNp01).
+- **2026-06-20** — **Escape → building.** Stood up `/behaviors/escape` (X-B, scaffold + visuals,
+  no trained data yet). Centerpiece is the **connectome-bridge visual** (`EscapeCircuit.tsx`): the
+  real circuit drawn as the amber backbone — looming → **LC4** (angular velocity) + **LPLC2**
+  (angular size) → **Giant Fiber / DNp01** (sums size + velocity; single-spike timing → short/long
+  takeoff) → motor/takeoff — with our hand-built stand-in (2 bilateral loom channels ↔ LC4+LPLC2,
+  learned controller ↔ descending readout) mapped onto it, and an explicit dashed seam marking
+  where the real FlyWire `LC4/LPLC2 → DNp01` wiring later drops in (Ache et al. 2019; von Reyn et
+  al. 2017). House-style SVG + hover/tap/focus popouts, keyboard + aria, no three.js/WASM on the
+  route. **X-A** trains the escape controller, **X-C** wires the live launch-the-threat demo + flee
+  clips + trajectory viz into the placeholder slot. Then obstacle navigation, then the real-
+  connectome sub-circuit (the Eon-aligned endgame).
