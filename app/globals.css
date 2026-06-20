@@ -2771,6 +2771,136 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   .cg-chemo-stages { grid-template-columns: 1fr; }
 }
 
+/* ── N-B: navigation seek-vs-avoid arbitration visual (FeelerField) ── */
+.cg-feeler { display: flex; flex-direction: column; gap: 28px; }
+
+.cg-feeler-fig { margin: 0; }
+
+/* the schematic on the left, the two-drives readout on the right */
+.cg-feeler-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(220px, 0.85fr);
+  gap: 18px;
+  align-items: start;
+}
+/* reuses the .sysdiagram shell + popout; give the wide top-down scene room */
+.cg-feeler-diagram { padding: 14px 12px; }
+.cg-feeler-diagram svg :focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+
+.cg-feeler-readout {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.cg-feeler-readout-eyebrow {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.cg-feeler-drive { display: flex; flex-direction: column; gap: 8px; }
+.cg-feeler-drive-h {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--ink-dim);
+}
+.cg-feeler-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+.cg-feeler-drive-p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-faint);
+}
+.cg-feeler-drive-p code,
+.cg-feeler-arb-k code {
+  font-family: var(--mono);
+  font-size: 0.9em;
+  color: var(--ink);
+}
+.cg-feeler-drive-p strong { color: var(--ink); font-weight: 500; }
+
+.cg-feeler-bars { display: flex; flex-direction: column; gap: 7px; }
+.cg-feeler-bar-row {
+  display: grid;
+  grid-template-columns: 42px 1fr 42px;
+  align-items: center;
+  gap: 8px;
+}
+.cg-feeler-bar-k {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+.cg-feeler-bar-k[data-lead="1"] { color: var(--amber); }
+.cg-feeler-bar-track {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--bg-raised);
+  border: 1px solid var(--rule);
+  overflow: hidden;
+}
+.cg-feeler-bar-fill {
+  display: block;
+  height: 100%;
+  background: #f2683c;
+  opacity: 0.7;
+}
+.cg-feeler-bar-v {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink);
+  text-align: right;
+}
+
+.cg-feeler-arb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--mono);
+}
+.cg-feeler-arb-k { font-size: 11.5px; color: var(--ink-faint); }
+.cg-feeler-arb-v { font-size: 12.5px; font-weight: 500; }
+
+.cg-feeler-cap {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-faint);
+  max-width: 76ch;
+}
+.cg-feeler-cap code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+  color: var(--ink);
+}
+.cg-feeler-cap strong { color: var(--ink); font-weight: 500; }
+
+@media (max-width: 720px) {
+  .cg-feeler-stage { grid-template-columns: 1fr; }
+}
+
 /* ── Escape live demo + trajectory map (X-C) ─────────────────────────────── */
 .cg-escape-canvas { cursor: crosshair; }
 .cg-escape-az { display: flex; gap: 8px; flex-wrap: wrap; }

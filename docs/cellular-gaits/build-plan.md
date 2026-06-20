@@ -6,7 +6,7 @@
 > design) and they must stay in sync with the tables below. When the plan changes,
 > edit **all** of them.
 >
-> Last updated: 2026-06-20 (X-C done — escape is live: launch-the-threat demo + flee clips + trajectory map wired into `/behaviors/escape`, hub flipped to live)
+> Last updated: 2026-06-20 (N-B done — navigation scaffold + the seek-vs-avoid arbitration visual `FeelerField` at `/behaviors/navigation`; hub flipped queued → building)
 
 ## Goal
 
@@ -448,3 +448,33 @@ Boxes in a wave run in parallel.
   and the escape fitness scalar is **not** cross-comparable. Behaviors hub: escape `building → live`.
   three.js/WASM load only on this route (dynamic). Clean at 375px; `npx tsc --noEmit` +
   `npm run build` green (Turbopack).
+- **2026-06-20** — **N-B done (navigation scaffold + the seek-vs-avoid arbitration visual).**
+  Stood up `/behaviors/navigation` — the **synthesis** behavior (seek a goal **and** avoid
+  obstacles). Centerpiece is new **`FeelerField.tsx`** (`"use client"`, pure SVG, **no
+  three.js/WASM** — content route): a top-down schematic of the fly with the **odor goal beacon**
+  ahead (the chemotaxis cue, reused), a **wall** in the path, and two bilateral **feeler fans**
+  (short-range obstacle proximity, left field vs right). The geometry is **analytic and
+  deterministic** — the feeler readings are real ray–circle casts against the wall and the
+  vectors are their true sums, not artwork — so it renders the same with or without a trained
+  controller. It draws the two emergent drives as vectors: a **seek** vector (amber, from the
+  odor `L−R` asymmetry, toward the goal) and an **avoid** vector (red, from the feeler `L−R`
+  asymmetry, away from the wall), summed into the resolved **detour** heading (green) that bends
+  around the obstacle while still carrying to the goal. The *arbitration* is the intellectual
+  content, made legible by a two-drives readout (proxL/proxR bars + the `seek ⊕ avoid → detour`
+  line). Reuses the `EscapeCircuit`/`SystemDiagram` popout interaction (hover · tap · focus →
+  each part's one-line role; 8 focusable parts — goal, obstacle, L/R feeler fans, seek/avoid/detour
+  vectors, fly — `role="button"` + aria-label + Esc-to-dismiss; pop variants amber/green/dashed),
+  `role="img"` + `<title>`/`<desc>` on the SVG. The route is `ConceptScaffold` four-part (sense =
+  bilateral feelers + reused odor beacon · reward = reach goal, penalize collisions · result =
+  detour direction emerges from the feeler `L−R` asymmetry, **warm-started from the chemo forager**
+  so feelers-off == the pure forager that walks into walls · connectome link = **the honest
+  no-clean-seam framing**), with a placeholder module slot for the live demo
+  (`// TODO: N-C — live place-the-goal / drag-the-obstacles FlyStage + detour clips + trajectory viz`,
+  `cg-tab-module-stub`). **Crucial honesty (surfaced, not buried):** unlike escape, navigation has
+  **no clean real-circuit seam** — real flies avoid obstacles with **vision / optic flow**, not
+  feeler rays; the feeler front-end is a **robotics rangefinder abstraction**, contrasted explicitly
+  with escape's real LC4/LPLC2→DNp01 seam so the site stays calibrated. No fake circuit diagram for
+  navigation. Behaviors hub: navigation `queued → building` (href + "live soon"). **N-A** trains the
+  navigation controller, **N-C** wires the live place-the-goal / drag-the-obstacles demo into the
+  placeholder slot. Clean at 375px; zero console errors; `npx tsc --noEmit` + `npm run build` green
+  (Turbopack).

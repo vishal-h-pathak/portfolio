@@ -4,7 +4,7 @@
 > `build-plan.md`, which tracks the *page* build). Every behavior, the bigger arc, the
 > compute envelope, and how each lands on the site. Update as ideas land or change.
 >
-> Last updated: 2026-06-20 (escape → **done (live)**: X-C wired the live launch-the-threat demo + flee clips + top-down trajectory map into `/behaviors/escape`)
+> Last updated: 2026-06-20 (navigation → **building**: N-B stood up `/behaviors/navigation` — the seek-vs-avoid arbitration visual `FeelerField`, warm-start-from-chemo + feelers, honest about having no clean real-circuit seam)
 
 ## Thesis (the through-line)
 
@@ -38,7 +38,7 @@ All require the closed loop. Each becomes a page tab with a live FlyStage demo +
 | **Perturbation / robustness** | proprioception (joint angles + foot contacts) | stay upright + hold heading after a shove / on rough ground | cleanest proof feedback matters; stark open-vs-closed A/B; cheapest | low | **chosen first** |
 | **Chemotaxis / foraging** | bilateral odor/taste gradient (L−R antenna) | reduce distance to / reach the source | most "alive" story; emergent steering from a sensor asymmetry; mirrors Eon's foraging | low–med | **done (live)** |
 | **Escape response** | looming detector (size + expansion, bilateral) | react fast + flee in the correct direction | maps to a real, mapped circuit (see below); short episodes = cheap; bridge to connectome | low | **done (live)** |
-| **Obstacle navigation** | short-range distance "feelers" + goal bearing | reach goal, penalize collisions | fuses seek + avoid; most robot-demo-compelling | med | queued |
+| **Obstacle navigation** | short-range distance "feelers" + goal bearing | reach goal, penalize collisions | fuses seek + avoid; most robot-demo-compelling; **no clean real-circuit seam** (the honest one — real avoidance is visual/optic-flow, the feelers are a robotics abstraction) | med | **building** |
 
 ### Chosen sequence & rationale
 
@@ -194,3 +194,25 @@ NCA null model → CPG → **closed loop (now)** → behaviors → **real connec
   nothing hard-coded. The route reads both JSONs server-side; the four honest caveats (hand-built
   front-end, `loom_input_gain=8`, 180° omitted, fitness not cross-comparable) are surfaced on the page.
   Behaviors hub: escape `building → live`. Clean at 375px; `npx tsc --noEmit` + `npm run build` green.
+- **2026-06-20** — **Navigation → building.** Stood up `/behaviors/navigation` (N-B, scaffold +
+  visual, no trained data yet) — the **synthesis** behavior: seek a goal **and** avoid obstacles.
+  Centerpiece is the **seek-vs-avoid arbitration visual** (`FeelerField.tsx`): a top-down schematic
+  with the fly homing on the **reused chemotaxis odor beacon** and two bilateral **feeler fans**
+  (short-range obstacle proximity, L field vs R) reading a wall in the path. Geometry is **analytic**
+  — real ray–circle casts → two emergent drives drawn as vectors: a **seek** vector (from the odor
+  `L−R` asymmetry, toward goal) and an **avoid** vector (from the feeler `L−R` asymmetry, away from
+  the wall), **summed** into the resolved **detour** heading. The dodge *direction* is **emergent**
+  (falls out of `proxL − proxR`), the same bilateral-asymmetry motif as chemotaxis (turn *toward*
+  odor) and escape (bolt *away* from loom); the twist is **arbitrating two competing drives**.
+  Design: **warm-started from the chemotaxis forager** (feelers-off == the pure forager that walks
+  into walls; avoidance is the *added* skill) + the feeler front-end. **The honest framing — no clean
+  real-circuit seam.** Unlike escape (which maps onto the real LC4/LPLC2→DNp01 circuit), navigation
+  has no biological seam: real flies avoid obstacles with **vision / optic flow**, not rangefinders,
+  so the feelers are a **robotics abstraction** and the tab says so plainly, contrasted with escape's
+  real seam — the most robot-demo-compelling behavior but the least connectome-aligned, a capability
+  demo not a connectome bridge. **No fake circuit diagram** invented for it. Pure SVG, **no
+  three.js/WASM** on the route; popout roles on all 8 parts, `role="img"` + `<title>`/`<desc>`,
+  keyboard + aria. Placeholder slot for the live demo (`// TODO: N-C — live place-the-goal /
+  drag-the-obstacles FlyStage + detour clips + trajectory viz`). **N-A** trains the navigation
+  controller, **N-C** wires the live demo. Then the real FlyWire connectome sub-circuit (the endgame,
+  via escape's seam — navigation stays a demo). Clean at 375px; `npx tsc --noEmit` + `npm run build` green.
