@@ -51,10 +51,11 @@ const BEHAVIORS: Behavior[] = [
   },
   {
     label: "Obstacle navigation",
-    status: "queued",
+    href: `${CG_BASE}/behaviors/navigation`,
+    status: "building",
     sense: "short-range distance ‘feelers’ + goal bearing",
     reward: "reach the goal, penalize collisions",
-    why: "fuses seek + avoid — the most robot-demo-compelling of the four.",
+    why: "fuses seek + avoid — the most robot-demo-compelling of the four, and the one honest about having no clean real-circuit seam.",
   },
 ];
 
@@ -106,7 +107,8 @@ export default function BehaviorsHubPage() {
           <strong>Perturbation</strong>, <strong>chemotaxis</strong>, and{" "}
           <strong>escape</strong> are live (escape is the connectome-aligned one —
           its real-circuit bridge, live launch-the-threat demo, and trajectory map
-          are up); navigation is queued.
+          are up); navigation — the seek-plus-avoid synthesis behavior — is
+          building.
         </p>
         <ul className="cg-beh-list">
           {BEHAVIORS.map((b) => {

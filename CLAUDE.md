@@ -27,3 +27,11 @@ vishal.pa.thak.io should feel like a person with a specific long-running obsessi
 
 ## Personal
 From Cape Canaveral, FL. Moved to Atlanta April 2022. Runs a book club (papercuts.cc). Into cooking, audiobooks, agentic AI projects.
+
+## Cross-machine workflow (two machines: MAC cockpit + WIN 5900X/3080Ti compute)
+This project runs across two machines, either of which can do either role. Before any work:
+- **Read `docs/cellular-gaits/SYNC.md` FIRST** (live state: what's running where, branch claims, next actions). Update it last and commit it with your work.
+- **Pull at session start, commit + push at session stop.** Never leave uncommitted work when switching machines.
+- **One branch is advanced from one machine at a time** — claim it in SYNC.md before starting.
+- Only small things cross git (code, docs, web-export bundles); `checkpoints/`/`outputs/`/`.venv/` stay local (gitignored). Heavy compute runs on WIN.
+- Full protocol + one-time setup (Tailscale/SSH, W&B): `docs/cellular-gaits/CROSS_MACHINE.md`.

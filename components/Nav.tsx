@@ -14,6 +14,11 @@ const NAV_ITEMS = [
 
 const SECTION_IDS = NAV_ITEMS.map((n) => n.id);
 
+// External link to Fleet Mission Control. Lives outside NAV_ITEMS so it stays
+// clear of the section scroll-spy and the 1–5 keyboard shortcuts.
+const FLEET_URL =
+  process.env.NEXT_PUBLIC_FLEET_URL ?? "https://fleet.vishal.pa.thak.io";
+
 export function Nav() {
   const active = useScrollSpy(SECTION_IDS, "about");
   const clock = useLiveClock();
@@ -61,6 +66,9 @@ export function Nav() {
               </a>
             );
           })}
+          <a href={FLEET_URL} className="fleet-link">
+            FLEET ↗
+          </a>
         </nav>
         <div className="nav-clock" aria-hidden="true">
           {clock}
