@@ -12,38 +12,56 @@
 
 | Repo | Branch | Claimed by | Status | Notes |
 |------|--------|-----------|--------|-------|
-| cellular-gaits | `feat/n-navigation` | _unclaimed_ | calibrated, full run PENDING | run on WIN: `uv run python scripts/run_evolution_navigation.py --pop 48 --gens 70 --checkpoint-every 5 --workers 16` |
-| portfolio | `feat/n-navigation-scaffold` | _unclaimed_ | committed (230c040), not shipped | hold until N-C lands, then ship nav as a complete tab |
+| cellular-gaits | `feat/n-navigation` | _unclaimed_ | **N-A baseline (overfit), parked** | best_fit 21.07; held-out 0/8. Kept as the CMA-ES baseline RL must beat (not shipped, not tossed). Bundle on sentry `outputs/web_data_n/` (gitignored; `cg artifact`). |
+| cellular-gaits | `feat/n-rl-navigation` | _unclaimed_ | **HARNESS BUILT + obstacles now PHYSICAL — ready for wave-2 calibration** | env+policy+ppo merged (recurrent PPO + domain randomization, the reusable connectome harness); real fly↔obstacle contact pairs validated (blocks, no tunneling, no-obstacle A/B byte-exact). NEXT: verify `ppo.py` done-mask is rank-generic for `(B,4,8,8)`, then `PROMPT_n_rl_2_integrate.md` (4-gate calibration on sentry; raise `w_collide`≈0.5–1.0, Newton cap likely removable). |
+| portfolio | `feat/n-navigation-scaffold` | _unclaimed_ | committed (230c040), not shipped | hold until nav generalizes (RL); the scaffold stays, no live demo until a real result |
 | portfolio | `main` | — | production | escape is live (shipped from `feat/x-escape-live`) |
 
 ## Current project state (one glance)
 
 - **Escape — DONE, live in production.** `/behaviors/escape` shipped. Controller + demo + clips
   + trajectory map all on the main site.
-- **Navigation — IN PROGRESS.**
-  - N-A (compute): built, all 4 calibration gates pass, committed on `feat/n-navigation`. **Full
-    evolution NOT yet run** — it's the next compute job, to run on **WIN** (the Mac run was
-    canceled; ~4 h on the Air vs ~1.5 h on the workstation, and the GPU is the longer-term lever).
-  - N-B (scaffold): committed on `feat/n-navigation-scaffold` (230c040), not shipped.
-  - N-C (live demo): **not written yet** — Cowork writes it after N-A's full-run data lands.
-- **Known constraint:** the chemo forager is a narrow, left-biased homer (clean only ~40°), so
-  nav trains on az=40° × (near/far) × (left/right block). The live demo must be honest about that
-  operating envelope. A future "better omnidirectional forager" pass would widen it for both
-  chemotaxis and navigation.
+- **Navigation — CMA-ES → RL pivot done; harness BUILT + obstacles now PHYSICAL.**
+  - N-A (CMA-ES) overfit (held-out 0/8). Investigation found the obstacles were **never physical**
+    (sensed-only; fly walked through; "collisions" geometric) = the grazing root cause. Kept as the
+    documented baseline RL must beat.
+  - **RL harness built tonight** on `feat/n-rl-navigation` (env+policy+ppo): `EmbodiedRLEnv` +
+    `NavRLEnv` (domain randomization + frozen held-out), `NCAPolicy` (recurrent Gaussian policy,
+    CA-state threaded, A/B bit-exact, feeler gain policy-side), and a task-agnostic **recurrent PPO**
+    (the **reusable connectome harness** — Pendulum-validated). DR + a general feeler→action policy
+    is the bet to fix the overfit and relearn omnidirectional homing.
+  - **Obstacles made physically real** (Vishal's call): explicit fly-geom↔obstacle MuJoCo contact
+    pairs; validated to block head-on with no tunneling to ~13× gait speed; no-obstacle physics
+    byte-exact; collision metric now counts **real contacts**. (Findings: `w_collide` needs raising
+    to ~0.5–1.0 for real counts; the Newton-cap "pin explosion" premise didn't reproduce — likely
+    removable.)
+  - N-B (scaffold): `feat/n-navigation-scaffold` (230c040), parked; no live demo until a
+    generalizing result exists.
+- **Root constraint (now being addressed, not worked around):** the chemo forager is a narrow,
+  left-biased homer (~40°), which forced N-A's narrow training cone → overfit. RL with wide
+  bearing randomization is the bet to dissolve it (subsuming the "omnidirectional forager" pass).
+- **Standing rule added** (`PARTNER_BRIEF.md` → taste): every visualization must build intuitive
+  understanding by anchoring to the fly's anatomy and, increasingly, specific brain regions.
+- **Cockpit gap:** `cg run` (delegated Claude CLI) fails on sentry — `claude` not installed there
+  (still an open WIN to-do). `cg nav` / direct `uv run` Python works. Run scripts directly via
+  ssh+tmux (tee to `~/cockpit-logs/<name>.log` so `cg peek` sees them) until the CLI is installed.
 - **Compute cliff reached:** `mj_step` is CPU-bound and heavy. CPU win = run on WIN now. GPU
   (3080 Ti) only helps via an MJX/Brax port (big rewrite, contact-rich sim is MJX's hard case,
   needs WSL2 for JAX) or the RL connectome endgame (PyTorch/CUDA, native Windows fine).
 
 ## Handoff queue (next actions, in order)
 
-1. **WIN:** claim `feat/n-navigation`, `git pull`, run the nav full evolution (command above),
-   commit the small export bundle + `REPORT_n_a.md`, push, update this board. Big checkpoints stay
-   local / go to W&B.
-2. **MAC (Cowork):** pull, copy `web_data_n*/` → `portfolio/public/cellular-gaits/data-n/`, write
-   **N-C** (envelope-aware live demo + detour clips + trajectory map) + the wave-2 script.
-3. **MAC:** ship navigation (scaffold + N-C together) to production.
-4. Then: obstacle-nav polish done → the **real FlyWire LC4/LPLC2→DNp01 connectome sub-circuit**
-   (the endgame; RL on the 3080 Ti).
+1. **Verify** `rl/ppo.py`'s done-mask reset is rank-generic for the `(B,4,8,8)` CA state (only
+   tested at `(B,1)`). Shape assertion is enough; fix before any real PPO run.
+2. **Wave-2 integrate** — `PROMPT_n_rl_2_integrate.md`: wire env+policy+ppo, `run_rl_navigation.py`,
+   run the **4-gate calibration on the physical task**, STOP, write `REPORT_n_rl_calibration.md`.
+   Raise `w_collide`≈0.5–1.0; consider dropping the Newton cap; pull `web_data_n` for the Gate-2
+   baseline. Wire on Mac, **run the calibration on sentry** (artifacts + cores; ssh+tmux dispatch).
+3. **Decide from the calibration:** short PPO run lifts held-out detour above the N-A baseline →
+   green-light the full run, then live demo + ship. If not → ship N-A honestly / shelve and move on.
+4. **The endgame the harness is for:** the **real FlyWire LC4/LPLC2→DNp01 connectome sub-circuit**
+   (RL on the 3080 Ti) — plug a `ConnectomePolicy` into the same `rl/` env + PPO.
+5. Optional enabler: the **omnidirectional forager** pass (RL may subsume it via wide-bearing DR).
 
 ## Cross-machine system build (this session)
 
@@ -58,10 +76,61 @@ Building Layer 1+2+3 (git+SYNC / Tailscale+SSH / W&B), both-machines-both-roles.
 Once Tailscale+SSH are up (`cellular-gaits/WINDOWS_SETUP.md` Tier 1), drive the box from the Mac:
 `portfolio/cockpit.sh` — `./cockpit.sh nav` starts this paused run detached; `logs`/`attach`
 monitor it; `run <repo> "<directive>"` dispatches a delegated Claude CLI session on the box;
-`pull` syncs results back to the Mac. Mac push: `portfolio/push-cross-machine.sh`.
+`pull` syncs results back to the Mac. **Observability loop:** `./cockpit.sh peek <name>` mirrors
+the box's job log into `cellular-gaits/outputs/remote-logs/` (gitignored) so Cowork/Claude can
+Read it on the Mac — no transcribing. Big artifacts: `./cockpit.sh artifact <relpath>`. Mac push:
+`portfolio/push-cross-machine.sh`.
 
 ## Sync log (append-only, newest at top)
 
+- **2026-06-22 night (MAC / Cowork) — wave-1 RL harness COMPLETE + obstacles made PHYSICAL;
+  consolidating onto `feat/n-rl-navigation`.** All three parallel chunks landed: **1b policy**
+  (`NCAPolicy`, recurrent Gaussian, CA-state threaded, feeler gain policy-side, A/B max|Δ|=0;
+  `feat/n-rl-policy`) and **1c ppo** (task-agnostic recurrent PPO — opaque per-step state stored +
+  reset-on-done + free shuffle; Pendulum-validated; `feat/n-rl-ppo`) joined **1a env**. A
+  **code-investigation agent** proved the obstacles were sensed-only (FlyGym fly geoms are 0/0; no
+  fly↔obstacle `<pair>`), so N-A's "physical pin / Newton cap" rationale never applied and the
+  grazing was a soft-penalty artifact. Vishal chose **real physics**: **N-RL-PHYS** (09cb896) added
+  explicit fly-geom↔obstacle contact pairs — validated blocking, no tunneling to ~13× gait speed,
+  no-obstacle A/B byte-exact; collision metric now real contacts. Findings carried to wave 2:
+  `w_collide`→~0.5–1.0 (real counts 11–28/ep), Newton cap likely removable (pin didn't explode),
+  reset≈250 ms / physical episode≈2.5–4 s. **Tonight's wrap-up** (`PROMPT_n_rl_wrapup.md`): commit
+  the stray N-A recalibration for-record, merge env+policy+ppo into `feat/n-rl-navigation`, reconcile
+  `uv.lock`, prune worktrees, commit the updated docs. NEXT: verify the done-mask rank-genericity,
+  then wave-2 integrate (calibration on sentry). Resume: `NEXT_SESSION.md`.
+- **2026-06-22 (MAC / Cowork)** — **N-RL-1a (the RL env chunk) built on `feat/n-rl-env`, Gate 1
+  PASS, committed (not merged).** `src/cellular_gaits/rl/{env_base,nav_env,__init__}.py` +
+  `gymnasium` dep — `EmbodiedRLEnv(gymnasium.Env)` (policy-agnostic, 4 pluggable hooks) +
+  `NavRLEnv`/`NavRLConfig`. Contract for 1b/1c: obs `Box(6,8,8)` (feelers **raw [0,1]**; the ×8
+  input gain moved to the **policy** side, 1b applies it), action `Box(-1,1,(42,))`→`FlyEnv.step`,
+  reward = Δapproach − w_collide·contact − step_cost (+reach_bonus **gated collision-free** — fixes
+  N-A's grazing), DR resamples bearing+obstacle+radius with a **frozen held-out set + rejection-
+  sampled training disjointness** (0/5000 leaks). Gate 1: shapes/spaces OK, vector envs
+  bit-deterministic, **reset ≈250 ms vs step ≈2.6 ms** (the RL throughput ceiling — reset rebuilds
+  FlyEnv+warmup each episode; revisit with a movable-obstacle body if it dominates the full run).
+  **⚠ WIN to verify:** on MAC `flygym==2.0.1`, obstacle geoms **don't physically block** the fly
+  (all fly geoms `contype=conaffinity=0`; 0/55 contact pairs touch the obstacle; fly walks through)
+  — so the **40 s→7 s pin from `REPORT_n_a_calibration` is NOT reproducible on MAC**; the Newton cap
+  is verified *applied* (obstacles-only) but bounds a ~0 cost here. Task is unaffected (obstacles
+  are sensed-only: feelers + geometric time-in-contact). Since flygym is pinned + uv.lock committed,
+  WIN *should* match — confirm whether physical blocking/the pin actually happens on sentry. Details:
+  `cellular-gaits/scratch/nrl/REPORT_1a.md` + `gate1.md`. (Policy 1b + PPO 1c are the next chunks.)
+- **2026-06-22 (MAC / Cowork)** — Nav full run **completed (gen70, best_fit 21.07) but OVERFIT**:
+  trained detour_success 0.25, **held-out 0.00 (0/8 detour, 4/8 reach)** — memorized the 4 fixed
+  layouts (calibration Gate 4 had flagged it: 0/48 both-sides detour). Root cause = 4 fixed layouts
+  + the forager's narrow ~40° left-biased homing cone. **Decision (with Vishal): pivot navigation
+  to RL** — PPO + domain randomization, built as the **reusable policy-agnostic harness for the
+  connectome endgame** (nav itself is off the critical path; the harness is the real payoff). Wrote
+  `cellular-gaits/PROMPT_n_rl_navigation.md` (validation-first). Added the **fly-anatomy
+  visualization rule** to `PARTNER_BRIEF.md`. Noted the `cg run`/`claude`-not-on-sentry gap +
+  ssh+tmux workaround. Export bundle for N-A sits on sentry `outputs/web_data_n/` (unpulled). NEXT:
+  run the RL prompt on sentry, calibration-first. (Bundle export was done on sentry directly via
+  the Python script, not the delegated agent.)
+- **2026-06-21 night (WIN / sentry)** — Nav full run LAUNCHED on the workstation: run_id
+  `2026-06-21T05-22-48Z`, pop48/gens70, tmux `nav`, logging to `~/cockpit-logs/nav.log`. gen0
+  diagnostics confirm calibration (baseline reach=False, collides). Cockpit verified live
+  (`cg check` reached sentry). Output block-buffered through tee (fixed in cockpit.sh for future
+  runs via PYTHONUNBUFFERED=1). Leaving it overnight. NEXT: see `NEXT_SESSION.md`.
 - **2026-06-21 (MAC / Cowork)** — Cross-machine system created (Layers 1–3 specced, Layer 1
   live). Added `WINDOWS_SETUP.md` (bare-metal bootstrap, tiered) + `cockpit.sh` (Mac→WIN remote
   control). Escape confirmed shipped to production. Nav full run reassigned MAC → WIN (compute

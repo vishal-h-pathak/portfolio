@@ -216,3 +216,37 @@ NCA null model → CPG → **closed loop (now)** → behaviors → **real connec
   drag-the-obstacles FlyStage + detour clips + trajectory viz`). **N-A** trains the navigation
   controller, **N-C** wires the live demo. Then the real FlyWire connectome sub-circuit (the endgame,
   via escape's seam — navigation stays a demo). Clean at 375px; `npx tsc --noEmit` + `npm run build` green.
+- **2026-06-22** — **Navigation N-A (CMA-ES) → OVERFIT; pivoting to RL.** The full evolution ran
+  (pop48/gens70, best_fit 21.07) and on the **4 trained layouts** reaches the goal with detour
+  shapes — but the held-out evaluation exposes memorization: **trained detour_success 0.25,
+  held-out 0.00 (0/8 detour, 4/8 reach)**. Root cause: four fixed layouts (all goal-azimuth 40°,
+  forced narrow by the chemo forager's ~40° left-biased homing cone) let CMA-ES fit layout-specific
+  motor sequences instead of a feeler-reading policy; the N-A calibration's failed Gate 4 (0/48
+  both-sides detour from feeler perturbations) had already flagged this. **Decision: switch
+  navigation to RL** — PPO + **domain randomization** (resample obstacle placement *and* goal
+  bearing every episode) forces a general policy and gives the controller the sample budget to
+  relearn omnidirectional homing (potentially subsuming the "omnidirectional forager" upgrade). The
+  real justification is leverage: the env + PPO + domain-randomization stack is built as a
+  **reusable, policy-agnostic harness for the connectome endgame** (the FlyWire LC4/LPLC2→DNp01
+  sub-circuit is the same RL-on-the-3080-Ti problem), so RL-on-nav de-risks the endgame tooling on
+  a cheap task. Navigation itself stays off the critical path (no connectome seam). Spec written:
+  `cellular-gaits/PROMPT_n_rl_navigation.md` (validation-first). Also added a standing **visualization
+  rule** to `PARTNER_BRIEF.md`: every visual must build intuitive understanding by anchoring to the
+  fly's anatomy and, increasingly, specific brain regions. Next: run the RL prompt on sentry,
+  calibration-first.
+- **2026-06-22 (night)** — **RL harness built; obstacles made physically real.** The nav→RL plan
+  was chunked into three parallel Claude Code sessions (env / policy / ppo) + an integrate pass.
+  Built: `EmbodiedRLEnv` + `NavRLEnv` (domain randomization + frozen held-out), `NCAPolicy` (the NCA
+  as a **recurrent** PPO Gaussian policy — CA state threaded explicitly, warm-start A/B bit-exact,
+  feeler input gain moved policy-side), and a **task-agnostic recurrent PPO** loop (opaque per-step
+  state stored + reset-on-done, Pendulum-validated) — deliberately the **reusable harness the
+  connectome endgame will reuse**. A code-investigation agent then established that the obstacles had
+  **never been physical** — FlyGym fly geoms are `contype/conaffinity=0` and the obstacle was never
+  added to a contact `<pair>`, so the fly walked through and N-A's "collisions" were a geometric
+  proxy (the real cause of the grazing/overfit, and the "pinned-fly Newton-cap" rationale never
+  applied). Decision (Vishal): make obstacles **truly physical** — added explicit fly-geom↔obstacle
+  contact pairs (mirroring FlyGym's ground contact), validated to block head-on with no tunneling to
+  ~13× gait speed and no-obstacle physics byte-exact; the collision metric now counts real MuJoCo
+  contacts. Carried to wave-2 calibration: raise `w_collide`≈0.5–1.0, likely drop the (now
+  unnecessary) Newton cap, mind the reset-bound throughput. Next: verify the PPO done-mask shape,
+  then the wave-2 integrate calibration on sentry (`PROMPT_n_rl_2_integrate.md`).
