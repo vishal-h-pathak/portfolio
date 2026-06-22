@@ -13,7 +13,8 @@
 | Repo | Branch | Claimed by | Status | Notes |
 |------|--------|-----------|--------|-------|
 | cellular-gaits | `feat/n-navigation` | _unclaimed_ | **N-A baseline (overfit), parked** | best_fit 21.07; held-out 0/8. Kept as the CMA-ES baseline RL must beat (not shipped, not tossed). Bundle on sentry `outputs/web_data_n/` (gitignored; `cg artifact`). |
-| cellular-gaits | `feat/n-rl-navigation` | _unclaimed_ | **HARNESS BUILT + obstacles now PHYSICAL — ready for wave-2 calibration** | env+policy+ppo merged (recurrent PPO + domain randomization, the reusable connectome harness); real fly↔obstacle contact pairs validated (blocks, no tunneling, no-obstacle A/B byte-exact). NEXT: verify `ppo.py` done-mask is rank-generic for `(B,4,8,8)`, then `PROMPT_n_rl_2_integrate.md` (4-gate calibration on sentry; raise `w_collide`≈0.5–1.0, Newton cap likely removable). |
+| cellular-gaits | `feat/n-rl-navigation` | _staged → sentry_ | **HARNESS BUILT + obstacles PHYSICAL + done-mask verified — wave-2 calibration STAGED** | env+policy+ppo merged; real contact pairs validated. **done-mask reset verified rank-generic for `(B,4,8,8)`** (last code gate cleared). Wave-2 integrate+calibration staged to run **on sentry** via `cg run` (amended `ops/prompts/PROMPT_n_rl_2_integrate.md`: `w_collide`≈0.75, Newton cap dropped). Claim for sentry when you launch the wave. |
+| cellular-gaits | `feat/cx-connectome` | _staged → Mac_ | **NEW — CX-1 connectome extraction STAGED** | wave 1 of the connectome endgame: extract the real FlyWire LC4/LPLC2→DNp01 escape sub-circuit (`ops/prompts/PROMPT_cx_1_extract.md`). Data-only, validation-gated, runs on the Mac in a worktree off `feat/n-rl-navigation`. Claim for the Mac when you launch the wave. |
 | portfolio | `feat/n-navigation-scaffold` | _unclaimed_ | committed (230c040), not shipped | hold until nav generalizes (RL); the scaffold stays, no live demo until a real result |
 | portfolio | `main` | — | production | escape is live (shipped from `feat/x-escape-live`) |
 
@@ -83,6 +84,21 @@ Read it on the Mac — no transcribing. Big artifacts: `./cockpit.sh artifact <r
 
 ## Sync log (append-only, newest at top)
 
+- **2026-06-22 (MAC / Cowork) — done-mask verified; repo reorg into `ops/`; connectome endgame
+  begun (CX-1 staged) alongside the nav wave-2 calibration.** (1) **Verified** `rl/ppo.py`'s
+  done-mask reset is rank-generic for the `(B,4,8,8)` CA state (`done_view = (n_envs,)+(1,)*rank`
+  broadcasts; both `torch.where` branches checked) — the last open code gate is cleared, no fix
+  needed. (2) **Repo cleanup:** all `PROMPT_*.md` / `setup-*.sh` / `REPORT_*.md` moved off both
+  roots into `ops/` (cellular-gaits: `ops/prompts/{,archive}` + `ops/reports/`; portfolio:
+  `ops/prompts/{,archive}` + `ops/waves/{,archive}`); `cockpit.sh`/`push-cross-machine.sh` stay at
+  root; convention recorded in both `CLAUDE.md` + `ops/README.md`. (3) **Claude is now on sentry** —
+  CLAUDE.md updated; delegated `cg run` box sessions work. (4) **Staged the parallel wave**
+  (`portfolio/ops/waves/setup-cx-calibrate.sh`): nav RL integrate+calibration **on sentry** (amended
+  `PROMPT_n_rl_2_integrate.md` — `w_collide`≈0.75, Newton cap dropped, report → `ops/reports/`) +
+  **CX-1 connectome extraction on the Mac** (new `PROMPT_cx_1_extract.md`, feat/cx-connectome
+  worktree). Both validation-gated (STOP before full run / before bulk pull). NEXT: commit on
+  feat/n-rl-navigation, run the wave, claim both branches here. Reframe locked in: the connectome
+  endgame plugs into **escape's** LC4/LPLC2→DNp01 seam (not nav) and reuses the nav-built harness.
 - **2026-06-22 night (MAC / Cowork) — wave-1 RL harness COMPLETE + obstacles made PHYSICAL;
   consolidating onto `feat/n-rl-navigation`.** All three parallel chunks landed: **1b policy**
   (`NCAPolicy`, recurrent Gaussian, CA-state threaded, feeler gain policy-side, A/B max|Δ|=0;

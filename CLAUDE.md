@@ -34,4 +34,8 @@ This project runs across two machines, either of which can do either role. Befor
 - **Pull at session start, commit + push at session stop.** Never leave uncommitted work when switching machines.
 - **One branch is advanced from one machine at a time** — claim it in SYNC.md before starting.
 - Only small things cross git (code, docs, web-export bundles); `checkpoints/`/`outputs/`/`.venv/` stay local (gitignored). Heavy compute runs on WIN.
+- **`claude` is installed on sentry (WIN).** Dispatch a delegated Claude Code session to the box with `./cockpit.sh run <repo> "<directive>"` (headless, pulls first); monitor via `./cockpit.sh peek`/`attach`.
 - Full protocol + one-time setup (Tailscale/SSH, W&B): `docs/cellular-gaits/CROSS_MACHINE.md`.
+
+## Repo layout — prompts, waves, reports (keep the root clean)
+Operational meta-files live under `ops/`, never the root: `ops/prompts/` (active `PROMPT_*.md`; completed → `ops/prompts/archive/`) and `ops/waves/` (wave launchers `setup-*.sh`; used-up → `ops/waves/archive/`). `cockpit.sh` and `push-cross-machine.sh` stay at the root (operational, aliased). Every new prompt/wave goes straight into the right `ops/` folder.

@@ -89,10 +89,22 @@ The full bare-metal Windows bootstrap (incl. CUDA later) is **`cellular-gaits/WI
 4. **(Optional) VS Code Remote-SSH** to the Windows box gives you a full editor on the
    workstation from the laptop.
 
-**Daily use:** from the Mac, `ssh <you>@<win-ip>`, `cd` into `cellular-gaits`, `git pull`, launch
-`claude` (CLI) or run the evolution directly, detach. For long runs, start them under a
-persistent session so they survive disconnect — on Windows native, run inside a `tmux`/`screen`
-under Git-Bash, or just launch and poll; under WSL2, `tmux` works as on Linux.
+**Daily use (via `cockpit.sh`, from the Mac):**
+- `./cockpit.sh nav` — start the paused nav run on the box, detached in tmux.
+- `./cockpit.sh run cellular-gaits "Read PROMPT_x.md and implement it"` — dispatch a delegated
+  Claude CLI session on the box (headless, bypassPermissions), detached.
+- `./cockpit.sh logs [name]` — live-tail a job over SSH; `./cockpit.sh attach [name]` to go
+  interactive; `./cockpit.sh status` for a one-glance summary of all jobs.
+- `./cockpit.sh pull` — git-pull the (small) results back to the Mac after the box pushes.
+- `./cockpit.sh artifact <relpath> [dest]` — rsync a big file/dir (checkpoints, raw outputs) from
+  the box over Tailscale, for things too large for git.
+
+**The observability loop (closes the "I can't see the box's output" gap):** every job tees to
+`~/cockpit-logs/<name>.log` on the box. `./cockpit.sh fetch` (or `peek <name>`) mirrors that dir
+into `cellular-gaits/outputs/remote-logs/` on the Mac (gitignored) — a location **Cowork/Claude
+can Read directly**. So the flow is: fire a run on the box → `peek` it → Claude reads the log on
+the Mac and reacts, with nothing transcribed by hand. (Install `rsync` on the box once for the
+artifact channel: `sudo apt install -y rsync`.)
 
 ## Layer 3 — Weights & Biases (one dashboard for runs from both machines)
 

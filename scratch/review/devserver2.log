@@ -1,0 +1,46 @@
+
+> portfolio@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.3 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://127.93.230.126:3000
+- Environments: .env.local
+✓ Ready in 208ms
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+ GET /projects/cellular-gaits/sensing 200 in 298ms (next.js: 169ms, application-code: 129ms)
+ GET /projects/cellular-gaits/sensing 200 in 24ms (next.js: 1060µs, application-code: 23ms)
+[browser] ./components/cellular-gaits/CriticalityPlayground.tsx:504:1
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+  502 |     </div>
+  503 |   );
+> 504 | }
+      | ^
+  505 |
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./components/cellular-gaits/CriticalityPlayground.tsx
+    ./app/projects/cellular-gaits/controller/page.tsx 
+[browser] ./components/cellular-gaits/CriticalityPlayground.tsx:504:1
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+  502 |     </div>
+  503 |   );
+> 504 | }
+      | ^
+  505 |
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./components/cellular-gaits/CriticalityPlayground.tsx
+    ./app/projects/cellular-gaits/controller/page.tsx 
+ GET /projects/cellular-gaits/controller 200 in 77ms (next.js: 9ms, application-code: 69ms)
+ GET /projects/cellular-gaits/behaviors/perturbation 200 in 130ms (next.js: 17ms, application-code: 113ms)
+ GET /projects/cellular-gaits/sensing 200 in 27ms (next.js: 1580µs, application-code: 25ms)
+ GET /projects/cellular-gaits/embodied 200 in 53ms (next.js: 14ms, application-code: 40ms)
+[?25h

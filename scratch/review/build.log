@@ -1,0 +1,78 @@
+
+> portfolio@0.1.0 prebuild
+> node scripts/check-status-types.mjs
+
+✓ status types match the canonical enum
+
+> portfolio@0.1.0 build
+> next build
+
+▲ Next.js 16.2.3 (Turbopack)
+- Environments: .env.local
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+✓ Compiled successfully in 2.0s
+  Running TypeScript ...
+  Finished TypeScript in 2.4s ...
+  Collecting page data using 9 workers ...
+  Generating static pages using 9 workers (0/37) ...
+  Generating static pages using 9 workers (9/37) 
+  Generating static pages using 9 workers (18/37) 
+  Generating static pages using 9 workers (27/37) 
+✓ Generating static pages using 9 workers (37/37) in 413ms
+  Finalizing page optimization ...
+
+Route (app)                                          Revalidate  Expire
+┌ ○ /                                                        5m      1y
+├ ○ /_not-found
+├ ƒ /agents/[token]
+├ ○ /api/bench/activity                                      5m      1y
+├ ƒ /api/chat
+├ ƒ /api/dashboard-login
+├ ƒ /api/dashboard/jobs
+├ ƒ /api/dashboard/jobs/[job_id]
+├ ƒ /api/dashboard/jobs/[job_id]/mark-applied
+├ ƒ /api/dashboard/jobs/[job_id]/mark-failed
+├ ƒ /api/dashboard/jobs/[job_id]/prefill
+├ ƒ /api/dashboard/jobs/[job_id]/skip
+├ ƒ /api/dashboard/jobs/action-count
+├ ƒ /api/dashboard/pattern-analyses
+├ ƒ /api/dashboard/profile-insight
+├ ƒ /api/dashboard/runs
+├ ƒ /api/dashboard/runs/hunt
+├ ƒ /api/dashboard/runs/tailor
+├ ƒ /api/dashboard/runs/tailor-manual
+├ ƒ /api/dashboard/storage/sign
+├ ƒ /api/dashboard/stories
+├ ƒ /api/dashboard/stories/[id]
+├ ƒ /api/materials/[jobId]/[kind]
+├ ƒ /api/meridian
+├ ○ /dashboard
+├ ○ /dashboard/insights
+├ ○ /dashboard/login
+├ ○ /dashboard/review
+├ ƒ /dashboard/review/[job_id]
+├ ○ /dashboard/stories
+├ ○ /icon.svg
+├ ○ /meridian
+├ ○ /opengraph-image
+├ ○ /projects/cellular-gaits
+├ ○ /projects/cellular-gaits/appendix
+├ ○ /projects/cellular-gaits/behaviors
+├ ○ /projects/cellular-gaits/behaviors/chemotaxis
+├ ○ /projects/cellular-gaits/behaviors/perturbation
+├ ○ /projects/cellular-gaits/body
+├ ○ /projects/cellular-gaits/controller
+├ ○ /projects/cellular-gaits/embodied
+├ ○ /projects/cellular-gaits/mapping
+├ ○ /projects/cellular-gaits/objective
+├ ○ /projects/cellular-gaits/optimizer
+└ ○ /projects/cellular-gaits/sensing
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
