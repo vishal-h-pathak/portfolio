@@ -48,6 +48,7 @@ import { isActionNeeded, isTerminalMuted, statusTone, toneStripeVar } from "./li
 import { loadPref, savePref } from "./lib/prefs";
 import ManualTailorPanel from "./ManualTailorPanel";
 import RunsPanel from "./RunsPanel";
+import WatcherPanel from "./WatcherPanel";
 import type { JobActions } from "./page";
 
 /* ── Toolbar prefs ─────────────────────────────────────────────────── */
@@ -540,6 +541,7 @@ export default function BrowseView({
 
       <ManualTailorPanel />
       <RunsPanel />
+      <WatcherPanel />
 
       {/* ── Submit lane (register overview) ─────────────────────────
           Sets intent only — enqueues every eligible tailored row for the
