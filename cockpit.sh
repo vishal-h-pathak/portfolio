@@ -15,10 +15,12 @@
 #   ./cockpit.sh nav                        # START the paused nav run (chemo bridge + tmux, detached)
 #   ./cockpit.sh run <repo> "<directive>"   # launch a delegated Claude CLI session on the box (tmux)
 #   ./cockpit.sh run-b64 <repo> <b64>       # same, but directive is base64 (safe over ssh/tmux) + Remote Control on
+#   ./cockpit.sh run-v <repo> "<directive>" # STREAMING (verbose stream-json) + Remote Control on -> readable via peekv
 #   ./cockpit.sh status                     # list tmux sessions + last line of each log
 #   ./cockpit.sh logs [name]                # LIVE tail a job log over SSH (default: nav)
 #   ./cockpit.sh fetch                      # copy ALL box job logs -> Mac (outputs/remote-logs/) for Claude to read
 #   ./cockpit.sh peek [name]                # fetch, then print the tail locally (default: nav)
+#   ./cockpit.sh peekv <name>               # render a STREAMING (run-v) session log readably (live play-by-play)
 #   ./cockpit.sh attach [name]              # interactively attach to a tmux session (default: nav)
 #   ./cockpit.sh artifact <relpath> [dest]  # rsync a big file/dir from the box (relpath under WIN_BASE)
 #   ./cockpit.sh wait [name]                # block until a job ends, then fetch log + notify (default: nav)
@@ -108,6 +110,31 @@ case "$cmd" in
     echo "Launched '$sess' (RC on). The /rc URL will surface in the log -> reporter -> dashboard.  Watch:  ./cockpit.sh attach $sess   |   to Mac:  ./cockpit.sh peek $sess"
     ;;
 
+  run-v)
+    # Like `run`, but with --verbose --output-format stream-json so the session emits a live JSONL
+    # event stream (assistant text, tool calls, results) instead of only a final dump. The log holds
+    # raw JSONL; render it readably on the Mac with `./cockpit.sh peekv <name>`. Directive crosses
+    # ssh/tmux base64-encoded (zero quoting/injection surface), decoded into a temp file on the box.
+    # --rc keeps Remote Control ON (like run-b64) so the /rc URL still surfaces into the log ->
+    # reporter -> dashboard (Phase B). Observe-only means no STOP gate / no steering here, NOT
+    # dropping /rc telemetry — peekv just renders the stream; runi (next) adds the gate.
+    repo="${1:-}"; directive="${2:-}"
+    [ -n "$repo" ] && [ -n "$directive" ] || { echo 'usage: ./cockpit.sh run-v <cellular-gaits|portfolio> "<directive>"'; exit 1; }
+    target="$WIN_BASE/$repo"
+    sess="claude-$(date +%H%M%S)"
+    b64="$(printf %s "$directive" | base64 | tr -d '\n')"
+    echo "Dispatching a STREAMING Claude session on the box (tmux '$sess') in $repo ..."
+    rsh "
+      set -e
+      mkdir -p $RLOG
+      cd $target && git pull --ff-only || true
+      f=\$(mktemp)
+      printf %s '$b64' | base64 -d > \"\$f\"
+      tmux new-session -d -s $sess \"cd $target && claude --rc --permission-mode bypassPermissions --verbose --output-format stream-json -p \\\"\\\$(cat \$f)\\\" 2>&1 | tee $RLOG/$sess.log; rm -f \$f\"
+    "
+    echo "Launched '$sess' (streaming JSONL).  Live play-by-play:  ./cockpit.sh peekv $sess"
+    ;;
+
   status)
     rsh "tmux ls 2>/dev/null || echo 'no tmux sessions'; echo '--- latest log lines ---'; for f in $RLOG/*.log; do [ -e \"\$f\" ] && echo \"\$(basename \$f): \$(tail -n1 \"\$f\")\"; done 2>/dev/null"
     ;;
@@ -130,6 +157,17 @@ case "$cmd" in
     scp -q -r "$WIN_HOST:cockpit-logs/." "$MAC_LOGS/" 2>/dev/null || true
     echo "===== tail of $name.log (also saved to outputs/remote-logs/ for Claude) ====="
     tail -n 40 "$MAC_LOGS/$name.log" 2>/dev/null || echo "(no $name.log yet)"
+    ;;
+
+  peekv)
+    # Render a STREAMING (run-v) session log readably: fetch the JSONL, pipe through render-stream.py.
+    name="${1:-}"
+    [ -n "$name" ] || { echo 'usage: ./cockpit.sh peekv <name>'; exit 1; }
+    mkdir -p "$MAC_LOGS"
+    scp -q "$WIN_HOST:cockpit-logs/$name.log" "$MAC_LOGS/$name.log" 2>/dev/null || true
+    if [ ! -s "$MAC_LOGS/$name.log" ]; then echo "(no $name.log yet — the session may still be spinning up)"; exit 0; fi
+    echo "===== $name (rendered; raw JSONL at outputs/remote-logs/$name.log) ====="
+    python3 "$(dirname "$0")/ops/render-stream.py" "$MAC_LOGS/$name.log" | tail -n 60
     ;;
 
   attach)
