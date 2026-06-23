@@ -183,7 +183,34 @@ export default async function EscapeTabPage() {
                   <span className="cg-gaitclip-sub">looms right → bolts left</span>
                 </figcaption>
               </figure>
+              {/*
+                PLACEHOLDER — real-Drosophila looming-takeoff reference panel (rec #16).
+                The review's ideal here is a real-fly escape clip beside the two sim
+                rollouts, so the sim reads against the animal. Intentionally NOT built:
+                we do not fabricate or scrape a reference clip (licensing + link-safety).
+                Vishal supplies a licensed asset, then uncomment this third panel:
+
+                <figure className="cg-perturb-clip">
+                  <video
+                    src="/cellular-gaits/data-x/real_fly_loom.mp4"
+                    autoPlay loop muted playsInline
+                    aria-label="Reference: a real Drosophila escape takeoff to a looming stimulus"
+                  />
+                  <figcaption>
+                    <span className="cg-gaitclip-k">real fly · reference</span>
+                    <span className="cg-gaitclip-sub">looming takeoff (licensed clip)</span>
+                  </figcaption>
+                </figure>
+              */}
             </div>
+            <p className="cg-sense-cap">
+              Shared circuit across both panels:{" "}
+              <strong>LC4 / LPLC2 → Giant Fiber (DNp01)</strong> — the same
+              measured wiring drives both bolts; only the left−right looming
+              asymmetry differs. A real-<em>Drosophila</em> reference clip belongs
+              beside these two; that panel is a deliberate gap (a licensed asset,
+              not a scraped one) — see the placeholder above.
+            </p>
           </div>
 
           {/* 4 — the top-down trajectory map (real recorded paths) */}
