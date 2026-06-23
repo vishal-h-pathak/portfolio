@@ -26,6 +26,14 @@ type Behavior = {
 
 const BEHAVIORS: Behavior[] = [
   {
+    label: "Escape response",
+    href: `${CG_BASE}/behaviors/escape`,
+    status: "live",
+    sense: "looming detector — angular size + expansion, bilateral",
+    reward: "react fast + flee in the correct direction",
+    why: "the connectome bridge — maps onto a real, mapped circuit (LC4 / LPLC2 → the Giant Fiber), and that circuit is now wired into the embodied loop → Embodied.",
+  },
+  {
     label: "Perturbation / robustness",
     href: `${CG_BASE}/behaviors/perturbation`,
     status: "live",
@@ -40,14 +48,6 @@ const BEHAVIORS: Behavior[] = [
     sense: "bilateral odor / taste gradient (L − R antenna)",
     reward: "reduce distance to / reach the source",
     why: "the most ‘alive’ story — emergent steering out of a sensor asymmetry; mirrors Eon's foraging.",
-  },
-  {
-    label: "Escape response",
-    href: `${CG_BASE}/behaviors/escape`,
-    status: "live",
-    sense: "looming detector — angular size + expansion, bilateral",
-    reward: "react fast + flee in the correct direction",
-    why: "maps onto a real, mapped circuit (LC4 / LPLC2 → the Giant Fiber) — the bridge to a real connectome.",
   },
   {
     label: "Obstacle navigation",
@@ -102,13 +102,16 @@ export default function BehaviorsHubPage() {
         <p className="cg-section-eyebrow">§ THE BEHAVIORS</p>
         <p className="cg-section-lead">
           Four behaviors, each a closed-loop demo: a new sense, a reward, and the
-          fly learning to use one to earn the other. They are sequenced cheapest-
-          and-most-diagnostic first.{" "}
-          <strong>Perturbation</strong>, <strong>chemotaxis</strong>, and{" "}
-          <strong>escape</strong> are live (escape is the connectome-aligned one —
-          its real-circuit bridge, live launch-the-threat demo, and trajectory map
-          are up); navigation — the seek-plus-avoid synthesis behavior — is
-          building.
+          fly learning to use one to earn the other. <strong>Escape</strong>{" "}
+          leads — it&apos;s the one that maps onto a real, mapped circuit, and
+          that circuit is now wired into the embodied loop (the{" "}
+          <a className="cg-inline-link" href={`${CG_BASE}/embodied`}>
+            Embodied
+          </a>{" "}
+          tab). <strong>Perturbation</strong> and{" "}
+          <strong>chemotaxis</strong> are the other live ones; navigation — the
+          seek-plus-avoid synthesis, and the one behavior without a clean
+          real-circuit seam — is building.
         </p>
         <ul className="cg-beh-list">
           {BEHAVIORS.map((b) => {
@@ -149,7 +152,7 @@ export default function BehaviorsHubPage() {
         <p className="cg-section-appendix">
           The science ledger behind this sequence — every behavior, the escape
           circuit, the compute envelope — is the project&apos;s research roadmap;
-          the math and build-plan DAG are in the{" "}
+          the math is in the{" "}
           <a className="cg-inline-link" href={`${CG_BASE}/appendix`}>
             appendix
           </a>

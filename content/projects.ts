@@ -114,22 +114,22 @@ export const PROJECTS: Project[] = [
   {
     num: "B-04",
     title: "Cellular Gaits",
-    oneLiner: "evolved cellular automaton walks a simulated fly",
+    oneLiner: "a real fly connectome, run as a spiking brain, drives a real fly body",
     status: "shipped",
     statusLabel: "SHIPPED · v1",
     paragraphs: [
       {
-        text: "An 8×8 neural cellular automaton — Conway's Game of Life with a learnable rule instead of a fixed one — evolved with CMA-ES until its emergent grid pattern drives the 42 leg joints of a biomechanical fruit fly in FlyGym/MuJoCo. No dataset: the fly's own forward distance in the physics sim is the whole training signal.",
+        text: "The real FlyWire connectome — the electron-microscope wiring of an entire adult Drosophila brain — run as a 138,639-neuron spiking network, driving a biomechanical fly body in a closed loop. A looming threat is seen by the fly's looming-detector neurons (LC4, LPLC2); their spikes propagate through the real wiring to the Giant Fiber escape neuron (DNp01); that firing bolts the simulated body away — and the motion changes what it sees, so the loop closes through the physics.",
       },
       {
-        text: "The best individual walks ~29 mm/s — real-Drosophila range. Open it to watch the fly walking beside the CA grid pulsing in sync: a distributed, local-rule system producing a coordinated gait, which is the same question the fly connectome poses at 140,000× the scale.",
+        text: "It started smaller: a 660-parameter neural cellular automaton, evolved with CMA-ES until its local update rule walked the same body — a null model standing in for the brain. The line from that placeholder to the real circuit is the whole project. Honest about the seam: this shows the connectome routing a looming cue to an embodied escape, not a calibrated escape threshold — in isolation the Giant Fiber saturates.",
         dim: true,
       },
     ],
     meta: [
-      { key: "STACK", value: "FlyGym · MuJoCo · CMA-ES · Next" },
-      { key: "CONTROLLER", value: "660-param neural CA" },
-      { key: "RESULT", value: "~29 mm/s gait" },
+      { key: "STACK", value: "FlyWire · LIF brain · NeuroMechFly · MuJoCo" },
+      { key: "CONTROLLER", value: "real connectome · 138,639-neuron LIF" },
+      { key: "RESULT", value: "looming → Giant Fiber → escape bolt" },
       { key: "BUILD", value: "Solo · Claude · v1", build: true },
     ],
     actions: [

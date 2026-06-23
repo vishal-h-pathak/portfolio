@@ -11,8 +11,9 @@
  *           → motor / takeoff
  * — and maps our hand-built stand-in (green) onto it: our two bilateral loom
  * channels ↔ LC4 + LPLC2, our learned NCA controller ↔ the descending readout.
- * The dashed band across the LC→DNp01 edge is the endgame seam: where the real
- * FlyWire LC4/LPLC2 → DNp01 wiring drops in. Sources: Ache et al. 2019
+ * The dashed band across the LC→DNp01 edge marks the seam where the real FlyWire
+ * LC4/LPLC2 → DNp01 wiring is now wired in — run as a spiking connectome in the
+ * embodied loop (see the Embodied tab). Sources: Ache et al. 2019
  * (Current Biology, GF size/velocity encoding) and von Reyn et al. 2017
  * (single-spike timing → short/long takeoff).
  *
@@ -68,7 +69,7 @@ const MOTOR = { x: 330, y: 362, w: 230, h: 54 };
 const LOOMCH = { x: 24, y: 122, w: 180, h: 58 };
 const CTRL = { x: 24, y: 246, w: 180, h: 66 };
 
-// the FlyWire drop-in seam — a dashed band across the LC→DNp01 edge
+// the FlyWire seam — a dashed band across the LC→DNp01 edge (now wired in)
 const SEAM = { x: 292, y: 196, w: 326, h: 30 };
 
 const NODES: Node[] = [
@@ -180,11 +181,11 @@ const NODES: Node[] = [
 
 const SEAM_PLAIN: ReactNode = (
   <>
-    <strong>The endgame seam.</strong> Replace the hand-built front-end with the{" "}
-    <em>actual</em> LC4/LPLC2 → DNp01 wiring pulled from FlyWire — a concrete,
-    self-contained sub-circuit, far smaller than the whole VNC. That makes
-    escape the most tractable &ldquo;a real connectome drives the body&rdquo;
-    demo, and this is exactly where it drops in.
+    <strong>The seam, now wired.</strong> The <em>actual</em> LC4/LPLC2 → DNp01
+    wiring — pulled from FlyWire and run as a spiking connectome — is now in the
+    loop, routing a looming cue to an embodied escape. A concrete,
+    self-contained sub-circuit, far smaller than the whole brain; this is
+    exactly where it wired in (the Embodied tab).
   </>
 );
 
@@ -260,7 +261,7 @@ export function EscapeCircuit() {
   const activeKind =
     activeItem && "kind" in activeItem ? activeItem.kind : "seam";
   const activeTitle =
-    activeItem && "title" in activeItem ? activeItem.title : "FlyWire drop-in";
+    activeItem && "title" in activeItem ? activeItem.title : "FlyWire seam";
   const activePlain =
     activeItem && "plain" in activeItem ? activeItem.plain : SEAM_PLAIN;
 
@@ -334,8 +335,9 @@ export function EscapeCircuit() {
           program. Our hand-built stand-in maps onto this: two bilateral looming
           sensor channels stand in for LC4 and LPLC2, and a learned neural
           cellular automaton controller stands in for the descending readout. A
-          dashed band on the LC4/LPLC2 to DNp01 edge marks where the real
-          FlyWire wiring drops in. Each part is focusable and reveals its role.
+          dashed band on the LC4/LPLC2 to DNp01 edge marks the seam where the
+          real FlyWire wiring is now wired in, run as a spiking connectome in the
+          embodied loop. Each part is focusable and reveals its role.
         </desc>
 
         <defs>
@@ -370,11 +372,11 @@ export function EscapeCircuit() {
         <line x1={LOOMCH.x + LOOMCH.w} y1={LOOMCH.y + LOOMCH.h / 2} x2={LC4.x - 6} y2={LC4.y + LC4.h / 2} stroke={GREEN} strokeWidth={1.3} strokeDasharray="5 4" markerStart="url(#esc-green)" markerEnd="url(#esc-green)" />
         <line x1={CTRL.x + CTRL.w} y1={CTRL.y + CTRL.h / 2} x2={GF.x - 6} y2={GF.y + GF.h / 2} stroke={GREEN} strokeWidth={1.3} strokeDasharray="5 4" markerStart="url(#esc-green)" markerEnd="url(#esc-green)" />
 
-        {/* the FlyWire drop-in seam — dashed band over the LC→DNp01 edge */}
-        <g {...handlers("seam")} aria-label="The FlyWire drop-in seam: where the real LC4/LPLC2 to DNp01 wiring replaces the hand-built front-end. Activate to reveal more.">
+        {/* the FlyWire seam — dashed band over the LC→DNp01 edge (now wired in) */}
+        <g {...handlers("seam")} aria-label="The FlyWire seam: where the real LC4/LPLC2 to DNp01 wiring is now wired in, run as a spiking connectome in the embodied loop. Activate to reveal more.">
           <rect x={SEAM.x} y={SEAM.y} width={SEAM.w} height={SEAM.h} rx={5} fill="rgba(232,230,223,0.04)" stroke={RULE} strokeWidth={active === "seam" ? 1.6 : 1} strokeDasharray="6 4" />
           <text x={cx(SEAM)} y={SEAM.y + SEAM.h / 2 + 3.5} fill={SUB} fontSize={9.5} textAnchor="middle">
-            ↳ the real FlyWire LC4/LPLC2 → DNp01 wiring drops in HERE
+            ↳ the real FlyWire LC4/LPLC2 → DNp01 wiring is wired in HERE
           </text>
         </g>
 

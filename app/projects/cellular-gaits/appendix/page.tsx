@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import { Math } from "@/components/cellular-gaits/Math";
-import { BuildPlanDAG } from "@/components/cellular-gaits/BuildPlanDAG";
 import { SystemDiagram } from "@/components/cellular-gaits/SystemDiagram";
 
 export const metadata: Metadata = {
   title: "Appendix — Cellular Gaits",
   description:
-    "The math: update rule, motor mapping, fitness, CMA-ES, and the criticality instruments — plus the living build plan.",
+    "The math: update rule, motor mapping, fitness, CMA-ES, and the criticality instruments.",
 };
 
 export default function AppendixTabPage() {
@@ -144,22 +143,6 @@ export default function AppendixTabPage() {
           model behind it.
         </p>
         <SystemDiagram />
-      </section>
-
-      <section className="cg-section">
-        <p className="cg-section-eyebrow">§ ROADMAP · BUILD PLAN</p>
-        <p className="cg-section-lead">
-          Where this page is going. The current site is being turned into this
-          tabbed technical reference, where each modeled choice — the body, the
-          controller, sensing, the motor mapping, the objective, the optimizer —
-          is its own interactive module, backed by the real fly physics compiled
-          to WebAssembly. The graph below is the build plan: columns are time,
-          boxes stacked in a column run in parallel. It is a living document,
-          kept in sync with the project as it evolves.
-        </p>
-        <div className="cg-dag">
-          <BuildPlanDAG />
-        </div>
       </section>
     </>
   );

@@ -13,7 +13,7 @@ import { CG_BASE } from "@/components/cellular-gaits/tabs";
 export const metadata: Metadata = {
   title: "Escape — Cellular Gaits",
   description:
-    "The connectome-aligned behavior: a looming threat read bilaterally, fled fast in the right direction. It maps onto the real Drosophila escape circuit (LC4 / LPLC2 → the Giant Fiber / DNp01) — the seam where a real FlyWire sub-circuit later drops in.",
+    "The connectome-aligned behavior: a looming threat read bilaterally, fled fast in the right direction. It maps onto the real Drosophila escape circuit (LC4 / LPLC2 → the Giant Fiber / DNp01) — and that circuit is now wired in, run as a spiking connectome in the embodied loop.",
 };
 
 const PARTS = [
@@ -78,13 +78,13 @@ export default async function EscapeTabPage() {
   return (
     <ConceptScaffold
       name="Escape"
-      lead="This is the on-ramp to the endgame. A looming object is read bilaterally — angular size and expansion rate, left eye vs right — and the fly flees fast in the correct direction. The direction isn't hard-coded; it falls out of the left−right looming asymmetry. And unlike the other behaviors, escape maps onto a real, mapped circuit — the seam where a FlyWire sub-circuit later drops in."
+      lead="This is the bridge to the endgame — and the endgame is now built. A looming object is read bilaterally — angular size and expansion rate, left eye vs right — and the fly flees fast in the correct direction. The direction isn't hard-coded; it falls out of the left−right looming asymmetry. And unlike the other behaviors, escape maps onto a real, mapped circuit — which now runs in the loop: the real FlyWire LC4/LPLC2 → Giant Fiber wiring, a spiking connectome driving the body (the Embodied tab)."
       explainerParts={PARTS}
       module={
         <div className="cg-escape">
           {/* 1 — the key standalone visual: the connectome-bridge diagram */}
           <div>
-            <p className="cg-sense-h">The real circuit — and where ours plugs in</p>
+            <p className="cg-sense-h">The real circuit — now in the loop</p>
             <p className="cg-sense-p">
               Escape is the behavior with the cleanest known wiring diagram,
               which is exactly why it&apos;s the natural bridge to the connectome
@@ -96,15 +96,22 @@ export default async function EscapeTabPage() {
               short vs long takeoff. The green rail is <strong>our hand-built
               stand-in</strong> mapped onto it: two bilateral loom channels stand
               in for LC4 + LPLC2, the learned controller for the descending
-              readout. Hover, tap, or focus any part to read its role.
+              readout. That stand-in is now only half the story — the real{" "}
+              <code>LC4/LPLC2 → DNp01</code> wiring has since been run as a
+              spiking connectome in a closed loop, routing a looming cue to an
+              embodied escape (the{" "}
+              <a className="cg-inline-link" href={`${CG_BASE}/embodied`}>
+                Embodied
+              </a>{" "}
+              tab). Hover, tap, or focus any part to read its role.
             </p>
             <EscapeCircuit />
             <p className="cg-sense-cap">
               Cites Ache et al. 2019 (<em>Current Biology</em> — Giant Fiber
               size/velocity encoding) and von Reyn et al. 2017 (single-spike
-              timing → short/long takeoff). The dashed band is the seam: where
-              the real FlyWire <code>LC4/LPLC2 → DNp01</code> wiring later
-              replaces the hand-built front-end.
+              timing → short/long takeoff). The dashed band is the seam where the
+              real FlyWire <code>LC4/LPLC2 → DNp01</code> wiring is now wired in —
+              run as a spiking connectome alongside the hand-built front-end.
             </p>
           </div>
 
@@ -205,11 +212,17 @@ export default async function EscapeTabPage() {
             <p className="cg-sense-h">Honest about what this is</p>
             <ul className="cg-escape-caveat-list">
               <li>
-                <strong>The looming front-end is hand-built.</strong> The threat
-                geometry → loom signal is an analytic stand-in for the real
-                LC4/LPLC2 → DNp01 (Giant Fiber) circuit — the connectome swap is the
-                endgame; the two bilateral loom channels are the clean seam. Only the{" "}
-                <em>response</em> is learned.
+                <strong>The looming front-end here is hand-built.</strong> On
+                this page the threat geometry → loom signal is an analytic
+                stand-in for the real LC4/LPLC2 → DNp01 (Giant Fiber) circuit, and
+                only the <em>response</em> is learned. The connectome swap itself
+                is no longer the endgame — the real FlyWire wiring now runs as a
+                spiking brain in the embodied loop (the{" "}
+                <a className="cg-inline-link" href={`${CG_BASE}/embodied`}>
+                  Embodied
+                </a>{" "}
+                tab); the two bilateral loom channels were the clean seam it
+                dropped into.
               </li>
               <li>
                 <strong>loom_input_gain = {config.loom_input_gain.toFixed(0)}.</strong>{" "}
@@ -293,15 +306,18 @@ export default async function EscapeTabPage() {
             (<strong>DNp01</strong>): ~55 LC4 + ~108 LPLC2 synapses onto its
             lateral dendrite, summing size + velocity, the timing of a single
             spike setting a short vs long takeoff (Ache et al. 2019; von Reyn et
-            al. 2017). The endgame is to replace our hand-built front-end with
-            the <em>actual</em> FlyWire <code>LC4/LPLC2 → DNp01</code> wiring — a
-            concrete sub-circuit far smaller than the whole VNC, and the most
-            tractable rung on the{" "}
+            al. 2017). That circuit is now in the loop: the <em>actual</em>{" "}
+            FlyWire <code>LC4/LPLC2 → DNp01</code> wiring has been run as a
+            spiking connectome that routes a looming cue to an embodied escape —
+            a concrete sub-circuit far smaller than the whole brain, the most
+            tractable &ldquo;a real connectome drives the body&rdquo; demo,
+            walked out on the{" "}
             <a className="cg-inline-link" href={`${CG_BASE}/embodied`}>
               Embodied
             </a>{" "}
-            ladder toward an Eon-style connectome-driven body. The diagram above
-            marks exactly where it drops in.
+            tab. The honest line: this shows the connectome routing the cue, not
+            a calibrated escape threshold — in isolation the Giant Fiber
+            saturates. The diagram above marks the seam where it wired in.
           </p>
         ),
       }}

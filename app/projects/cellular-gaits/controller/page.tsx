@@ -83,9 +83,12 @@ export default function ControllerTabPage() {
         ),
         frontier: (
           <p>
-            Replace the generic rule with the real <em>Drosophila</em> VNC leg
-            connectome — the FlyWire wiring itself as the update rule — and ask
-            whether real structure, embodied, produces real behavior. See the{" "}
+            Replaced — and not with a leg circuit, with the brain. The real
+            FlyWire escape wiring (<strong>LC4/LPLC2 → the Giant Fiber, DNp01</strong>)
+            now runs as a spiking connectome in a closed loop, routing a looming
+            threat to an embodied escape: measured structure, embodied, producing
+            behavior. The honest version — it shows the connectome routing the
+            cue, not a calibrated escape threshold. Walked out on the{" "}
             <a className="cg-inline-link" href="/projects/cellular-gaits/embodied">
               Embodied
             </a>{" "}

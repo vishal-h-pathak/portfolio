@@ -43,11 +43,17 @@ export default function MappingTabPage() {
         frontier: (
           <p>
             In a real animal this is the{" "}
-            <strong>descending-neuron readout</strong>: a handful of command
-            neurons projecting from the brain onto lower-level CPG / VNC
-            controllers. How firing rates become joint commands is exactly the
-            interface Eon names as unsolved — here it&apos;s a hand-wired stand-in
-            for it.
+            <strong>descending-neuron readout</strong>: command neurons
+            projecting from the brain onto lower-level controllers. That
+            interface — the hard part Eon names — is now built: in the embodied
+            loop the Giant Fiber&apos;s (<strong>DNp01</strong>) firing rate
+            becomes the escape drive. It is still a hand-tuned, single-neuron
+            stand-in for the whole descending hierarchy, but it is the realized
+            version, not a someday. See the{" "}
+            <a className="cg-inline-link" href="/projects/cellular-gaits/embodied">
+              Embodied
+            </a>{" "}
+            tab.
           </p>
         ),
       }}

@@ -37,14 +37,24 @@ const TAB_INDEX: { href: string; label: string; q: string }[] = [
   {
     href: `${CG_BASE}/embodied`,
     label: "Embodied",
-    q: "the ladder out of the null model: NCA → CPG → closed loop → the real FlyWire VNC connectome.",
+    q: "the real connectome in the loop: a looming threat → the Giant Fiber → an escape bolt.",
+  },
+  {
+    href: `${CG_BASE}/behaviors`,
+    label: "Behaviors",
+    q: "closed-loop sensorimotor behaviors — escape (the connectome bridge), perturbation, chemotaxis.",
+  },
+  {
+    href: `${CG_BASE}/appendix`,
+    label: "Appendix",
+    q: "the math — update rule, motor mapping, fitness, CMA-ES, and the criticality instruments.",
   },
 ];
 
 export const metadata: Metadata = {
   title: "Cellular Gaits — Vishal Pathak",
   description:
-    "Connectome → dynamics → behavior: a fruit fly body as a testbed for whether local structure produces locomotion.",
+    "Connectome → dynamics → behavior: a real FlyWire brain, run as a spiking network, drives a fly body from a looming threat to a Giant-Fiber spike to an escape — with an evolved cellular automaton as the null-model baseline.",
 };
 
 export default function CellularGaitsFramePage() {
@@ -54,20 +64,13 @@ export default function CellularGaitsFramePage() {
         <p className="cg-eyebrow">B-05 · CELLULAR GAITS</p>
         <h1 className="cg-title">Cellular Gaits</h1>
         <p className="cg-pitch">
-          A decentralized controller drives a simulated <em>Drosophila</em>.
-          The question underneath: how much of behavior is fixed by structure?
+          A real fly connectome, run as a spiking brain, drives a real fly
+          body — a looming threat becomes a Giant-Fiber spike becomes an escape
+          bolt, closed through the physics. The evolved cellular automaton that
+          walks that same body is the null-model rung this climbs from: the
+          question throughout is whether structure, embodied, is enough to
+          produce behavior.
         </p>
-        <div className="cg-hero-video">
-          <video
-            src="/cellular-gaits/best.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            aria-label="Best evolved fly walking — 3-second rollout, looping"
-          />
-        </div>
       </section>
 
       <section className="cg-section">

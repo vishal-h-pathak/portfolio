@@ -8,12 +8,13 @@
  * controller for progressively more *biological* structure and ask whether real
  * structure, embodied, produces real behaviour:
  *
- *   NCA (null model, TODAY) → CPG → closed proprioceptive loop → real FlyWire
- *   VNC leg connectome
+ *   NCA null model (done) → closed proprioceptive loop (done) → the real
+ *   FlyWire connectome brain in the loop: looming → Giant Fiber → escape (LIVE)
  *
- * The slot and the body are held fixed (neutral, "fixed" kind) so the only thing
- * that changes between rungs is the controller's internal structure. The green
- * path (NCA → slot → body) marks what is live today; the rest is the roadmap.
+ * All three rungs are built. The slot and the body are held fixed (neutral,
+ * "fixed" kind) so the only thing that changes between rungs is the controller's
+ * internal structure. The green path marks the live chain — it runs all the way
+ * down to the connectome-brain rung, which is the climax (see the Embodied tab).
  *
  * Reuses the .sysdiagram / .sysdiagram-pop CSS from SystemDiagram. Hover · tap ·
  * focus reveals each rung's "what changes"; Esc closes; popout is edge-aware.
@@ -90,84 +91,72 @@ const BLOCKS: Block[] = [
     kind: "today",
     pop: "runtime",
     x: RUNG_X,
-    y: 44,
+    y: 64,
     w: RUNG_W,
     h: RUNG_H,
-    stage: "01 · TODAY",
+    stage: "01 · DONE",
     title: "NCA — null model",
     sub: "generic local rule",
     plain:
-      "A generic neural cellular automaton, evolved by CMA-ES — proves a local update rule can walk the body, but the rule is invented, not biological.",
+      "A generic neural cellular automaton, evolved by CMA-ES — proves a local update rule can walk the body, but the rule is invented, not biological. The placeholder the brain replaces.",
     body: (
       <>
         <p className="sysdiagram-pop-note">
-          <strong>You are here.</strong> 660 params on an 8×8×4 grid, parked at
-          λ≈−0.26 (just inside the ordered edge). A deliberate <em>null model</em>:
-          it says a local rule <em>can</em> drive the body — and nothing about
-          real neural structure. That absence is the point.
+          <strong>The starting rung.</strong> 660 params on an 8×8×4 grid, parked
+          at λ≈−0.26 (just inside the ordered edge). A deliberate{" "}
+          <em>null model</em>: it says a local rule <em>can</em> drive the body —
+          and nothing about real neural structure. That absence is the point;
+          the line climbs from here to the real circuit.
         </p>
       </>
     ),
   },
   {
-    id: "cpg",
-    kind: "roadmap",
-    pop: "training",
-    x: RUNG_X,
-    y: 154,
-    w: RUNG_W,
-    h: RUNG_H,
-    stage: "02 · NEXT",
-    title: "CPG",
-    sub: "coupled oscillators",
-    plain:
-      "Swap the rule for a central pattern generator — the textbook model of rhythmic locomotion.",
-    body: (
-      <p className="sysdiagram-pop-note">
-        Tests whether built-in rhythm plus the body is enough to walk, still
-        open-loop. A structured prior — but hand-designed, not measured.
-      </p>
-    ),
-  },
-  {
     id: "loop",
-    kind: "roadmap",
-    pop: "training",
+    kind: "today",
+    pop: "runtime",
     x: RUNG_X,
-    y: 264,
+    y: 196,
     w: RUNG_W,
     h: RUNG_H,
-    stage: "03 · STAGE 2",
+    stage: "02 · DONE",
     title: "Closed proprioceptive loop",
     sub: "sensing → controller",
     plain:
-      "Feed joint angles + foot contacts back in — the dashed feedback arc in the system diagram.",
+      "Joint angles + foot contacts fed back in — the controller stops walking blind. Live across the perturbation, chemotaxis, and escape behaviors.",
     body: (
       <p className="sysdiagram-pop-note">
-        The controller stops walking blind: gait becomes reactive to terrain and
-        perturbation. This closes the loop the system diagram marks{" "}
-        <strong>planned</strong>.
+        The loop is closed: gait becomes reactive, and a sensed cue can steer the
+        body. This is what the behavior pages run — the prerequisite the
+        connectome rung below plugs straight into.
       </p>
     ),
   },
   {
-    id: "vnc",
-    kind: "frontier",
-    pop: "training",
+    id: "brain",
+    kind: "today",
+    pop: "runtime",
     x: RUNG_X,
-    y: 374,
+    y: 328,
     w: RUNG_W,
     h: RUNG_H,
-    stage: "04 · FRONTIER",
-    title: "FlyWire VNC connectome",
-    sub: "measured wiring",
+    stage: "03 · LIVE",
+    title: "Real connectome brain in the loop",
+    sub: "looming → Giant Fiber → escape",
     plain:
-      "Replace the controller with the real ventral-nerve-cord leg circuit pulled from FlyWire, as a connectome-constrained network.",
+      "The real FlyWire connectome, run as a spiking brain: a looming threat routes through measured wiring to the Giant Fiber (DNp01) and bolts the body. Built and validated.",
     body: (
       <p className="sysdiagram-pop-note">
-        The wiring is no longer invented — it&apos;s <em>measured</em>. The
-        question becomes: does measured structure, embodied, produce real
-        behaviour? structure → dynamics → behaviour.
+        The wiring is no longer invented — it&apos;s <em>measured</em>. Driving the
+        looming-detector neurons (LC4/LPLC2) in the live connectome fires the
+        Giant Fiber, whose rate becomes the escape drive. The honest line: this
+        shows the connectome routing the cue to an embodied escape, not a
+        calibrated threshold (in isolation the Giant Fiber saturates). Walked out
+        on the{" "}
+        <a className="cg-inline-link" href="/projects/cellular-gaits/embodied">
+          Embodied
+        </a>{" "}
+        tab.
       </p>
     ),
   },
@@ -218,12 +207,11 @@ const midY = (id: string) => {
   return b.y + b.h / 2;
 };
 
-// Connectors rung → rail, coloured by the rung's stroke.
+// Connectors rung → rail. All three rungs are built, so all are solid green.
 const CONNECTORS: { id: string; stroke: string; dash?: string }[] = [
   { id: "nca", stroke: PALETTE.today.stroke },
-  { id: "cpg", stroke: PALETTE.roadmap.stroke, dash: "5 4" },
-  { id: "loop", stroke: PALETTE.roadmap.stroke, dash: "5 4" },
-  { id: "vnc", stroke: PALETTE.frontier.stroke },
+  { id: "loop", stroke: PALETTE.today.stroke },
+  { id: "brain", stroke: PALETTE.today.stroke },
 ];
 
 const FEED_Y = midY("slot"); // rail → slot → body all sit on this line
@@ -430,13 +418,14 @@ export function ControllerLadder() {
         <title id="ladder-title">The controller ladder</title>
         <desc id="ladder-desc">
           One controller slot drives one FlyGym MuJoCo fly body. The scientific
-          arc swaps progressively more biological controllers into that slot:
-          rung one, today, is a generic neural cellular automaton null model
-          (green, live); rung two is a central pattern generator; rung three
-          closes the proprioceptive sensing loop in Stage 2; rung four replaces
-          the controller with the real FlyWire ventral-nerve-cord leg connectome.
-          Top to bottom is increasingly biological. The slot and the body are held
-          fixed so only the controller&apos;s structure changes between rungs.
+          arc swaps progressively more biological controllers into that slot, and
+          all three rungs are built: rung one is a generic neural cellular
+          automaton null model; rung two closes the proprioceptive sensing loop,
+          live across the behaviors; rung three runs the real FlyWire connectome
+          as a spiking brain in the loop, where a looming threat routes through
+          measured wiring to the Giant Fiber and bolts the body. Top to bottom is
+          increasingly biological. The slot and the body are held fixed so only
+          the controller&apos;s structure changes between rungs.
         </desc>
 
         <defs>
@@ -486,12 +475,12 @@ export function ControllerLadder() {
           x1={RAIL_X}
           y1={midY("nca")}
           x2={RAIL_X}
-          y2={midY("vnc")}
+          y2={midY("brain")}
           stroke={RAIL}
           strokeWidth={1.4}
         />
 
-        {/* Connectors rung → rail (NCA solid green = live; rest dashed/roadmap) */}
+        {/* Connectors rung → rail (all three built → all solid green) */}
         {CONNECTORS.map((c) => {
           const y = midY(c.id);
           return (
@@ -508,7 +497,7 @@ export function ControllerLadder() {
           );
         })}
 
-        {/* Live path: rail → slot → body (green = NCA running today) */}
+        {/* Live path: rail → slot → body (green = the built chain, down to the brain rung) */}
         <line
           x1={RAIL_X}
           y1={FEED_Y}
@@ -534,7 +523,7 @@ export function ControllerLadder() {
           fill="#6FE39A"
           fontSize={10}
         >
-          ▷ live today
+          ▷ live · all rungs built
         </text>
 
         {BLOCKS.map((b) => (
@@ -560,7 +549,7 @@ export function ControllerLadder() {
             stroke={PALETTE.today.stroke}
           />
           <text x={RUNG_X + 24} y={H - 29} fill={SUB}>
-            today (live)
+            built · live
           </text>
           <rect
             x={RUNG_X + 132}
@@ -568,35 +557,10 @@ export function ControllerLadder() {
             width={16}
             height={10}
             rx={2}
-            fill={PALETTE.roadmap.fill}
-            stroke={PALETTE.roadmap.stroke}
-            strokeDasharray="4 3"
-          />
-          <text x={RUNG_X + 156} y={H - 29} fill={SUB}>
-            roadmap
-          </text>
-          <rect
-            x={RUNG_X + 250}
-            y={H - 38}
-            width={16}
-            height={10}
-            rx={2}
-            fill={PALETTE.frontier.fill}
-            stroke={PALETTE.frontier.stroke}
-          />
-          <text x={RUNG_X + 274} y={H - 29} fill={SUB}>
-            frontier
-          </text>
-          <rect
-            x={RUNG_X + 360}
-            y={H - 38}
-            width={16}
-            height={10}
-            rx={2}
             fill={PALETTE.fixed.fill}
             stroke={PALETTE.fixed.stroke}
           />
-          <text x={RUNG_X + 384} y={H - 29} fill={SUB}>
+          <text x={RUNG_X + 156} y={H - 29} fill={SUB}>
             held fixed
           </text>
         </g>
