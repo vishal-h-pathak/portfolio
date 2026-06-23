@@ -8,61 +8,58 @@
 > Convention: machines are **MAC** (MacBook Air, cockpit) and **WIN** (5900X workstation,
 > compute). Either can do either role; the rule is one branch advanced from one machine at a time.
 
+> **REFOCUS (2026-06-22): the project is now recreating Eon's embodied brain emulation** — a real
+> FlyWire connectome **LIF brain** driving the **NeuroMechFly body** in a closed sensorimotor loop.
+> Guiding plan: `EMBODIED_BRAIN_PLAN.md`. The prior behaviors (walking/criticality/perturbation/
+> chemotaxis/escape/navigation) were toys/null-models that built the story + the body/sensory/
+> connectome plumbing; the NCA was always a placeholder for the brain — now replaced by the real
+> connectome. Deliverable: a **simulation + explanatory report**. Working mode: **understanding-first.**
+
 ## Active claims (who is advancing what — set before you start, clear when you stop)
 
 | Repo | Branch | Claimed by | Status | Notes |
 |------|--------|-----------|--------|-------|
-| cellular-gaits | `feat/n-navigation` | _unclaimed_ | **N-A baseline (overfit), parked** | best_fit 21.07; held-out 0/8. Kept as the CMA-ES baseline RL must beat (not shipped, not tossed). Bundle on sentry `outputs/web_data_n/` (gitignored; `cg artifact`). |
-| cellular-gaits | `feat/n-rl-navigation` | _staged → sentry_ | **HARNESS BUILT + obstacles PHYSICAL + done-mask verified — wave-2 calibration STAGED** | env+policy+ppo merged; real contact pairs validated. **done-mask reset verified rank-generic for `(B,4,8,8)`** (last code gate cleared). Wave-2 integrate+calibration staged to run **on sentry** via `cg run` (amended `ops/prompts/PROMPT_n_rl_2_integrate.md`: `w_collide`≈0.75, Newton cap dropped). Claim for sentry when you launch the wave. |
-| cellular-gaits | `feat/cx-connectome` | _staged → Mac_ | **NEW — CX-1 connectome extraction STAGED** | wave 1 of the connectome endgame: extract the real FlyWire LC4/LPLC2→DNp01 escape sub-circuit (`ops/prompts/PROMPT_cx_1_extract.md`). Data-only, validation-gated, runs on the Mac in a worktree off `feat/n-rl-navigation`. Claim for the Mac when you launch the wave. |
-| portfolio | `feat/n-navigation-scaffold` | _unclaimed_ | committed (230c040), not shipped | hold until nav generalizes (RL); the scaffold stays, no live demo until a real result |
-| portfolio | `main` | — | production | escape is live (shipped from `feat/x-escape-live`) |
+| cellular-gaits | `feat/n-rl-navigation` | _unclaimed (the trunk)_ | **Embodied-brain Phase 0 DONE — EB-1 next (Mac)** | The consolidated trunk: nav-RL + `ops/` + CX-1 + embodied-brain (`brain/`, `embodied/`, `brain/neurons.py`) all merged. Next: **EB-1 coupling** (`ops/prompts/PROMPT_eb_1_coupling.md`, single Mac session). |
+| cellular-gaits | `main` | — | production base, **~30 commits behind the trunk** | Consolidate `feat/n-rl-navigation` → `main` as a deliberate reviewed merge when ready. |
+| portfolio | `main` | — | production | walking/criticality/perturbation/chemotaxis/escape behaviors live on the site. |
+| portfolio | `feat/dual-machine-watcher` | _unclaimed_ | watcher/streaming + EB docs | `run-v`/`peekv`/`runi` + `render-stream.py` + the embodied-brain plan doc live here. |
 
 ## Current project state (one glance)
 
-- **Escape — DONE, live in production.** `/behaviors/escape` shipped. Controller + demo + clips
-  + trajectory map all on the main site.
-- **Navigation — CMA-ES → RL pivot done; harness BUILT + obstacles now PHYSICAL.**
-  - N-A (CMA-ES) overfit (held-out 0/8). Investigation found the obstacles were **never physical**
-    (sensed-only; fly walked through; "collisions" geometric) = the grazing root cause. Kept as the
-    documented baseline RL must beat.
-  - **RL harness built tonight** on `feat/n-rl-navigation` (env+policy+ppo): `EmbodiedRLEnv` +
-    `NavRLEnv` (domain randomization + frozen held-out), `NCAPolicy` (recurrent Gaussian policy,
-    CA-state threaded, A/B bit-exact, feeler gain policy-side), and a task-agnostic **recurrent PPO**
-    (the **reusable connectome harness** — Pendulum-validated). DR + a general feeler→action policy
-    is the bet to fix the overfit and relearn omnidirectional homing.
-  - **Obstacles made physically real** (Vishal's call): explicit fly-geom↔obstacle MuJoCo contact
-    pairs; validated to block head-on with no tunneling to ~13× gait speed; no-obstacle physics
-    byte-exact; collision metric now counts **real contacts**. (Findings: `w_collide` needs raising
-    to ~0.5–1.0 for real counts; the Newton-cap "pin explosion" premise didn't reproduce — likely
-    removable.)
-  - N-B (scaffold): `feat/n-navigation-scaffold` (230c040), parked; no live demo until a
-    generalizing result exists.
-- **Root constraint (now being addressed, not worked around):** the chemo forager is a narrow,
-  left-biased homer (~40°), which forced N-A's narrow training cone → overfit. RL with wide
-  bearing randomization is the bet to dissolve it (subsuming the "omnidirectional forager" pass).
-- **Standing rule added** (`PARTNER_BRIEF.md` → taste): every visualization must build intuitive
-  understanding by anchoring to the fly's anatomy and, increasingly, specific brain regions.
-- **Cockpit gap:** `cg run` (delegated Claude CLI) fails on sentry — `claude` not installed there
-  (still an open WIN to-do). `cg nav` / direct `uv run` Python works. Run scripts directly via
-  ssh+tmux (tee to `~/cockpit-logs/<name>.log` so `cg peek` sees them) until the CLI is installed.
-- **Compute cliff reached:** `mj_step` is CPU-bound and heavy. CPU win = run on WIN now. GPU
-  (3080 Ti) only helps via an MJX/Brax port (big rewrite, contact-rich sim is MJX's hard case,
-  needs WSL2 for JAX) or the RL connectome endgame (PyTorch/CUDA, native Windows fine).
+- **Embodied-brain Phase 0 — DONE** (all merged on `feat/n-rl-navigation`, Mac, **verified live**):
+  - **EB-0A brain** — vendored the published Shiu connectome LIF (**138,639 neurons**, FlyWire v783) +
+    a clean `BrainModel` API (`activate`/`silence`/`run`/`step`; persistent network). Proof-of-life:
+    sugar GRNs → feeding motor neuron MN9 **0 → ~80 Hz**, causal. `docs/embodied/brain_explainer.md`.
+  - **EB-0C body** — `apply_escape(env, drive, direction)` reusing the **trained X-A escape controller**
+    (no retrain); directed, upright, bit-reproducible bolt. The scalar `drive` is the **DNp01 seam**.
+    `docs/embodied/body_explainer.md`.
+  - **EB-0B neurons** — LC4/LPLC2/DNp01 all resolve in v783; brain-only **looming→giant-fiber** check:
+    driving LC4+LPLC2 fires DNp01 (~190 Hz, **sub-additive size+velocity** matching von Reyn/Ache,
+    specificity clean, R>L matching CX-1 synapse counts). `docs/embodied/neurons_report.md`.
+    **Honest caveat:** the isolated GF *saturates* (no whole-brain inhibition); in-vivo selectivity
+    lives in the whole-brain context this check strips away — don't read the curve as an escape threshold.
+- **Both halves of the escape loop are now proven independently** — EB-1 connects them.
+- **KEY EB-1 constraint:** brain network build ≈ **7 min** (loads the ~100 MB connectivity table), so the
+  closed loop **must build once + `step()` with a runtime-settable input rate**, never rebuild per window.
+- **Navigation — RL pivot did NOT generalize; off the critical path, shipped honest.** The RL *harness*
+  (env+policy+ppo) was built + validated (the real payoff); the controller extends homing within the
+  forager's ~40° cone but not omnidirectionally from the warm-start (2b/2c/2d probes — flat outside the
+  cone even obstacle-free). Nav is a documented demo, not the milestone. The connectome is the endgame.
+- **Repo consolidated** (`ops/consolidate.sh`): stale branches deleted, EB+CX merged; `feat/n-rl-navigation`
+  is the single trunk.
+- **Fleet/cockpit:** `claude` is on sentry; delegated `cg run`/`run-v`/`runi` work. The Fleet Mission
+  Control dashboard + the dual-machine watcher are a **separate project** (`fleet-mission-control`).
 
 ## Handoff queue (next actions, in order)
 
-1. **Verify** `rl/ppo.py`'s done-mask reset is rank-generic for the `(B,4,8,8)` CA state (only
-   tested at `(B,1)`). Shape assertion is enough; fix before any real PPO run.
-2. **Wave-2 integrate** — `PROMPT_n_rl_2_integrate.md`: wire env+policy+ppo, `run_rl_navigation.py`,
-   run the **4-gate calibration on the physical task**, STOP, write `REPORT_n_rl_calibration.md`.
-   Raise `w_collide`≈0.5–1.0; consider dropping the Newton cap; pull `web_data_n` for the Gate-2
-   baseline. Wire on Mac, **run the calibration on sentry** (artifacts + cores; ssh+tmux dispatch).
-3. **Decide from the calibration:** short PPO run lifts held-out detour above the N-A baseline →
-   green-light the full run, then live demo + ship. If not → ship N-A honestly / shelve and move on.
-4. **The endgame the harness is for:** the **real FlyWire LC4/LPLC2→DNp01 connectome sub-circuit**
-   (RL on the 3080 Ti) — plug a `ConnectomePolicy` into the same `rl/` env + PPO.
-5. Optional enabler: the **omnidirectional forager** pass (RL may subsume it via wide-bearing DR).
+1. **EB-1 — the escape coupling** (Mac, single session, `PROMPT_eb_1_coupling.md`): wire looming →
+   LC4/LPLC2 (brain) → DNp01 rate → `drive` → body escape, **build-once + step**, then STOP at the three
+   interface-map decisions (sensory Hz, DNp01→drive, sync rate) for Vishal's review.
+2. **Decide the interface mappings** with Vishal (the design-decision log / report content).
+3. **Phase 2** — more sensory inputs + behaviors via the full brain; make vision non-decorative.
+4. **Phase 3** — the **simulation + report** deliverable; stretch horizon: the FlyWire LIF brain on
+   **Loihi / neuromorphic** (Eon's repo already targets it — Vishal's Rain/Loihi background).
+5. **Consolidate `feat/n-rl-navigation` → `main`** as a deliberate reviewed merge.
 
 ## Cross-machine system build (this session)
 
@@ -84,6 +81,19 @@ Read it on the Mac — no transcribing. Big artifacts: `./cockpit.sh artifact <r
 
 ## Sync log (append-only, newest at top)
 
+- **2026-06-22 (MAC / Cowork) — REFOCUS to embodied brain emulation; Phase 0 DONE; repo consolidated.**
+  Pivoted the whole project to recreating Eon's embodied fly (real FlyWire connectome LIF brain →
+  NeuroMechFly body), after researching the Eon post + FlyGym/FlyWire and finding every component is
+  open-source (Shiu `Drosophila_brain_model`, Eon `fly-brain`, `flyvis`, `flygym`) and the brain runs on
+  a laptop. Wrote `EMBODIED_BRAIN_PLAN.md`. Built + **verified live** Phase 0 on the Mac: **EB-0A** brain
+  (138,639-neuron Shiu LIF + `BrainModel` API; sugar→MN9 0→~80 Hz), **EB-0C** body (`apply_escape` reusing
+  the trained X-A controller; directed upright bolt; `drive` = the DNp01 seam), **EB-0B** neurons
+  (LC4/LPLC2/DNp01 resolve in v783; looming→giant-fiber fires ~190 Hz, sub-additive, clean specificity;
+  honest caveat: isolated GF saturates, selectivity is whole-brain). Explainers tracked in `docs/embodied/`.
+  Nav RL shipped-honest (didn't generalize omnidirectionally; harness was the real payoff). Consolidated
+  the repo (`ops/consolidate.sh`): deleted stale branches, merged EB+CX, single trunk `feat/n-rl-navigation`.
+  Cleared a memory-pressure crash issue (too many stale Claude sessions on the Air). NEXT: **EB-1 coupling**
+  (build-once+step; STOP at the interface decisions).
 - **2026-06-22 (MAC / Cowork) — done-mask verified; repo reorg into `ops/`; connectome endgame
   begun (CX-1 staged) alongside the nav wave-2 calibration.** (1) **Verified** `rl/ppo.py`'s
   done-mask reset is rank-generic for the `(B,4,8,8)` CA state (`done_view = (n_envs,)+(1,)*rank`
