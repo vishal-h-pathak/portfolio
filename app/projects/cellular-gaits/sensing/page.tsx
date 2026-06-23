@@ -3,15 +3,16 @@ import { ConceptScaffold } from "@/components/cellular-gaits/ConceptScaffold";
 import { SensingModule } from "@/components/cellular-gaits/SensingModule";
 
 export const metadata: Metadata = {
-  title: "Sensing — Cellular Gaits",
-  description: "What the controller feels about the body it drives.",
+  title: "Sensing & Loop — Cellular Gaits",
+  description:
+    "What the controller feels about the body it drives — and the closed loop, now built: a controller that feels its body recovers from a shove the open-loop walker can't.",
 };
 
 export default function SensingTabPage() {
   return (
     <ConceptScaffold
-      name="Sensing"
-      lead="Open loop vs closed loop: does the grid feel the legs it moves?"
+      name="Sensing & Loop"
+      lead="The loop is closed. The default walker runs blind — the grid never reads the legs it moves — but a controller that feels its body now recovers from a shove the open-loop one can't."
       module={<SensingModule />}
       explainer={{
         chose: (

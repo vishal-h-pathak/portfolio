@@ -13,6 +13,13 @@ const nextConfig: NextConfig = {
         destination: FLEET_URL,
         statusCode: 302,
       },
+      {
+        // Objective merged into the optimizer route as "Search & Objective".
+        // Deep-links to the old tab exist, so redirect rather than 404.
+        source: "/projects/cellular-gaits/objective",
+        destination: "/projects/cellular-gaits/optimizer",
+        permanent: true,
+      },
     ];
   },
 };

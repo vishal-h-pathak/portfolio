@@ -42,8 +42,8 @@ export default function ControllerTabPage() {
               itself at λ≈−0.26 — just inside the ordered edge. The same
               gain→distance curve, reframed as <em>what fitness actually
               rewarded</em>, is the{" "}
-              <a className="cg-inline-link" href="/projects/cellular-gaits/objective">
-                Objective
+              <a className="cg-inline-link" href="/projects/cellular-gaits/optimizer">
+                Search &amp; Objective
               </a>{" "}
               tab.
             </p>

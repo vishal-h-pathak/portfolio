@@ -16,8 +16,8 @@ const TAB_INDEX: { href: string; label: string; q: string }[] = [
   },
   {
     href: `${CG_BASE}/sensing`,
-    label: "Sensing",
-    q: "open-loop today (the rule never reads the body) vs. the closed proprioceptive loop that comes next.",
+    label: "Sensing & Loop",
+    q: "open-loop by default (the rule never reads the body) vs. the closed proprioceptive loop that now recovers from a shove.",
   },
   {
     href: `${CG_BASE}/mapping`,
@@ -25,24 +25,19 @@ const TAB_INDEX: { href: string; label: string; q: string }[] = [
     q: "how 42 grid cells wire to 42 joint targets — a convenience, not biology.",
   },
   {
-    href: `${CG_BASE}/objective`,
-    label: "Objective",
-    q: "what fitness actually rewarded — forward distance, with a stability penalty that never fired.",
-  },
-  {
     href: `${CG_BASE}/optimizer`,
-    label: "Optimizer",
-    q: "CMA-ES — the search that tuned 660 parameters from a stagger to a gait.",
-  },
-  {
-    href: `${CG_BASE}/embodied`,
-    label: "Embodied",
-    q: "the real connectome in the loop: a looming threat → the Giant Fiber → an escape bolt.",
+    label: "Search & Objective",
+    q: "what fitness rewarded — forward distance, with a stability penalty that never fired — and the CMA-ES search that tuned 660 parameters from a stagger to a gait.",
   },
   {
     href: `${CG_BASE}/behaviors`,
     label: "Behaviors",
     q: "closed-loop sensorimotor behaviors — escape (the connectome bridge), perturbation, chemotaxis.",
+  },
+  {
+    href: `${CG_BASE}/embodied`,
+    label: "Embodied",
+    q: "the real connectome in the loop: a looming threat → the Giant Fiber → an escape bolt.",
   },
   {
     href: `${CG_BASE}/appendix`,
@@ -96,7 +91,7 @@ export default function CellularGaitsFramePage() {
           and the controller is a neural cellular automaton: a single local
           rule run on a grid, the canonical toy model of emergence-from-local-rules.
           Each tab isolates one modeling choice — the body, the controller, its
-          sensing, the motor mapping, the objective, the optimizer — and asks
+          sensing, the motor mapping, and the search and its objective — and asks
           what was chosen, why, what the alternatives were, and where the
           biological version sits. The math is in the{" "}
           <a className="cg-inline-link" href="/projects/cellular-gaits/appendix">

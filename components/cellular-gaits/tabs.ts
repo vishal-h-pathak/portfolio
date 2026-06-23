@@ -17,11 +17,11 @@ export const CG_TABS: CgTab[] = [
   { href: CG_BASE, label: "Frame" },
   { href: `${CG_BASE}/body`, label: "Body" },
   { href: `${CG_BASE}/controller`, label: "Controller" },
-  { href: `${CG_BASE}/sensing`, label: "Sensing" },
+  { href: `${CG_BASE}/sensing`, label: "Sensing & Loop" },
   { href: `${CG_BASE}/mapping`, label: "Mapping" },
-  { href: `${CG_BASE}/objective`, label: "Objective" },
-  { href: `${CG_BASE}/optimizer`, label: "Optimizer" },
-  { href: `${CG_BASE}/embodied`, label: "Embodied" },
+  // Objective folded into the optimizer route; /objective redirects here.
+  { href: `${CG_BASE}/optimizer`, label: "Search & Objective" },
   { href: `${CG_BASE}/behaviors`, label: "Behaviors" },
+  { href: `${CG_BASE}/embodied`, label: "Embodied" },
   { href: `${CG_BASE}/appendix`, label: "Appendix" },
 ];

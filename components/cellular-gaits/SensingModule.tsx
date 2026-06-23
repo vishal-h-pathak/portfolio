@@ -3,16 +3,18 @@
 /**
  * Sensing tab (E3) interactive module.
  *
- * The headline is the *current* controller walking the real fly, live — and the
- * teaching point is what's missing: it's open-loop. The same NCA rhythm plays
- * every step regardless of what the legs actually do; the grid never reads joint
- * angles or foot contacts back. We make that legible three ways:
+ * The headline is the *current* controller walking the real fly, live — the
+ * default evolved NCA, which is open-loop. The same rhythm plays every step
+ * regardless of what the legs actually do; the grid never reads joint angles or
+ * foot contacts back. We make that legible three ways:
  *   1. the live FlyStage (open-loop — the default evolved NCA *is* open-loop),
  *   2. a side-by-side open- vs closed-loop signal path (SignalPathDiagram),
- *   3. an honest framing of the perturbation-recovery test we can't yet run.
+ *   3. the direct open-vs-closed result — the closed loop is built and trained,
+ *      with the live A/B on the Perturbation tab (no promissory "someday" test).
  *
- * Honesty constraints (PROMPT_cg_E3_sensing.md): live WASM physics only; closed
- * loop is Stage 2, so NO live perturbation-recovery demo and NO faked numbers.
+ * Honesty constraints: this tab shows the open-loop walker (walking is solved
+ * open-loop) and points at the real, live closed-loop recovery demo on the
+ * Perturbation tab; no faked numbers on this page.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -144,38 +146,36 @@ export function SensingModule() {
           the top-left sub-grid becomes <code>42</code> joint targets, and the
           MuJoCo fly steps at 250&nbsp;Hz. The return arc — joint angles and foot
           contacts written back into the cells — is the one thing a closed loop
-          adds, and it is <strong>not wired yet</strong>.
+          adds: <strong>unwired in the open-loop default shown here</strong>,
+          wired in the trained closed-loop controller on the Perturbation tab.
         </p>
         <SignalPathDiagram />
       </div>
 
       <div className="cg-sense-test">
-        <p className="cg-sense-h">The experiment that tells them apart</p>
+        <p className="cg-sense-h">Open vs closed, settled</p>
         <p className="cg-sense-p">
-          The clean way to distinguish open from closed loop is a{" "}
-          <strong>perturbation-recovery test</strong>: shove the fly mid-stride
-          (a lateral impulse, or yank a foot) and measure whether it returns to a
-          stable gait. An open-loop controller plays a fixed motor program, so it
-          has <em>no error signal to correct against</em> — when the world pushes
-          back, nothing in the grid knows. A closed loop sees the disturbance in
-          its proprioceptive input and can adjust. Same behaviour on flat ground;
-          they diverge exactly when something goes wrong.
+          The two loops walk identically on flat ground and diverge exactly when
+          something goes wrong. Shove the fly mid-stride — a lateral impulse, or
+          yank a foot — and the open-loop walker above has{" "}
+          <em>no error signal to correct against</em>: it plays a fixed motor
+          program, so when the world pushes back, nothing in the grid knows. A
+          controller that feels the disturbance in its proprioceptive input can
+          adjust.
         </p>
-        <p className="cg-sense-disclaimer">
-          The fly above is still the <strong>open-loop v1 walker</strong> — that
-          is the honest thing to show on this tab, since walking is solved
-          open-loop. But the closed loop now <strong>exists</strong>: it has been
-          wired and trained, and the live recovery demo is real. Shove it
-          yourself on the{" "}
+        <p className="cg-sense-p">
+          That closed loop is <strong>built and trained</strong>, and the A/B is
+          live: on the{" "}
           <a
             className="cg-inline-link"
             href="/projects/cellular-gaits/behaviors/perturbation"
           >
             Perturbation
           </a>{" "}
-          tab, where a controller that feels its body halves its post-shove
-          heading error (56.6°→26.5°) versus this open-loop one. The
-          perturbation-recovery test is no longer hypothetical.
+          tab a controller that feels its body halves its post-shove heading
+          error (56.6°→26.5°) against this open-loop one. This tab shows the body
+          state the open loop throws away; that one shows what feeling it back
+          buys.
         </p>
       </div>
     </div>
