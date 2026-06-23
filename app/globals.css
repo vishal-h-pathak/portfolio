@@ -928,17 +928,6 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   margin: 0 0 32px;
 }
 
-.cg-hero-video {
-  border: 1px solid var(--rule);
-  background: var(--bg-raised);
-  overflow: hidden;
-}
-.cg-hero-video video {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
 .cg-section {
   margin-top: 72px;
   padding-top: 32px;

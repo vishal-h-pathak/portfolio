@@ -34,7 +34,7 @@ import {
 const W = 780;
 const H = 520;
 
-type Kind = "today" | "roadmap" | "frontier" | "fixed";
+type Kind = "today" | "fixed";
 /** Which popout border style to borrow from .sysdiagram-pop.* */
 type Pop = "runtime" | "training" | "planned";
 
@@ -61,13 +61,6 @@ const PALETTE: Record<
   { stroke: string; fill: string; title: string; dash?: string }
 > = {
   today: { stroke: "#6FE39A", fill: "rgba(111,227,154,0.10)", title: "#6FE39A" },
-  roadmap: {
-    stroke: "rgba(232,155,61,0.55)",
-    fill: "rgba(232,155,61,0.07)",
-    title: "#E89B3D",
-    dash: "5 4",
-  },
-  frontier: { stroke: "#E89B3D", fill: "rgba(232,155,61,0.13)", title: "#E89B3D" },
   fixed: {
     stroke: "rgba(232,230,223,0.32)",
     fill: "rgba(232,230,223,0.04)",

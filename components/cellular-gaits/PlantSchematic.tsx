@@ -5,7 +5,7 @@
  * the FlyGym / NeuroMechFly Drosophila, built from an X-ray microCT scan.
  *
  * Two coupled, data-driven views in one responsive SVG (house style — same
- * visual language as SystemDiagram / BuildPlanDAG: var(--mono), site palette,
+ * visual language as SystemDiagram: var(--mono), site palette,
  * rounded rects, hover/tap/focus to reveal):
  *   (top)    a top-down selector of the six legs;
  *   (bottom) the 7-DoF kinematic chain of the selected leg — the coxa

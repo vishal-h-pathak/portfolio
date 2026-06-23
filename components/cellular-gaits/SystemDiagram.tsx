@@ -1,9 +1,9 @@
 "use client";
 
 /**
- * Cellular Gaits — system-design block diagram (companion to BuildPlanDAG).
+ * Cellular Gaits — system-design block diagram for the walking + training system.
  *
- * LIVING DOC. This is the canonical at-a-glance view of the *actual* system:
+ * LIVING DOC. This is the canonical at-a-glance view of the NCA + CMA-ES system:
  * the two coupled loops (runtime control + training/evolution), each block, and
  * the real mathematical model behind it (revealed on hover / tap / focus). Keep
  * it in sync with docs/cellular-gaits/build-plan.md and the constants in
@@ -12,10 +12,15 @@
  * block is rewired, a constant moves — edit the BLOCKS / EDGES arrays below AND
  * the markdown ledger in the same change.
  *
+ * SCOPE: this is the *walking* system. The embodied brain↔body loop — the real
+ * FlyWire connectome run as a spiking brain driving the body — is a separate
+ * system and lives on the Embodied tab; it is not redrawn inside this SVG.
+ *
  * Colour semantics:
  *   runtime path  = green  (#6FE39A)  — per control step, 250 Hz, solid
  *   training path = amber  (#E89B3D)  — per 3 s rollout, solid
- *   planned/sensing = dashed gray     — NOT yet implemented (open-loop today)
+ *   sensing/feedback = green, solid   — the proprioceptive arc is closed and runs
+ *                                       across the behaviors; v1 walking is open-loop
  */
 
 import {
@@ -130,28 +135,28 @@ const BLOCKS: Block[] = [
   },
   {
     id: "sensing",
-    kind: "planned",
+    kind: "runtime",
     x: 294,
     y: 248,
     w: 192,
     h: 82,
     title: "Sensing",
-    sub: "closed · perturbation",
+    sub: "closed · runs in behaviors",
     plain: "Joint angles + foot contacts fed back into the grid.",
     body: (
       <p className="sysdiagram-pop-note">
         42 joint angles + 6 foot contacts fed back into the grid.{" "}
-        <strong>Now wired and trained</strong> as the first closed-loop behavior
-        on the{" "}
+        <strong>Wired and trained</strong> — the closed proprioceptive loop runs
+        across the{" "}
         <a
           className="cg-inline-link"
           href="/projects/cellular-gaits/behaviors/perturbation"
         >
           Perturbation
-        </a>{" "}
-        tab (halves post-shove heading error). The v1 <em>walking</em> shown
-        across the other tabs is still open-loop — the arc is drawn dashed for
-        that default system.
+        </a>
+        , chemotaxis, and escape behaviors (perturbation halves post-shove
+        heading error). The arc is solid because the loop is built; the v1{" "}
+        <em>walking</em> shown across the other tabs is the open-loop default.
       </p>
     ),
   },
@@ -386,16 +391,18 @@ export function SystemDiagram() {
         aria-labelledby="sysd-title sysd-desc"
         style={{ display: "block", width: "100%", height: "auto", fontFamily: "var(--mono)" }}
       >
-        <title id="sysd-title">Cellular Gaits system-design diagram</title>
+        <title id="sysd-title">Cellular Gaits — the walking and training system</title>
         <desc id="sysd-desc">
-          Two coupled loops. The runtime control loop (green, per 250 Hz control
-          step) runs the NCA controller into the motor mapping into the MuJoCo
-          fly body, with a proprioceptive feedback arc — sensing — that is now
-          closed for the first closed-loop behavior (perturbation) but drawn
-          dashed because the v1 walking shown elsewhere is still open-loop. The
-          training loop (amber, per 3-second rollout) scores the
-          body with a fitness function, feeds it to the CMA-ES optimizer, and
-          sends the evolved parameters theta back into the controller.
+          The walking and training system, two coupled loops. The runtime control
+          loop (green, per 250 Hz control step) runs the NCA controller into the
+          motor mapping into the MuJoCo fly body, with a proprioceptive feedback
+          arc — sensing — drawn solid because the closed loop is built and runs
+          across the behaviors (perturbation, chemotaxis, escape); the v1 walking
+          shown elsewhere is open-loop. The training loop (amber, per 3-second
+          rollout) scores the body with a fitness function, feeds it to the
+          CMA-ES optimizer, and sends the evolved parameters theta back into the
+          controller. The embodied brain-to-body loop — the real FlyWire
+          connectome driving the body — is a separate system on the Embodied tab.
         </desc>
 
         <defs>
@@ -432,12 +439,12 @@ export function SystemDiagram() {
           θ · 660 params
         </text>
 
-        {/* Feedback edges (dashed gray, planned) */}
+        {/* Feedback edges (green, solid — the closed proprioceptive arc) */}
         {FEEDBACK_EDGES.map((e, i) => (
-          <line key={`f${i}`} x1={e[0]} y1={e[1]} x2={e[2]} y2={e[3]} stroke="rgba(232,230,223,0.45)" strokeWidth={1.4} strokeDasharray="5 4" markerEnd="url(#sysd-gray)" />
+          <line key={`f${i}`} x1={e[0]} y1={e[1]} x2={e[2]} y2={e[3]} stroke="#6FE39A" strokeWidth={1.4} markerEnd="url(#sysd-green)" />
         ))}
         <text x={390} y={352} textAnchor="middle" fill={SUB} fontSize={10.5}>
-          proprioception · closed for perturbation · v1 walk still open-loop
+          proprioceptive feedback · closed across the behaviors · v1 walk open-loop
         </text>
 
         {/* Runtime edges (green, solid) */}
@@ -462,9 +469,14 @@ export function SystemDiagram() {
           <text x={74} y={524} fill={SUB}>runtime</text>
           <line x1={170} y1={520} x2={196} y2={520} stroke="#E89B3D" strokeWidth={1.5} markerEnd="url(#sysd-amber)" />
           <text x={204} y={524} fill={SUB}>training</text>
-          <line x1={300} y1={520} x2={326} y2={520} stroke="rgba(232,230,223,0.45)" strokeWidth={1.4} strokeDasharray="5 4" markerEnd="url(#sysd-gray)" />
-          <text x={334} y={524} fill={SUB}>sensing (v1 walk open-loop)</text>
+          <line x1={300} y1={520} x2={326} y2={520} stroke="#6FE39A" strokeWidth={1.4} markerEnd="url(#sysd-green)" />
+          <text x={334} y={524} fill={SUB}>feedback · closed (v1 walk open-loop)</text>
         </g>
+
+        {/* Pointer to the separate embodied system */}
+        <text x={40} y={546} fill={SUB} fontSize={10.5} opacity={0.9}>
+          ↳ the embodied brain↔body loop is a separate system — see the Embodied tab
+        </text>
       </svg>
 
       {activeBlock && (

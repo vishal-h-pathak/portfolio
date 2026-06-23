@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ConceptScaffold } from "@/components/cellular-gaits/ConceptScaffold";
 import { BodyFlyDemo } from "@/components/cellular-gaits/BodyFlyDemo";
+import { PlantSchematic } from "@/components/cellular-gaits/PlantSchematic";
 
 export const metadata: Metadata = {
   title: "Body — Cellular Gaits",
@@ -12,7 +13,19 @@ export default function BodyTabPage() {
     <ConceptScaffold
       name="Body"
       lead="The thing being controlled: a real FlyGym Drosophila in MuJoCo physics, running live in your browser — the evolved NCA walking it."
-      module={<BodyFlyDemo />}
+      module={
+        <>
+          <BodyFlyDemo />
+          <p className="cg-plant-note">
+            The same body, drawn as the plant the controller has to move. Below:
+            a top-down selector of the six legs over the 7-DoF kinematic chain of
+            the one you pick — and the exact slice of the 42-vector{" "}
+            <code>u</code> it drives. Watch it walk above; trace which{" "}
+            <code>u[i…j]</code> moves which leg here. Hover, tap, or focus a leg.
+          </p>
+          <PlantSchematic />
+        </>
+      }
       explainer={{
         chose: (
           <p>

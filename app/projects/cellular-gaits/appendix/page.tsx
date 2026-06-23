@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Math } from "@/components/cellular-gaits/Math";
 import { SystemDiagram } from "@/components/cellular-gaits/SystemDiagram";
+import { CG_BASE } from "@/components/cellular-gaits/tabs";
 
 export const metadata: Metadata = {
   title: "Appendix — Cellular Gaits",
@@ -131,16 +132,22 @@ export default function AppendixTabPage() {
       <section className="cg-section">
         <p className="cg-section-eyebrow">§ SYSTEM DESIGN</p>
         <p className="cg-section-lead">
-          The whole system at a glance — two coupled loops. The{" "}
+          The walking and training system at a glance — two coupled loops. The{" "}
           <strong>runtime control loop</strong> (green, every 250 Hz step) runs
           the NCA controller through the motor mapping into the MuJoCo fly body;
-          the dashed arc is proprioceptive feedback that is{" "}
-          <strong>not yet wired</strong> — the controller walks open-loop today
-          and closes the loop in Stage 2. The <strong>training loop</strong>{" "}
-          (amber, every 3-second rollout) scores the body with the fitness
-          function, hands it to CMA-ES, and feeds the evolved parameters θ back
-          into the controller. Hover, tap, or focus any block to see the real
-          model behind it.
+          the proprioceptive feedback arc is now <strong>closed</strong> — it
+          runs across the perturbation, chemotaxis, and escape behaviors (the v1
+          walking shown across the other tabs stays open-loop). The{" "}
+          <strong>training loop</strong> (amber, every 3-second rollout) scores
+          the body with the fitness function, hands it to CMA-ES, and feeds the
+          evolved parameters θ back into the controller. This diagram is the{" "}
+          <em>walking</em> system; the embodied brain↔body loop — the real
+          FlyWire connectome run as a spiking brain driving the body — is a
+          separate system, walked out on the{" "}
+          <a className="cg-inline-link" href={`${CG_BASE}/embodied`}>
+            Embodied
+          </a>{" "}
+          tab. Hover, tap, or focus any block to see the real model behind it.
         </p>
         <SystemDiagram />
       </section>
