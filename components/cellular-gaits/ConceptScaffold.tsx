@@ -70,7 +70,7 @@ export function ConceptScaffold({
       </div>
 
       <p className="cg-section-appendix">
-        The math behind this — equations, constants, and the build-plan DAG — is
+        The math behind this — equations and constants — is
         in the{" "}
         <a className="cg-inline-link" href={`${CG_BASE}/appendix`}>
           appendix
