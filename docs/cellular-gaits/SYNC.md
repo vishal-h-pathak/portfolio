@@ -15,6 +15,7 @@
 | cellular-gaits | `feat/n-navigation` | _unclaimed_ | calibrated, full run PENDING | run on WIN: `uv run python scripts/run_evolution_navigation.py --pop 48 --gens 70 --checkpoint-every 5 --workers 16` |
 | portfolio | `feat/n-navigation-scaffold` | _unclaimed_ | committed (230c040), not shipped | hold until N-C lands, then ship nav as a complete tab |
 | portfolio | `main` | — | production | escape is live (shipped from `feat/x-escape-live`) |
+| portfolio | `feat/cg-redesign-wpE` | _unclaimed (WP-E DONE — not merged)_ | **The Embodied Fly climax page built** | Off `feat/cg-redesign`. Rebuilt `embodied/page.tsx` + 4 new anatomy visuals (`EmbodiedLoop`, `BrainCircuitMap`, `GfResponse`, `EmbodiedConditions`) against the `data-eb` bundle. tsc clean; data-logic validated vs the bundle (Turbopack build blocked by the worktree symlink — render after integration). `ops/reports/REPORT_cg_wpE_embodied.md`. NEXT: integrate → `feat/cg-redesign`. (NB: this branch's SYNC board predates the embodied refocus — the live board is on `feat/dual-machine-watcher`.) |
 
 ## Current project state (one glance)
 
