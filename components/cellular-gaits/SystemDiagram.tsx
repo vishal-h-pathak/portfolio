@@ -211,7 +211,7 @@ const RUNTIME_EDGES: [number, number, number, number][] = [
 const TRAINING_EDGES: [number, number, number, number][] = [
   [645, 182, 645, 396], // body → fitness (down the right)
   [548, 437, 232, 437], // fitness → optimizer (along the bottom)
-  [136, 396, 136, 182], // optimizer → controller (up the left, carries θ)
+  [143, 396, 143, 182], // optimizer → controller (up the left, carries θ) — x=143 threads the gap between the "TRAINING LOOP" header and the θ label
 ];
 const FEEDBACK_EDGES: [number, number, number, number][] = [
   [612, 182, 488, 282], // body → sensing
@@ -280,7 +280,7 @@ function BlockShape({
       <text x={b.x + 14} y={b.y + 34} fill={c.title} fontSize={14.5} fontWeight={500}>
         {b.title}
       </text>
-      <text x={b.x + 14} y={b.y + 54} fill={SUB} fontSize={11.5}>
+      <text x={b.x + 14} y={b.y + 54} fill={SUB} fontSize={10.5}>
         {b.sub}
       </text>
       <text x={b.x + 14} y={b.y + b.h - 13} fill={SUB} fontSize={10.5} opacity={0.85}>

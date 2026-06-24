@@ -168,13 +168,18 @@ export function GainSweepChart() {
 
         {/* λ = 0 reference (the chaos threshold) */}
         <line x1={L} y1={yL(0)} x2={L + IW} y2={yL(0)} stroke={AMBER} strokeWidth={1} strokeDasharray="2 4" opacity={0.6} />
+        {/* Stacked at the far left, where both data series sit well below the
+            λ=0 line — a single line would run its tail into the green peak-rise. */}
+        <text x={L + 6} y={yL(0) - 20} fill={AMBER} fontSize={10.5} opacity={0.85}>
+          chaos onset
+        </text>
         <text x={L + 6} y={yL(0) - 5} fill={AMBER} fontSize={10.5} opacity={0.85}>
-          λ = 0 · chaos onset
+          λ = 0
         </text>
 
         {/* native gain marker */}
         <line x1={xs(NATIVE)} y1={TOP} x2={xs(NATIVE)} y2={TOP + IH} stroke="rgba(232,230,223,0.35)" strokeWidth={1} strokeDasharray="4 3" />
-        <text x={xs(NATIVE) - 7} y={TOP + 12} fill={INK} fontSize={10.5} opacity={0.85} textAnchor="end">
+        <text x={xs(NATIVE) - 7} y={TOP + 24} fill={INK} fontSize={10.5} opacity={0.85} textAnchor="end">
           native g=1.0
         </text>
 
@@ -190,17 +195,20 @@ export function GainSweepChart() {
           <circle key={`dc${r.gain}`} cx={xs(r.gain)} cy={yD(r.distance_mm)} r={3} fill="#0B0B0C" stroke={GREEN} strokeWidth={1.5} />
         ))}
 
-        {/* peak callout */}
+        {/* peak callout — set to the left of the peak dot so it can't reach the
+            chaos-band dashed lines that start one gain-step to the right. */}
         <circle cx={xs(NATIVE)} cy={yD(PEAK)} r={5} fill={GREEN} />
-        <text x={xs(NATIVE) + 9} y={yD(PEAK) + 1} fill={GREEN} fontSize={12.5} fontWeight={500}>
+        <text x={xs(NATIVE) - 9} y={yD(PEAK) - 2} fill={GREEN} fontSize={12.5} fontWeight={500} textAnchor="end">
           {PEAK.toFixed(1)} mm · peak
         </text>
 
-        {/* collapse + crossing callout */}
-        <text x={xs(CROSS_HI) + 8} y={TOP + IH - 30} fill={RED} fontSize={11.5}>
+        {/* collapse + crossing callout — parked in the open band between the
+            gain=2 and gain=3 gridlines (green has collapsed to the floor, λ has
+            flattened up top), so it clears every gridline and both data lines. */}
+        <text x={xs(2) + 12} y={TOP + IH / 2 + 12} fill={RED} fontSize={11.5}>
           gait collapses
         </text>
-        <text x={xs(CROSS_HI) + 8} y={TOP + IH - 15} fill={RED} fontSize={10.5} opacity={0.85}>
+        <text x={xs(2) + 12} y={TOP + IH / 2 + 27} fill={RED} fontSize={10.5} opacity={0.85}>
           as λ crosses 0
         </text>
 

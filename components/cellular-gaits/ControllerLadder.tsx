@@ -466,14 +466,17 @@ export function ControllerLadder() {
           top → bottom: increasingly biological
         </text>
 
-        {/* Rail spine: the four rungs converge here, then feed the slot. */}
+        {/* Rail spine: the three built rungs converge here, then feed the slot.
+            Drawn green — it carries the merged live signal, so the green rung
+            connectors and the green feed read as one continuous path instead of
+            being broken by a faint grey segment in the middle. */}
         <line
           x1={RAIL_X}
           y1={midY("nca")}
           x2={RAIL_X}
           y2={midY("brain")}
-          stroke={RAIL}
-          strokeWidth={1.4}
+          stroke="rgba(111,227,154,0.55)"
+          strokeWidth={1.6}
         />
 
         {/* Connectors rung → rail (all three built → all solid green) */}
@@ -492,6 +495,14 @@ export function ControllerLadder() {
             />
           );
         })}
+
+        {/* Junction nodes: make each rung→rail meet explicit, plus the tap where
+            the merged signal leaves the rail for the slot. Removes any ambiguity
+            about whether the connectors actually land on the rail. */}
+        {CONNECTORS.map((c) => (
+          <circle key={`j-${c.id}`} cx={RAIL_X} cy={midY(c.id)} r={2.8} fill="#6FE39A" />
+        ))}
+        <circle cx={RAIL_X} cy={FEED_Y} r={2.8} fill="#6FE39A" />
 
         {/* Live path: rail → slot → body (green = the built chain, down to the brain rung) */}
         <line

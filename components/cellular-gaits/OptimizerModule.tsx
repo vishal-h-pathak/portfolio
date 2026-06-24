@@ -145,33 +145,38 @@ function EvolutionCurve() {
           strokeWidth={1}
           strokeDasharray="4 4"
         />
-        <text x={sx(SPLIT) - 8} y={MT + 10} textAnchor="end" fontSize={10} fill={SUB} letterSpacing="0.06em">
+        <text x={sx(SPLIT) - 8} y={MT + 8} textAnchor="end" fontSize={10} fill={SUB} letterSpacing="0.06em">
           ORIGINAL
         </text>
-        <text x={sx(SPLIT) + 8} y={MT + 10} textAnchor="start" fontSize={10} fill={AMBER} letterSpacing="0.06em">
+        <text x={sx(SPLIT) + 8} y={MT + 8} textAnchor="start" fontSize={10} fill={AMBER} letterSpacing="0.06em">
           RESUMED
         </text>
-        <text x={sx(SPLIT) + 8} y={MT + 24} textAnchor="start" fontSize={9.5} fill={SUB}>
+        {/* Warm-start note parked in the open upper-left strip (the best curve is
+            still climbing low here); the ← points back to the gen-35 checkpoint,
+            which sits in the original phase before the split. */}
+        <text x={sx(SPLIT) - 8} y={MT + 24} textAnchor="end" fontSize={9.5} fill={SUB}>
           warm-start ← gen-35 checkpoint
         </text>
 
-        {/* stall annotation */}
+        {/* stall annotation — label lifted well clear of the stalled plateau */}
         <circle cx={sx(stallPoint.step)} cy={sy(stallPoint.best)} r={3} fill="none" stroke={SUB} strokeWidth={1.2} />
-        <text x={sx(stallPoint.step) - 6} y={sy(stallPoint.best) - 8} textAnchor="end" fontSize={9.5} fill={SUB}>
+        <text x={sx(stallPoint.step) - 6} y={sy(stallPoint.best) - 22} textAnchor="end" fontSize={9.5} fill={SUB}>
           first run stalls ≈ 62
         </text>
 
-        {/* overall best annotation */}
+        {/* overall best annotation — leader drops from the peak dot into the open
+            gap between the best plateau and the mean curve, where the label is
+            clear of both lines. */}
         <circle cx={sx(overallBest.step)} cy={sy(overallBest.best)} r={3.5} fill={GREEN} />
         <line
           x1={sx(overallBest.step)}
-          y1={sy(overallBest.best) + 4}
+          y1={sy(overallBest.best) + 5}
           x2={sx(overallBest.step)}
-          y2={sy(70)}
+          y2={sy(58)}
           stroke="rgba(111,227,154,0.4)"
           strokeWidth={1}
         />
-        <text x={sx(overallBest.step) + 6} y={sy(70) + 3.5} textAnchor="start" fontSize={10} fill={GREEN}>
+        <text x={sx(overallBest.step) + 7} y={sy(58) + 4} textAnchor="start" fontSize={10} fill={GREEN}>
           86.6 mm — new best overall
         </text>
 
