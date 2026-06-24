@@ -55,6 +55,11 @@ export function PerturbationDemo() {
   const activeRef = useRef<LiveController | null>(null);
   const modeRef = useRef<Mode>("closed");
   const zero = useRef(new Float32Array(42));
+  // A hard shove can tip the body into untrained territory and diverge the
+  // physics to NaN — which blanks the 3D and latches the readout. Self-heal with
+  // one reset (the same guard the Sensing/Chemotaxis/Escape demos use) so a
+  // shove can never leave the stage permanently blank.
+  const diverged = useRef(false);
 
   const buildActive = useCallback((next: Mode): LiveController | null => {
     const w = weightsRef.current;
@@ -93,7 +98,21 @@ export function PerturbationDemo() {
   // cleanly without remounting the WASM engine.
   const prevStep = useRef(-1);
   const controller = useCallback((ctx: FlyStageCtx): Float32Array => {
-    if (ctx.controlStep === 0 && prevStep.current !== 0) activeRef.current?.reset();
+    // Guard the physics: if the body has gone non-finite, stop driving it and
+    // ask the stage for one clean re-pose, so it recovers instead of rendering
+    // NaN forever.
+    const [tx, ty, tz] = ctx.sim.thoraxXyz();
+    if (!Number.isFinite(tx) || !Number.isFinite(ty) || !Number.isFinite(tz)) {
+      if (!diverged.current) {
+        diverged.current = true;
+        setResetSignal((r) => r + 1);
+      }
+      return zero.current;
+    }
+    if (ctx.controlStep === 0 && prevStep.current !== 0) {
+      activeRef.current?.reset();
+      diverged.current = false;
+    }
     prevStep.current = ctx.controlStep;
     const a = activeRef.current;
     return a ? a.tick(ctx) : zero.current;
@@ -171,6 +190,15 @@ export function PerturbationDemo() {
           aria-label="Shove the fly with a lateral impulse"
         >
           ⟶ shove
+        </button>
+        <button
+          type="button"
+          className="cg-pg-btn"
+          onClick={() => setResetSignal((r) => r + 1)}
+          disabled={!ready}
+          aria-label="Reset the fly to its starting pose"
+        >
+          reset
         </button>
       </div>
 
