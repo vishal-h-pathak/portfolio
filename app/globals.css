@@ -3669,31 +3669,16 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
 }
 
 
-/* ── connectome point cloud: the real escape circuit in 3-D space (R2-WP4) ──
-   The honest, anatomical counterpart to <BrainCircuitMap>: 316 real FlyWire
-   v783 neurons at their measured positions, lit by the computed LIF activity. */
-.cg-cc { display: flex; flex-direction: column; gap: 14px; }
-.cg-cc-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-}
-.cg-cc-eyebrow {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-}
-.cg-cc-conds { display: flex; gap: 8px; flex-wrap: wrap; }
+/* ── connectome point cloud (R2-WP4) + the paired "simultaneous" fly+brain view
+   (R2-WP4b). The cloud is now a controlled canvas; <SimultaneousEscape> runs it
+   side-by-side with the bird's-eye clip on one shared, synced timeline — Eon's
+   "simultaneous" view, told honestly. ── */
 
-.cg-cc-stage {
+/* the cloud canvas — pure-black field so the additive glow blooms */
+.cg-cc-canvaswrap {
   position: relative;
   border: 1px solid var(--rule);
   border-radius: 8px;
-  /* pure-black field so the additive glow blooms like Eon's brain panel */
   background:
     radial-gradient(120% 90% at 50% 38%, rgba(20, 28, 34, 0.55) 0%, rgba(6, 7, 9, 0.9) 62%, #050507 100%),
     #050507;
@@ -3701,7 +3686,6 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
 }
 .cg-cc-canvas { width: 100%; line-height: 0; cursor: grab; }
 .cg-cc-canvas:active { cursor: grabbing; }
-
 .cg-cc-status {
   position: absolute;
   inset: 0;
@@ -3718,7 +3702,6 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   pointer-events: none;
 }
 .cg-cc-status-err { color: var(--amber); }
-
 .cg-cc-legend {
   position: absolute;
   left: 12px;
@@ -3746,14 +3729,74 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   box-shadow: 0 0 6px currentColor;
 }
 
-.cg-cc-controls {
+/* the paired "simultaneous" view */
+.cg-se { display: flex; flex-direction: column; gap: 14px; }
+.cg-se-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.cg-se-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.cg-se-conds { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.cg-se-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: start;
+}
+.cg-se-panel { display: flex; flex-direction: column; gap: 8px; margin: 0; min-width: 0; }
+.cg-se-panel-cap { display: flex; flex-direction: column; gap: 1px; }
+.cg-se-panel-t {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+.cg-se-panel-s {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.02em;
+  color: var(--ink-faint);
+}
+.cg-se-flywrap {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #050507;
 }
-.cg-cc-play { min-width: 78px; text-align: center; }
-.cg-cc-scrub {
-  flex: 1 1 auto;
+.cg-se-clip { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cg-se-status {
+  margin: 0;
+  padding: 18px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-dim);
+}
+.cg-se-status-err { color: var(--amber); }
+
+/* shared timeline — one control drives both panels */
+.cg-se-timeline { display: flex; align-items: center; gap: 12px; }
+.cg-se-play { min-width: 78px; text-align: center; flex: 0 0 auto; }
+.cg-se-track { position: relative; flex: 1 1 auto; padding: 15px 0; }
+.cg-se-scrub {
+  display: block;
+  width: 100%;
   appearance: none;
   -webkit-appearance: none;
   height: 3px;
@@ -3761,8 +3804,8 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   background: var(--rule);
   cursor: pointer;
 }
-.cg-cc-scrub:disabled { opacity: 0.4; cursor: default; }
-.cg-cc-scrub::-webkit-slider-thumb {
+.cg-se-scrub:disabled { opacity: 0.4; cursor: default; }
+.cg-se-scrub::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 13px;
@@ -3772,7 +3815,7 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   border: none;
   box-shadow: 0 0 6px var(--green-dim);
 }
-.cg-cc-scrub::-moz-range-thumb {
+.cg-se-scrub::-moz-range-thumb {
   width: 13px;
   height: 13px;
   border: none;
@@ -3780,16 +3823,48 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   background: var(--green);
   box-shadow: 0 0 6px var(--green-dim);
 }
-.cg-cc-readout {
+.cg-se-mark {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.cg-se-mark-tick {
+  position: absolute;
+  top: 11px;
+  bottom: 11px;
+  left: 0;
+  width: 1px;
+  background: currentColor;
+  opacity: 0.7;
+}
+.cg-se-mark-lab {
+  position: absolute;
+  left: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.cg-se-mark-onset { color: #F2683C; }
+.cg-se-mark-onset .cg-se-mark-lab { top: 0; }
+.cg-se-mark-pivot { color: var(--green); }
+.cg-se-mark-pivot .cg-se-mark-lab { bottom: 0; }
+.cg-se-readout {
   font-family: var(--mono);
   font-size: 10.5px;
   letter-spacing: 0.04em;
   color: var(--ink-dim);
   min-width: 64px;
   text-align: right;
+  flex: 0 0 auto;
 }
 
-.cg-cc-asym {
+.cg-se-asym {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -3798,39 +3873,38 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   letter-spacing: 0.04em;
   color: var(--ink-faint);
 }
-.cg-cc-asym-lab { text-transform: uppercase; letter-spacing: 0.12em; font-size: 9.5px; }
-.cg-cc-asym-pair { display: flex; gap: 10px; }
-.cg-cc-asym-cell { color: var(--ink-dim); }
-.cg-cc-asym-cell strong { color: var(--ink-dim); font-weight: 600; }
-.cg-cc-asym[data-firing="1"] .cg-cc-asym-cell strong { color: var(--green); }
-.cg-cc-asym-cell[data-strong="1"] strong { color: #F8D26B; }
+.cg-se-asym-lab { text-transform: uppercase; letter-spacing: 0.12em; font-size: 9.5px; }
+.cg-se-asym-cell { color: var(--ink-dim); }
+.cg-se-asym-cell strong { font-weight: 600; }
 
-.cg-cc-cap {
+.cg-se-cap {
   font-family: var(--mono);
   font-size: 11px;
   line-height: 1.6;
   letter-spacing: 0.01em;
   color: var(--ink-dim);
   margin: 0;
-  max-width: 70ch;
+  max-width: 78ch;
 }
-.cg-cc-cap strong { color: var(--ink); font-weight: 500; }
-.cg-cc-cap code {
+.cg-se-cap strong { color: var(--ink); font-weight: 500; }
+.cg-se-cap code {
   font-size: 10px;
   color: var(--amber);
   background: rgba(232, 155, 61, 0.08);
   padding: 0 3px;
   border-radius: 3px;
 }
-.cg-cc-honest {
+.cg-se-honest {
   font-family: var(--mono);
   font-size: 9.5px;
   line-height: 1.5;
   letter-spacing: 0.02em;
   color: var(--ink-faint);
   margin: 0;
-  max-width: 70ch;
+  max-width: 78ch;
 }
+
+.cg-eb-result-sub { margin-top: 26px; }
 
 .cg-sr-only {
   position: absolute;
@@ -3844,7 +3918,9 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   border: 0;
 }
 
+@media (max-width: 640px) {
+  .cg-se-panels { grid-template-columns: 1fr; }
+}
 @media (max-width: 560px) {
   .cg-cc-legend { position: static; margin: -6px 12px 10px; }
-  .cg-cc-stage { display: flex; flex-direction: column; }
 }

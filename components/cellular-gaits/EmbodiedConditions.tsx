@@ -1,23 +1,24 @@
 "use client";
 
 /**
- * <EmbodiedConditions> — the result, three conditions side by side
- * (The Embodied Fly, §5). Driven by `manifest.conditions[]`; the heavy per-run
+ * <EmbodiedConditions> — the three-condition comparison strip (The Embodied
+ * Fly, "§ THE RESULT"). Driven by `manifest.conditions[]`; the heavy per-run
  * traces are **client-fetched** from `/cellular-gaits/data-eb/` (mirroring how
  * the other behavior demos pull `data-x`), so they don't bloat the document.
  *
- * Each panel renders, all straight from the bundle (nothing hardcoded):
- *   · the recorded escape/walk clip (the mp4)
+ * WP4b: the recorded clips moved to the paired <SimultaneousEscape> view above
+ * (one clip, selectable, synced to the cloud) so the fly isn't shown twice. This
+ * is now the quantitative comparison — the numbers, side by side, no clips:
  *   · the Giant-Fiber mean trace — brain.dnp01_mean vs brain.t_s (baseline flat
  *     at 0 on the same 75-window grid), shared y-axis across panels
  *   · a top-down body replay from body.thorax_xy + body.yaw_deg
  *   · the escape signature — summary.turn_vs_baseline_deg at the four horizons
  *
  * brain (75 windows) and body (301 steps) are on different time bases — each is
- * plotted against its OWN t_s, never joined by index.
+ * plotted against its OWN t_s, never joined by index. Nothing is hardcoded.
  */
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const GREEN = "#6FE39A";
 const THREAT = "#F2683C";
@@ -183,20 +184,6 @@ function BodyPath({ trace }: { trace: Trace }) {
 export function EmbodiedConditions({ conditions }: { conditions: ConditionMeta[] }) {
   const [traces, setTraces] = useState<Record<string, Trace> | null>(null);
   const [error, setError] = useState(false);
-  const gridRef = useRef<HTMLDivElement | null>(null);
-
-  // The clips are loaded muted but React's declarative `autoPlay` doesn't
-  // reliably start playback (autoplay heuristics leave them paused on a blank
-  // first frame). Explicitly drive each <video> after mount — and again on
-  // canplay (see onCanPlay below) — so all three panels actually run.
-  useEffect(() => {
-    gridRef.current
-      ?.querySelectorAll<HTMLVideoElement>("video.cg-eb-cond-clip")
-      .forEach((v) => {
-        v.muted = true;
-        void v.play().catch(() => {});
-      });
-  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -236,7 +223,7 @@ export function EmbodiedConditions({ conditions }: { conditions: ConditionMeta[]
 
   return (
     <div className="cg-eb-conditions">
-      <div className="cg-eb-cond-grid" ref={gridRef}>
+      <div className="cg-eb-cond-grid">
         {conditions.map((c) => {
           const tr = traces?.[c.key];
           const isBaseline = c.azimuth_deg == null;
@@ -249,21 +236,6 @@ export function EmbodiedConditions({ conditions }: { conditions: ConditionMeta[]
                 </span>
               </figcaption>
 
-              <video
-                className="cg-eb-cond-clip"
-                src={`${BASE}/${c.clip}`}
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="auto"
-                onCanPlay={(e) => {
-                  const v = e.currentTarget;
-                  v.muted = true;
-                  void v.play().catch(() => {});
-                }}
-                aria-label={`Recorded clip: ${c.label} — ${c.outcome}.`}
-              />
               <p className="cg-eb-cond-outcome">{c.outcome}</p>
 
               {error && <p className="cg-eb-cond-err">trace failed to load.</p>}
@@ -302,8 +274,10 @@ export function EmbodiedConditions({ conditions }: { conditions: ConditionMeta[]
       </div>
 
       <p className="cg-eb-cond-cap">
-        Three runs sharing the seed and warm-up, so they diverge only at looming
-        onset (the orange mark). The Giant-Fiber trace is the brain causal link:{" "}
+        The same three runs as the paired view above — here the numbers, side by
+        side (the clips live once, up top). They share the seed and warm-up, so
+        they diverge only at looming onset (the orange mark). The Giant-Fiber trace
+        is the brain causal link:{" "}
         <strong>no loom → GF silent → the fly merely walks</strong>; a loom routes
         through the real connectome to an escape. The escape signature is the turn{" "}
         <em>relative to the no-threat baseline</em> (the walking gait itself drifts,

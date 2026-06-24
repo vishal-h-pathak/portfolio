@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ControllerLadder } from "@/components/cellular-gaits/ControllerLadder";
 import { EmbodiedLoop, type LoopCondition, type LoopConfig } from "@/components/cellular-gaits/EmbodiedLoop";
 import { BrainCircuitMap, type CircuitData } from "@/components/cellular-gaits/BrainCircuitMap";
-import { ConnectomeCloud } from "@/components/cellular-gaits/ConnectomeCloud";
+import { SimultaneousEscape } from "@/components/cellular-gaits/SimultaneousEscape";
 import { GfResponse, type GfResponseData } from "@/components/cellular-gaits/GfResponse";
 import {
   EmbodiedConditions,
@@ -235,32 +235,9 @@ export default function EmbodiedTabPage() {
             LPLC2 — which is exactly why the right Giant Fiber out-fires the left in
             the live run. The brain outline is a hand-drawn schematic for placement,
             not a literal neuropil render; the counts and synapses are real —{" "}
-            <em>but</em> the next section drops the schematic and puts these exact 316
-            cells where they really sit, then lets them fire.
+            <em>but</em> in the result below, these exact 316 cells get placed where
+            they really sit and lit by the run, right next to the fly.
           </p>
-        </div>
-      </section>
-
-      {/* ── §2b the same circuit, in real anatomical space, lighting up ── */}
-      <section className="cg-section" aria-labelledby="cg-eb-cloud-h">
-        <p className="cg-section-eyebrow" id="cg-eb-cloud-h">
-          § THE REAL CIRCUIT · FIRING IN ANATOMICAL SPACE
-        </p>
-        <p className="cg-section-lead">
-          The schematic above is for reading the wiring; this is the same circuit
-          told straight. Every one of the <strong>316 neurons</strong> sits at its{" "}
-          <strong>measured FlyWire v783 position</strong>, and each one lights by the{" "}
-          <strong>real per-window firing we computed</strong> in the escape run — the
-          LC4/LPLC2 drive and the DNp01 (Giant Fiber) rate, the same numbers the curve
-          and the result panels below are made of. Pick a condition and scrub the
-          escape: resting is cool and dim, a loom warms the threat side&apos;s
-          detectors and blooms the Giant Fiber gold, and baseline stays dark. This is
-          the honest version of the &ldquo;brain lighting up&rdquo; visual —{" "}
-          <em>measured</em> activity in real anatomy, not predicted glow.
-        </p>
-
-        <div className="cg-tab-module" role="region" aria-label="The escape circuit as a 3-D point cloud at real FlyWire positions">
-          <ConnectomeCloud conditions={CONDITIONS} />
         </div>
       </section>
 
@@ -281,14 +258,17 @@ export default function EmbodiedTabPage() {
         </div>
       </section>
 
-      {/* ── §4 the result — three conditions ── */}
+      {/* ── §4 the result — the fly + its brain together, then the comparison ── */}
       <section className="cg-section" aria-labelledby="cg-eb-result-h">
         <p className="cg-section-eyebrow" id="cg-eb-result-h">
           § THE RESULT · LOOMING → ESCAPE
         </p>
         <p className="cg-section-lead">
-          Three runs through the closed loop: a threat from the left, a threat from
-          the right, and a no-threat baseline.{" "}
+          The payoff, and the honest version of Eon&apos;s &ldquo;brain lighting
+          up&rdquo;: the <strong>real body</strong> and the <strong>real circuit</strong>{" "}
+          at the same instant. Pick a condition and watch one escape closely — the
+          threat enters the fly&apos;s world on the left, the escape circuit fires on
+          the right, on <strong>one shared clock</strong>.{" "}
           {left && right && (
             <>
               Left threat → Giant Fiber <strong>{left.gf_peak_hz} Hz</strong> →{" "}
@@ -299,7 +279,17 @@ export default function EmbodiedTabPage() {
           The brain is the causal link.
         </p>
 
-        <div className="cg-tab-module" role="region" aria-label="The three condition panels">
+        <div className="cg-tab-module" role="region" aria-label="The fly and its brain, side by side on one synced timeline">
+          <SimultaneousEscape conditions={CONDITIONS} />
+        </div>
+
+        <p className="cg-section-lead cg-eb-result-sub">
+          Then all three runs side by side — the numbers behind the clip above. The
+          Giant-Fiber trace, the top-down body path, and the escape signature for
+          left, right, and baseline, on shared axes so the differences read.
+        </p>
+
+        <div className="cg-tab-module" role="region" aria-label="The three-condition comparison">
           <EmbodiedConditions conditions={CONDITIONS} />
         </div>
       </section>
