@@ -1,7 +1,7 @@
 {
   "project": "cellular-gaits \u2014 embodied escape (WP-D bundle for WP-E)",
   "generated_by": "scripts/export_embodied.py",
-  "schema_version": 1,
+  "schema_version": 2,
   "summary": "Looming -> the real FlyWire connectome (LC4/LPLC2 -> DNp01 Giant Fiber) -> an embodied NeuroMechFly escape, precomputed for in-browser replay. Three conditions share env seed + warm-up so they diverge only at looming onset.",
   "config": {
     "n_steps": 300,
@@ -48,11 +48,25 @@
     "trace_left.json": "left-threat (az 90) brain+body time series",
     "trace_right.json": "right-threat (az 270) brain+body time series",
     "trace_baseline.json": "no-threat baseline (GF silent, fly walks)",
-    "flee_left.mp4": "left-threat escape clip (body bolts right, away)",
-    "flee_right.mp4": "right-threat escape clip (body turns left, away)",
-    "walk_baseline.mp4": "baseline walk clip (no escape)",
+    "flee_left.mp4": "left-threat escape clip (body bolts right, away) \u2014 birdseye",
+    "flee_right.mp4": "right-threat escape clip (body turns left, away) \u2014 birdseye",
+    "walk_baseline.mp4": "baseline walk clip (no escape) \u2014 birdseye",
     "circuit.json": "LC4/LPLC2/DNp01 counts + convergence (CX-1 / FlyWire)",
-    "gf_response.json": "looming-Hz -> DNp01-rate sweep + silenced variant"
+    "gf_response.json": "looming-Hz -> DNp01-rate sweep + silenced variant",
+    "flee_left_topdown.mp4": "flee_left escape clip \u2014 topdown angle (WP3 alt)",
+    "flee_right_topdown.mp4": "flee_right escape clip \u2014 topdown angle (WP3 alt)",
+    "walk_baseline_topdown.mp4": "baseline walk clip \u2014 topdown angle (WP3 alt)"
+  },
+  "cameras": {
+    "primary": "birdseye",
+    "second": "topdown",
+    "note": "World-fixed legible cameras (R2-WP2): 'birdseye' (high 3/4 view) and 'topdown' (2D map) are bolted to the world, so the fly visibly travels across a static arena and the threat's approach reads (vs 'trackingcam', which recenters the fly and hides net displacement). Primary clips keep the canonical names; the second angle is suffixed (e.g. flee_left_topdown.mp4)."
+  },
+  "events": {
+    "description": "Per-condition moments the 2D/web view should mark, in trace.summary + trace.threat_track.",
+    "threat_onset_step": "trace.threat_onset_step \u2014 step the looming threat launches (-1 for baseline).",
+    "pivot_step": "trace.summary.pivot_step \u2014 first step after onset where |turn vs baseline| >= pivot_threshold_deg (10.0 deg): the decisive escape pivot (null for baseline / if never crossed).",
+    "threat_track": "trace.threat_track \u2014 entry_xy (where the threat came from, its world pos at onset), aim_xy (lead point it flew at), and path_xy (per-step world x,y, null before onset) so the 2D view can draw the approach."
   },
   "units": {
     "rate_hz": "spikes/s",
@@ -62,12 +76,14 @@
     "thorax_xy": "world x,y (body units)",
     "thorax_z": "thorax height (body units)",
     "yaw_deg": "body heading, deg, wrapped (-180,180]",
-    "t_s": "seconds"
+    "t_s": "seconds",
+    "threat_xy": "threat world x,y (body units; same frame as thorax_xy)"
   },
   "trace_fields": {
     "brain": "per sync-window (window_step, t_s, loom_L/R, hz_L/R, dnp01_mean/L/R, drive, bearing_deg); baseline is flat zero",
     "body": "per control step (t_s, thorax_xy, thorax_z, yaw_deg)",
-    "summary": "gf_peak_hz, drive_peak, displacement, heading_change_deg, turn_vs_baseline_deg {60ms,100ms,160ms,200ms} (the escape signature: unwrapped turn vs the no-threat baseline; left threat negative=bolts right, right threat positive=turns left), threat_min_dist, threat_hit"
+    "summary": "gf_peak_hz, drive_peak, displacement, heading_change_deg, turn_vs_baseline_deg {60ms,100ms,160ms,200ms} (the escape signature: unwrapped turn vs the no-threat baseline; left threat negative=bolts right, right threat positive=turns left), pivot_step / pivot_t_s / pivot_threshold_deg (R2-WP2 pivot event), threat_min_dist, threat_hit",
+    "threat_track": "R2-WP2: onset_step, entry_xy, aim_xy, azimuth_deg, speed, radius, hit_radius, path_xy[] (per-step threat world xy, null pre-onset); null for baseline"
   },
   "caveats": [
     "Not a calibrated escape threshold: the isolated Giant Fiber saturates (no whole-brain inhibition). The claim is 'the real connectome routes a looming cue to an embodied escape', not selectivity.",

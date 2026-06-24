@@ -3288,3 +3288,138 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   .cg-eb-cond-clip { aspect-ratio: 4 / 3; }
 }
 
+/* ── the three escape-circuit cell types (embodied §2, rec #1) ── */
+.cg-eb-celltypes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 4px 0 0;
+}
+.cg-eb-celltype {
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--amber-dim);
+  border-radius: 0 6px 6px 0;
+  padding: 12px 14px;
+  background: rgba(232, 155, 61, 0.035);
+}
+.cg-eb-celltype:last-child {
+  border-left-color: var(--green-dim);
+  background: rgba(111, 227, 154, 0.04);
+}
+.cg-eb-celltype-h {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 0 6px;
+}
+.cg-eb-celltype-name {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--amber);
+}
+.cg-eb-celltype:last-child .cg-eb-celltype-name { color: var(--green); }
+.cg-eb-celltype-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-faint);
+}
+.cg-eb-celltype-b {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+}
+.cg-eb-celltype-b strong { color: var(--ink); font-weight: 600; }
+.cg-eb-celltype-b em { font-style: italic; color: var(--ink); }
+
+@media (max-width: 720px) {
+  .cg-eb-celltypes { grid-template-columns: 1fr; }
+}
+
+/* ── "built once, then stepped" explicit drawbacks (§5, rec #4) ── */
+.cg-eb-drawbacks {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 78ch;
+}
+.cg-eb-drawbacks li {
+  position: relative;
+  padding: 8px 12px 8px 26px;
+  border-radius: 4px;
+  background: rgba(232, 230, 223, 0.025);
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+}
+.cg-eb-drawbacks li::before {
+  content: "▹";
+  position: absolute;
+  left: 10px;
+  color: var(--amber);
+}
+.cg-eb-drawbacks li strong { color: var(--ink); font-weight: 600; }
+
+/* ── inline affordance hint (EmbodiedLoop caption) ── */
+.cg-eb-affordance {
+  font-family: var(--mono);
+  font-size: 0.92em;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+/* ── GfResponse → body consequence callout (rec #2) ── */
+.cg-gf-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 4px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--green-dim);
+  background: rgba(111, 227, 154, 0.05);
+}
+.cg-gf-body[data-silenced="1"] {
+  border-color: var(--rule);
+  background: rgba(232, 230, 223, 0.03);
+}
+.cg-gf-body-glyph {
+  font-family: var(--mono);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--green);
+  flex: 0 0 auto;
+}
+.cg-gf-body[data-silenced="1"] .cg-gf-body-glyph { color: var(--ink-dim); }
+.cg-gf-body p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-dim);
+}
+.cg-gf-body strong { color: var(--ink); font-weight: 600; }
+
+/* ── embodied-loop top-down map: threat entry + pivot (escape page, rec #7) ── */
+.cg-eb-map { margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.cg-eb-map-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.cg-eb-map-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 7px;
+  font-family: var(--mono);
+}
+.cg-eb-topdown-clips { margin-top: 4px; grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 720px) {
+  .cg-eb-map-grid { grid-template-columns: 1fr; }
+  .cg-eb-topdown-clips { grid-template-columns: 1fr; }
+}
+

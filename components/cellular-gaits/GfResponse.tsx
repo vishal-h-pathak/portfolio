@@ -95,6 +95,31 @@ export function GfResponse({ data }: { data: GfResponseData }) {
         </button>
       </div>
 
+      {/* The toggle's consequence in the BODY, not just the curve: silencing the
+          inputs is the same thing as the no-threat baseline run — GF silent, the
+          fly merely walks. Ties rec #2 (show the implication of no Giant Fiber). */}
+      <div className="cg-gf-body" data-silenced={silenced ? "1" : undefined} role="note">
+        <span className="cg-gf-body-glyph" aria-hidden="true">
+          {silenced ? "↯" : "→"}
+        </span>
+        {silenced ? (
+          <p>
+            <strong>And in the body:</strong> with LC4/LPLC2 silenced the Giant Fiber
+            goes quiet, so no escape drive ever reaches the legs — the fly{" "}
+            <strong>just walks</strong>. That is exactly the{" "}
+            <strong>no-threat baseline</strong> run (GF&nbsp;=&nbsp;0&nbsp;Hz) shown in
+            the result panels below: silencing these inputs reproduces it.
+          </p>
+        ) : (
+          <p>
+            <strong>And in the body:</strong> driven, the Giant Fiber fires, its rate
+            becomes the escape drive, and the trained body{" "}
+            <strong>bolts away</strong> — the left/right escape runs below. The Giant
+            Fiber is the causal link between this curve and the fly&apos;s motion.
+          </p>
+        )}
+      </div>
+
       <div className="cg-gf-chart" role="img"
         aria-label={`Giant Fiber response curve. Driving LC4 and LPLC2 with bilateral Poisson input from 0 to 200 hertz makes the mean DNp01 firing rate rise from 0 and saturate near ${peak} hertz. ${silenced ? "With LC4 and LPLC2 silenced the response is flat at 0 at every input — the Giant Fiber only fires through these inputs." : "Toggle the silencing button to knock out LC4 and LPLC2 and watch the response collapse to 0."}`}
       >

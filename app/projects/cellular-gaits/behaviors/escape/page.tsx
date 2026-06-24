@@ -46,24 +46,294 @@ type Metrics = {
 
 type Trajectories = { episodes: EscapeEpisode[] };
 
-/** Read the real X-A escape metrics + recorded trajectories (server-side). */
-async function readData(): Promise<{ metrics: Metrics; trajectories: Trajectories }> {
+// ── the embodied-loop (data-eb, schema-v2) traces — read here to mark, on a
+// legible top-down, WHERE the threat came from and WHEN the fly pivoted. These
+// are the connectome embodied-loop runs (the Embodied tab), shown on the escape
+// page because "where was the threat / when did it pivot" is the escape question.
+type EbCondition = {
+  key: string;
+  label: string;
+  azimuth_deg: number | null;
+  trace: string;
+  clip: string;
+  gf_peak_hz: number;
+  outcome: string;
+};
+type EbThreatTrack = {
+  onset_step: number;
+  entry_xy: [number, number];
+  aim_xy: [number, number];
+  path_xy: ([number, number] | null)[];
+  azimuth_deg: number;
+  speed: number;
+  radius: number;
+  hit_radius: number;
+};
+export type EbTrace = {
+  condition: string;
+  threat_onset_step: number;
+  control_dt_s: number;
+  summary: {
+    gf_peak_hz: number;
+    displacement: number;
+    pivot_step: number | null;
+    pivot_t_s: number | null;
+    pivot_threshold_deg?: number;
+    threat_min_dist: number | null;
+  };
+  body: { t_s: number[]; thorax_xy: [number, number][]; yaw_deg: number[] };
+  threat_track: EbThreatTrack | null;
+};
+
+/** Read the real X-A escape metrics + recorded trajectories, plus the embodied
+ * loop's schema-v2 traces (for the threat-entry / pivot top-down). Server-side. */
+async function readData(): Promise<{
+  metrics: Metrics;
+  trajectories: Trajectories;
+  eb: { conditions: EbCondition[]; traces: Record<string, EbTrace> };
+}> {
   const base = join(process.cwd(), "public/cellular-gaits/data-x");
-  const [m, t] = await Promise.all([
+  const ebBase = join(process.cwd(), "public/cellular-gaits/data-eb");
+  const [m, t, man] = await Promise.all([
     readFile(join(base, "escape_metrics.json"), "utf8"),
     readFile(join(base, "trajectories.json"), "utf8"),
+    readFile(join(ebBase, "manifest.json"), "utf8"),
   ]);
+  const conditions = (JSON.parse(man) as { conditions: EbCondition[] }).conditions;
+  const traceArr = await Promise.all(
+    conditions.map((c) =>
+      readFile(join(ebBase, c.trace), "utf8").then(
+        (s) => JSON.parse(s.replace(/-?Infinity/g, "null").replace(/\bNaN\b/g, "null")) as EbTrace,
+      ),
+    ),
+  );
+  const traces: Record<string, EbTrace> = {};
+  conditions.forEach((c, i) => (traces[c.key] = traceArr[i]));
   return {
     metrics: JSON.parse(m.replace(/-?Infinity/g, "null").replace(/\bNaN\b/g, "null")) as Metrics,
     trajectories: JSON.parse(t) as Trajectories,
+    eb: { conditions, traces },
   };
 }
 
 const ms = (s: number | null) => (s == null ? "—" : `${Math.round(s * 1000)} ms`);
 const turn = (v: number) => (v >= 0 ? "+" : "") + v.toFixed(2);
 
+// ── the embodied-loop top-down map: threat entry + pivot instant ──────────────
+const EB_GREEN = "#6FE39A";
+const EB_THREAT = "#F2683C";
+const EB_INK = "#E8E6DF";
+const EB_SUB = "#8C8B83";
+const EB_FAINT = "#7E7A6D";
+const EB_RULE = "rgba(232,230,223,0.18)";
+const MP_W = 248;
+const MP_H = 214;
+const MP_M = 24;
+
+/** One condition's top-down panel: the fly's path (dim before onset, bright
+ * after), the threat's incoming course from where it ENTERED, and a ring at the
+ * PIVOT step — the instant |turn vs baseline| first crosses the threshold. All
+ * coordinates and the pivot/onset steps come straight from the schema-v2 trace. */
+function EbPanel({ cond, trace }: { cond: EbCondition; trace: EbTrace }) {
+  const xy = trace.body.thorax_xy;
+  const tt = trace.threat_track;
+  const threatPts = tt
+    ? tt.path_xy.filter((p): p is [number, number] => p != null)
+    : [];
+  const onset = trace.threat_onset_step;
+  const pivot = trace.summary.pivot_step;
+  const hasThreat = tt != null && onset >= 0;
+
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+  const consider = (x: number, y: number) => {
+    if (x < minX) minX = x;
+    if (x > maxX) maxX = x;
+    if (y < minY) minY = y;
+    if (y > maxY) maxY = y;
+  };
+  for (const [x, y] of xy) consider(x, y);
+  for (const [x, y] of threatPts) consider(x, y);
+  if (tt) {
+    consider(tt.entry_xy[0], tt.entry_xy[1]);
+    consider(tt.aim_xy[0], tt.aim_xy[1]);
+  }
+
+  const spanX = maxX - minX || 1;
+  const spanY = maxY - minY || 1;
+  const scale = Math.min((MP_W - 2 * MP_M) / spanX, (MP_H - 2 * MP_M) / spanY);
+  const offX = (MP_W - spanX * scale) / 2;
+  const offY = (MP_H - spanY * scale) / 2;
+  const sx = (x: number) => offX + (x - minX) * scale;
+  const sy = (y: number) => MP_H - (offY + (y - minY) * scale); // world +y up
+
+  const poly = (pts: [number, number][]) =>
+    pts.map(([x, y]) => `${sx(x).toFixed(1)},${sy(y).toFixed(1)}`).join(" ");
+
+  const onsetIdx = hasThreat ? Math.min(onset, xy.length - 1) : -1;
+  const preFly = hasThreat ? poly(xy.slice(0, onsetIdx + 1)) : "";
+  const postFly = hasThreat ? poly(xy.slice(onsetIdx)) : poly(xy);
+  const start = xy[0];
+  const end = xy[xy.length - 1];
+  const onsetPt = hasThreat ? xy[onsetIdx] : null;
+  const pivotPt = pivot != null && pivot < xy.length ? xy[pivot] : null;
+  // pivot latency = how long after the threat launched the decisive turn happened.
+  const pivotAfterOnsetMs =
+    pivot != null && hasThreat ? (pivot - onset) * trace.control_dt_s * 1000 : null;
+
+  const aria = hasThreat
+    ? `${cond.label}: a threat enters from azimuth ${Math.round(tt!.azimuth_deg)} degrees and the fly bolts away; it pivots ${
+        pivotAfterOnsetMs != null ? `${pivotAfterOnsetMs.toFixed(0)} milliseconds after onset` : "—"
+      }. Giant Fiber peak ${cond.gf_peak_hz} hertz.`
+    : `${cond.label}: no threat, the Giant Fiber stays silent, and the fly just walks — no pivot.`;
+
+  return (
+    <svg viewBox={`0 0 ${MP_W} ${MP_H}`} className="cg-eb-map-svg" role="img" aria-label={aria}>
+      <rect x={0.5} y={0.5} width={MP_W - 1} height={MP_H - 1} rx={7} fill="rgba(232,230,223,0.02)" stroke={EB_RULE} strokeWidth={1} />
+
+      {/* the threat's incoming course, from where it ENTERED to its lead aim */}
+      {hasThreat && (
+        <>
+          {threatPts.length > 1 && (
+            <polyline
+              points={poly(threatPts)}
+              fill="none"
+              stroke={EB_THREAT}
+              strokeOpacity={0.8}
+              strokeWidth={1.6}
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              markerEnd="url(#cg-eb-map-arrow)"
+            />
+          )}
+          {/* aim point (×) */}
+          {(() => {
+            const [ax, ay] = [sx(tt!.aim_xy[0]), sy(tt!.aim_xy[1])];
+            return (
+              <path
+                d={`M${(ax - 4).toFixed(1)} ${(ay - 4).toFixed(1)}L${(ax + 4).toFixed(1)} ${(ay + 4).toFixed(1)}M${(ax + 4).toFixed(1)} ${(ay - 4).toFixed(1)}L${(ax - 4).toFixed(1)} ${(ay + 4).toFixed(1)}`}
+                stroke={EB_THREAT}
+                strokeOpacity={0.6}
+                strokeWidth={1.2}
+              />
+            );
+          })()}
+          {/* where the threat ENTERED (edge-aware label: never under the title row,
+              never clipped at the panel sides) */}
+          {(() => {
+            const [ex, ey] = [sx(tt!.entry_xy[0]), sy(tt!.entry_xy[1])];
+            const ly = ey < 28 ? ey + 14 : ey - 7;
+            const anchor = ex < 42 ? "start" : ex > MP_W - 42 ? "end" : "middle";
+            const lx = anchor === "start" ? ex - 5 : anchor === "end" ? ex + 5 : ex;
+            return (
+              <>
+                <circle cx={ex} cy={ey} r={4} fill="rgba(242,104,60,0.55)" stroke={EB_THREAT} strokeWidth={1.2} />
+                <text x={lx} y={ly} textAnchor={anchor} fill={EB_THREAT} fontSize={8.5}>
+                  threat enters
+                </text>
+              </>
+            );
+          })()}
+        </>
+      )}
+
+      {/* the fly's path: dim before onset, bright after (green if it bolted) */}
+      {preFly && <polyline points={preFly} fill="none" stroke={EB_SUB} strokeOpacity={0.6} strokeWidth={1.4} strokeLinejoin="round" />}
+      {postFly && (
+        <polyline
+          points={postFly}
+          fill="none"
+          stroke={hasThreat ? EB_GREEN : EB_INK}
+          strokeOpacity={0.9}
+          strokeWidth={1.8}
+          strokeLinejoin="round"
+        />
+      )}
+
+      {/* spawn · onset · pivot · end markers */}
+      {start && <circle cx={sx(start[0])} cy={sy(start[1])} r={3} fill="none" stroke={EB_INK} strokeWidth={1.1} opacity={0.6} />}
+      {onsetPt && <circle cx={sx(onsetPt[0])} cy={sy(onsetPt[1])} r={3.2} fill={EB_THREAT} opacity={0.85} />}
+      {pivotPt && (() => {
+        const px = sx(pivotPt[0]);
+        const py = sy(pivotPt[1]);
+        // label below the ring, unless that runs into the readout row at the foot
+        const ly = py > MP_H - 26 ? py - 11 : py + 18;
+        const anchor = px < 28 ? "start" : px > MP_W - 28 ? "end" : "middle";
+        return (
+          <>
+            <circle cx={px} cy={py} r={6.5} fill="none" stroke={EB_GREEN} strokeWidth={1.6} />
+            <circle cx={px} cy={py} r={2} fill={EB_GREEN} />
+            <text x={px} y={ly} textAnchor={anchor} fill={EB_GREEN} fontSize={8.5}>
+              pivot
+            </text>
+          </>
+        );
+      })()}
+      {end && <circle cx={sx(end[0])} cy={sy(end[1])} r={3} fill={hasThreat ? EB_GREEN : EB_INK} />}
+
+      {/* label + readouts */}
+      <text x={10} y={16} fill={EB_INK} fontSize={11} fontWeight={500}>
+        {cond.label.replace(/\s*\(.*\)$/, "")}
+      </text>
+      <text x={MP_W - 10} y={16} fill={cond.gf_peak_hz > 0 ? EB_GREEN : EB_SUB} fontSize={10} textAnchor="end">
+        GF {cond.gf_peak_hz} Hz
+      </text>
+      <text x={10} y={MP_H - 10} fill={EB_SUB} fontSize={9}>
+        {hasThreat
+          ? pivotAfterOnsetMs != null
+            ? `pivot +${pivotAfterOnsetMs.toFixed(0)} ms after onset`
+            : "no pivot crossed"
+          : "no threat · no pivot"}
+      </text>
+    </svg>
+  );
+}
+
+/** The three embodied-loop runs, top-down: threat entry + pivot instant marked. */
+function EmbodiedLoopMap({
+  conditions,
+  traces,
+}: {
+  conditions: EbCondition[];
+  traces: Record<string, EbTrace>;
+}) {
+  return (
+    <figure className="cg-eb-map">
+      <svg width={0} height={0} aria-hidden="true" style={{ position: "absolute" }}>
+        <defs>
+          <marker id="cg-eb-map-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0 0L10 5L0 10z" fill={EB_THREAT} />
+          </marker>
+        </defs>
+      </svg>
+      <div className="cg-eb-map-grid">
+        {conditions.map((c) => {
+          const tr = traces[c.key];
+          return tr ? <EbPanel key={c.key} cond={c} trace={tr} /> : null;
+        })}
+      </div>
+      <figcaption className="cg-traj-cap">
+        The three embodied-loop runs (the{" "}
+        <a className="cg-inline-link" href={`${CG_BASE}/embodied`}>
+          Embodied
+        </a>{" "}
+        tab&apos;s connectome loop), drawn world-fixed so two questions are
+        answerable at a glance: <strong style={{ color: EB_THREAT }}>where the threat
+        entered</strong> (the orange dot, then its incoming course to the ✕ lead
+        point) and <strong style={{ color: EB_GREEN }}>when the fly pivoted</strong>{" "}
+        (the green ring — the first step after onset where its turn vs the no-threat
+        baseline crosses 10°). The baseline has no threat and never pivots — it just
+        walks. The dim grey segment is the pre-onset walk; the bright segment is the
+        bolt.
+      </figcaption>
+    </figure>
+  );
+}
+
 export default async function EscapeTabPage() {
-  const { metrics, trajectories } = await readData();
+  const { metrics, trajectories, eb } = await readData();
   const { config, trained, held_out } = metrics;
 
   const byAz = (deg: number) => trained.per_azimuth.find((a) => Math.round(a.azimuth_deg) === deg);
@@ -234,7 +504,78 @@ export default async function EscapeTabPage() {
             />
           </div>
 
-          {/* 5 — honesty caveats, surfaced not buried */}
+          {/* 5 — the connectome loop, made legible: threat entry + pivot instant */}
+          <div>
+            <p className="cg-sense-h">Where the threat came from, when the fly pivoted</p>
+            <p className="cg-sense-p">
+              The hard thing to read in any escape clip is{" "}
+              <em>where the threat entered</em> and <em>the instant the fly committed
+              to its turn</em> — the tracking camera hides both. So here are the three{" "}
+              <a className="cg-inline-link" href={`${CG_BASE}/embodied`}>
+                embodied-loop
+              </a>{" "}
+              runs drawn <strong>world-fixed, top-down</strong>, with those two moments
+              marked from the recorded trace: the{" "}
+              <strong style={{ color: "#F2683C" }}>orange dot</strong>{" "}
+              is where the looming object entered, and the{" "}
+              <strong style={{ color: "var(--green)" }}>green ring</strong> is the{" "}
+              <strong>pivot</strong> — the first step after onset where the fly&apos;s
+              turn (vs the no-threat baseline) crosses 10°. Left threat pivots away to
+              the right, right threat to the left, and the baseline never pivots: no
+              threat, Giant Fiber silent, it just walks.
+            </p>
+            <EmbodiedLoopMap conditions={eb.conditions} traces={eb.traces} />
+            <p className="cg-sense-h" style={{ marginTop: 18 }}>
+              The same three runs, top-down camera
+            </p>
+            <p className="cg-sense-p">
+              And the recorded clips from the <strong>top-down angle</strong> — a
+              second, world-fixed camera (R2-WP2) bolted to the arena instead of the
+              fly, so the bolt reads as real travel across the ground rather than
+              jitter around a re-centred fly.
+            </p>
+            <div
+              className="cg-perturb-clips cg-eb-topdown-clips"
+              role="group"
+              aria-label="The three embodied-loop runs, recorded from a world-fixed top-down camera"
+            >
+              {eb.conditions.map((c) => {
+                const topdown = c.clip.replace(/\.mp4$/, "_topdown.mp4");
+                const firing = c.gf_peak_hz > 0;
+                return (
+                  <figure className="cg-perturb-clip" key={c.key}>
+                    <video
+                      src={`/cellular-gaits/data-eb/${topdown}`}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      aria-label={`Top-down camera: ${c.label} — ${c.outcome}.`}
+                    />
+                    <figcaption>
+                      <span
+                        className="cg-gaitclip-k"
+                        style={{ color: firing ? "var(--green)" : "var(--ink-faint)" }}
+                      >
+                        {c.label.replace(/\s*\(.*\)$/, "")}
+                      </span>
+                      <span className="cg-gaitclip-sub">{c.outcome}</span>
+                    </figcaption>
+                  </figure>
+                );
+              })}
+            </div>
+            <p className="cg-sense-cap">
+              These are the connectome embodied-loop runs (real FlyWire LC4/LPLC2 →
+              DNp01 driving the body), not the hand-built escape controller above — shown
+              here because &ldquo;where was the threat, when did it pivot&rdquo; is the
+              escape question. The threat entry, course, pivot step, and both camera
+              angles all come straight from the schema-v2 export; nothing is
+              re-simulated in the browser.
+            </p>
+          </div>
+
+          {/* 6 — honesty caveats, surfaced not buried */}
           <div className="cg-escape-caveats">
             <p className="cg-sense-h">Honest about what this is</p>
             <ul className="cg-escape-caveat-list">
@@ -330,10 +671,11 @@ export default async function EscapeTabPage() {
             columnar projection neuron types — <strong>LC4</strong> (angular
             velocity) and <strong>LPLC2</strong> (angular size) — that converge
             on the <strong>Giant Fiber</strong> descending neuron
-            (<strong>DNp01</strong>): ~55 LC4 + ~108 LPLC2 synapses onto its
-            lateral dendrite, summing size + velocity, the timing of a single
-            spike setting a short vs long takeoff (Ache et al. 2019; von Reyn et
-            al. 2017). That circuit is now in the loop: the <em>actual</em>{" "}
+            (<strong>DNp01</strong>): ~55 LC4 + ~108 LPLC2 <em>neurons</em> per
+            hemisphere onto its lateral dendrite — through hundreds of synapses
+            (LC4 ~374–431, LPLC2 ~458–622 per side in FlyWire v783) — summing size +
+            velocity, the timing of a single spike setting a short vs long takeoff
+            (Ache et al. 2019; von Reyn et al. 2017). That circuit is now in the loop: the <em>actual</em>{" "}
             FlyWire <code>LC4/LPLC2 → DNp01</code> wiring has been run as a
             spiking connectome that routes a looming cue to an embodied escape —
             a concrete sub-circuit far smaller than the whole brain, the most
