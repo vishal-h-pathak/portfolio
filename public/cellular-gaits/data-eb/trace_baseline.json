@@ -17,9 +17,13 @@
       "160ms": null,
       "200ms": null
     },
+    "pivot_step": null,
+    "pivot_t_s": null,
+    "pivot_threshold_deg": 10.0,
     "threat_min_dist": null,
     "threat_hit": null
   },
+  "threat_track": null,
   "brain": {
     "window_step": [
       0,

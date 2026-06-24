@@ -87,7 +87,7 @@ const BLOCKS: Block[] = [
     y: 64,
     w: RUNG_W,
     h: RUNG_H,
-    stage: "01 · DONE",
+    stage: "RUNG 01 · DONE",
     title: "NCA — null model",
     sub: "generic local rule",
     plain:
@@ -112,7 +112,7 @@ const BLOCKS: Block[] = [
     y: 196,
     w: RUNG_W,
     h: RUNG_H,
-    stage: "02 · DONE",
+    stage: "RUNG 02 · DONE",
     title: "Closed proprioceptive loop",
     sub: "sensing → controller",
     plain:
@@ -133,7 +133,7 @@ const BLOCKS: Block[] = [
     y: 328,
     w: RUNG_W,
     h: RUNG_H,
-    stage: "03 · LIVE",
+    stage: "RUNG 03 · LIVE · THE CLIMAX",
     title: "Real connectome brain in the loop",
     sub: "looming → Giant Fiber → escape",
     plain:
@@ -290,18 +290,19 @@ function BlockShape({
       <text x={b.x + 14} y={b.y + (b.stage ? 59 : 54)} fill={SUB} fontSize={11.5}>
         {b.sub}
       </text>
-      {/* Bottom-right affordance. Dropped to the card's lower edge and the stage
-          sub lifted (above), so a long sub like "looming → Giant Fiber → escape"
-          no longer runs into this right-aligned line. */}
+      {/* Affordance: a single subtle info glyph in the corner (the old wordy
+          "ⓘ hover · tap · focus" on every box read as clutter). The instruction
+          lives once in the ladder header. Brightens on activate. */}
       <text
-        x={b.x + b.w - 12}
-        y={b.y + b.h - 8}
-        fill={SUB}
-        fontSize={10}
-        opacity={0.85}
+        x={b.x + b.w - 11}
+        y={b.y + 17}
+        fill={active ? c.stroke : SUB}
+        fontSize={12}
+        opacity={active ? 1 : 0.7}
         textAnchor="end"
+        aria-hidden="true"
       >
-        ⓘ hover · tap · focus
+        ⓘ
       </text>
     </g>
   );
@@ -461,6 +462,9 @@ export function ControllerLadder() {
         </text>
         <text x={RUNG_X + 178} y={22} fill={SUB} fontSize={11}>
           · one slot, one body — only the structure changes
+        </text>
+        <text x={RUNG_X} y={42} fill={SUB} fontSize={10} opacity={0.8}>
+          ⓘ hover, tap, or focus any rung for what changes
         </text>
         <text x={RUNG_X} y={H - 14} fill={SUB} fontSize={10.5} opacity={0.85}>
           top → bottom: increasingly biological

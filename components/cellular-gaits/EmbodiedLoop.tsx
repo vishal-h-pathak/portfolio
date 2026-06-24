@@ -179,20 +179,25 @@ export function EmbodiedLoop({
       ),
       descend: (
         <>
-          The Giant Fiber is a <strong>scalar command</strong>: its firing rate
-          becomes an escape <strong>drive</strong> via the motor map{" "}
+          The Giant Fiber is a <strong>scalar command</strong>: its mean firing rate
+          over the {(config.sync_window_s * 1000).toFixed(0)} ms window becomes an
+          escape <strong>drive</strong> via the motor map{" "}
           <code>drive = {config.drive_peak} · clip(GF / {config.dnp01_ref_hz})</code>{" "}
-          = <strong>{d.drive.toFixed(3)}</strong>. Direction comes from{" "}
-          <em>which eye</em> saw the threat, not the GF (its L/R difference is
-          wiring-dominated).
+          = <strong>{d.drive.toFixed(3)}</strong>. The drive is{" "}
+          <strong>capped at a moderate level</strong> — &ldquo;more firing&rdquo; is
+          not &ldquo;spin harder,&rdquo; a saturated drive tumbles the body.{" "}
+          <em>Direction</em> comes from <em>which eye</em> saw the threat, not the GF
+          (its L/R difference is wiring-dominated, the wrong place to read steering).
         </>
       ),
       body: (
         <>
           The drive feeds the trained <strong>NeuroMechFly</strong> controller
-          (87 joints, MuJoCo), which turns the scalar into a real motion:{" "}
-          <strong>{cond.outcome}</strong>. Then the fly has moved, the looming
-          geometry has changed, and the loop runs again.
+          (87 joints, MuJoCo, from a micro-CT scan), which turns the scalar into a
+          real motion: a brief <strong>lateralized perturbation</strong> of the
+          walking gait that yaws the body away — here, <strong>{cond.outcome}</strong>.
+          Then the fly has moved, the looming geometry has changed, and the loop runs
+          again through the physics.
         </>
       ),
     }),
@@ -475,31 +480,58 @@ export function EmbodiedLoop({
                 <text x={c.box.x + 38} y={c.box.y + 24} fill={INK} fontSize={12.5} fontWeight={500} letterSpacing="0.08em">
                   {c.title}
                 </text>
+                {/* affordance: a single subtle info glyph (the wordy "hover · tap ·
+                    focus" line read as clutter); the instruction lives once in the
+                    caption below. Brightens on activate. */}
+                <text
+                  x={c.box.x + c.box.w - 11}
+                  y={c.box.y + 21}
+                  textAnchor="end"
+                  fill={active === c.id ? accent : FAINT}
+                  fontSize={13}
+                  aria-hidden="true"
+                >
+                  ⓘ
+                </text>
 
                 {/* per-stage content */}
                 {c.id === "sense" && (
-                  <text x={c.box.x + 14} y={c.box.y + 52} fill={SUB} fontSize={11}>
-                    {d.side
-                      ? `looming on the ${d.side} eye · ${cond.azimuth_deg}° azimuth`
-                      : "no threat · both eyes quiet"}
-                  </text>
+                  <>
+                    <text x={c.box.x + 14} y={c.box.y + 48} fill={SUB} fontSize={11}>
+                      {d.side
+                        ? `looming on the ${d.side} eye · ${cond.azimuth_deg}° azimuth`
+                        : "no threat · both eyes quiet"}
+                    </text>
+                    <text x={c.box.x + 14} y={c.box.y + 66} fill={FAINT} fontSize={9.5}>
+                      {d.side
+                        ? "→ size + expansion, split L/R, into LC4 / LPLC2"
+                        : "both loom channels zero → nothing enters the brain"}
+                    </text>
+                  </>
                 )}
 
                 {c.id === "descend" && (
                   <>
-                    <text x={c.box.x + 14} y={c.box.y + 50} fill={SUB} fontSize={11}>
-                      GF rate → escape drive
+                    <text x={c.box.x + 14} y={c.box.y + 48} fill={SUB} fontSize={11}>
+                      GF rate → escape drive (dir. from which eye)
                     </text>
-                    <text x={c.box.x + 14} y={c.box.y + 67} fill={d.firing ? GREEN : SUB} fontSize={12} fontWeight={500}>
+                    <text x={c.box.x + 14} y={c.box.y + 65} fill={d.firing ? GREEN : SUB} fontSize={12} fontWeight={500}>
                       drive = {d.drive.toFixed(3)}
                     </text>
                   </>
                 )}
 
                 {c.id === "body" && (
-                  <text x={c.box.x + 14} y={c.box.y + 54} fill={GREEN} fontSize={12} fontWeight={500}>
-                    {cond.outcome}
-                  </text>
+                  <>
+                    <text x={c.box.x + 14} y={c.box.y + 50} fill={GREEN} fontSize={12} fontWeight={500}>
+                      {cond.outcome}
+                    </text>
+                    <text x={c.box.x + 14} y={c.box.y + 68} fill={FAINT} fontSize={9.5}>
+                      {d.firing
+                        ? "87-joint body · drive → lateralized gait → yaw"
+                        : "87-joint body · zero drive → plain walk"}
+                    </text>
+                  </>
                 )}
 
                 {/* brain mini-circuit: LC4 + LPLC2 → DNp01, with a spike */}
@@ -588,7 +620,8 @@ export function EmbodiedLoop({
             <strong>{cond.outcome}</strong>.
           </>
         )}{" "}
-        Hover or tap a stage for the mechanism.
+        <span className="cg-eb-affordance">ⓘ hover, tap, or focus any stage</span> for
+        the mechanism — what each one actually computes.
       </p>
     </div>
   );

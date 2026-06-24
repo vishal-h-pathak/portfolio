@@ -151,7 +151,9 @@ export default function EmbodiedTabPage() {
           § THE ESCAPE CIRCUIT · WHERE IT SITS
         </p>
         <p className="cg-section-lead">
-          Inside that brain is the real escape sub-circuit. The looming detectors{" "}
+          The circuit Vishal kept coming back to. Inside that brain is the real escape
+          sub-circuit — three identified cell types, the cleanest known
+          looming-detector → escape pathway biology hands us. The looming detectors{" "}
           <strong>LC4</strong> (≈ angular velocity) and <strong>LPLC2</strong>{" "}
           (≈ angular size) sit laterally in the lobula complex, behind each eye, and
           converge ipsilaterally onto <strong>DNp01, the Giant Fiber</strong>, which
@@ -163,13 +165,68 @@ export default function EmbodiedTabPage() {
           <BrainCircuitMap circuit={circuit} />
         </div>
 
+        {/* the three cell types — what / where / why, anchored on the map above */}
+        <div className="cg-eb-celltypes" role="list" aria-label="The three escape-circuit cell types">
+          <div className="cg-eb-celltype" role="listitem">
+            <p className="cg-eb-celltype-h">
+              <span className="cg-eb-celltype-name">LC4</span>
+              <span className="cg-eb-celltype-tag">{circuit.neurons.LC4.both} neurons · cholinergic</span>
+            </p>
+            <p className="cg-eb-celltype-b">
+              A <strong>lobula columnar</strong> visual projection neuron tuned to a
+              looming object&apos;s <strong>angular velocity</strong> — how fast its
+              image is expanding. The &ldquo;it&apos;s coming <em>fast</em>&rdquo;
+              channel. Sits laterally in the lobula complex, right behind the eye.
+            </p>
+          </div>
+          <div className="cg-eb-celltype" role="listitem">
+            <p className="cg-eb-celltype-h">
+              <span className="cg-eb-celltype-name">LPLC2</span>
+              <span className="cg-eb-celltype-tag">{circuit.neurons.LPLC2.both} neurons · cholinergic</span>
+            </p>
+            <p className="cg-eb-celltype-b">
+              A <strong>lobula-plate/lobula columnar</strong> projection neuron tuned
+              to <strong>angular size</strong> — loom geometry, the object filling the
+              eye near collision. The &ldquo;it&apos;s getting <em>big</em>&rdquo;
+              channel. Also lateral, in the lobula complex.
+            </p>
+          </div>
+          <div className="cg-eb-celltype" role="listitem">
+            <p className="cg-eb-celltype-h">
+              <span className="cg-eb-celltype-name">DNp01</span>
+              <span className="cg-eb-celltype-tag">the Giant Fiber · {circuit.neurons.DNp01.both} (1/side)</span>
+            </p>
+            <p className="cg-eb-celltype-b">
+              The <strong>descending command neuron</strong> for fast escape — one per
+              hemisphere, the largest axon in the fly. LC4 and LPLC2 converge on its
+              lateral dendrite; it <strong>sums size + velocity</strong> and carries
+              the &ldquo;escape now&rdquo; command down toward the ventral nerve cord.
+            </p>
+          </div>
+        </div>
+
         <div className="cg-eb-prose">
           <p>
-            The numbers come straight from the connectome:{" "}
+            <strong>Where they come from.</strong> Every cell here is a real, addressed
+            neuron in the <strong>FlyWire v783</strong> connectome — the
+            electron-microscope wiring diagram of a whole adult <em>Drosophila</em>{" "}
+            brain. CX-1&apos;s curation pulls{" "}
             <strong>{circuit.neurons.LC4.both} LC4</strong> +{" "}
-            <strong>{circuit.neurons.LPLC2.both} LPLC2</strong> neurons converging
-            on <strong>{circuit.neurons.DNp01.both} Giant Fibers</strong>. The right
-            Giant Fiber carries more converging synapses than the left —{" "}
+            <strong>{circuit.neurons.LPLC2.both} LPLC2</strong> →{" "}
+            <strong>{circuit.neurons.DNp01.both} DNp01</strong> (316 cells total), and
+            all 316 resolve in the brain we run — no version drift, because both are
+            keyed to v783. The convergence is <strong>ipsilateral</strong>: each eye&apos;s
+            detectors drive that side&apos;s Giant Fiber.
+          </p>
+          <p>
+            <strong>Why these three.</strong> This is textbook escape wiring, and the
+            most tractable place a connectome can drive a body: a small,
+            self-contained sub-circuit (316 cells, not 138,639) with a known function.
+            von Reyn et al. 2017 showed the Giant Fiber sums angular size and velocity
+            to time a takeoff; Ache et al. 2019 dissected the LC4 (velocity) vs LPLC2
+            (size) division of labor converging on it. Driving LC4 + LPLC2 in the live
+            connectome makes DNp01 fire, and the asymmetry is real: the right Giant
+            Fiber carries more converging synapses than the left —{" "}
             {circuit.convergence_syn_ge_1["LC4->DNp01_right"].total_synapses}/
             {circuit.convergence_syn_ge_1["LC4->DNp01_left"].total_synapses} for LC4,{" "}
             {circuit.convergence_syn_ge_1["LPLC2->DNp01_right"].total_synapses}/
@@ -252,6 +309,35 @@ export default function EmbodiedTabPage() {
           Timings from the WP-D export run (the bundle is reproducible — seeded,
           re-running the script reproduces it byte-for-byte).
         </p>
+        <div className="cg-eb-prose">
+          <p className="cg-eb-prose-dim">
+            <strong>What it costs.</strong> &ldquo;Built once, then stepped&rdquo; is
+            what makes the loop tractable, but the choices it forces are real
+            drawbacks, not free wins:
+          </p>
+          <ul className="cg-eb-drawbacks">
+            <li>
+              <strong>The {(CONFIG.sync_window_s * 1000).toFixed(0)} ms sync may be too
+              coarse.</strong> Brain and body advance in one lockstep window; a real
+              escape&apos;s decisive dynamics can be faster than that, so the fastest
+              part of the behavior is under-sampled. Fine for a turn-and-flee, likely
+              too slow for, say, a wing-beat-timed takeoff.
+            </li>
+            <li>
+              <strong>The single-DN readout is quantized and flickers.</strong> The
+              escape command is read from one DNp01 per hemisphere over that window, so
+              the mean rate lands in ~33 Hz steps and can swap a step run-to-run — the
+              peak split here ({left?.gf_peak_hz} vs {right?.gf_peak_hz} Hz) is on that
+              grid. Averaging more GF-pathway neurons / longer windows would smooth it.
+            </li>
+            <li>
+              <strong>No sub-window dynamics.</strong> Within a window the drive is held
+              constant, so anything happening faster than {(CONFIG.sync_window_s * 1000).toFixed(0)} ms
+              — fine spike timing, rapid sensory change — is invisible to the body. The
+              loop sees a stepped approximation, not the continuous trajectory.
+            </li>
+          </ul>
+        </div>
       </section>
 
       {/* ── §6 honest limits — at full prominence ── */}
@@ -317,23 +403,31 @@ export default function EmbodiedTabPage() {
           § THE LINE THIS COMPLETES
         </p>
         <p className="cg-section-lead">
-          The bench walked one line: from a generic null-model controller to the real
-          circuit. This page is its top rung — the connectome, embodied.
+          One controller slot drives one fixed body; the line swaps progressively more
+          biological structure into that slot.{" "}
+          <strong>Rung 01</strong> is the starting placeholder — a generic NCA null
+          model, the proof a local rule <em>can</em> walk the body, with nothing
+          biological in it. <strong>Rung 02</strong> closes the proprioceptive loop.{" "}
+          <strong>Rung 03</strong> — this page — fills the slot with the real FlyWire
+          connectome. That top rung <em>is</em> the climax; the rungs below it are the
+          run-up, not the goal.
         </p>
         <div className="cg-tab-module" role="region" aria-label="The controller ladder">
           <ControllerLadder />
           <figure className="cg-ladder-anchor">
             <a className="cg-ladder-anchor-link" href={`${CG_BASE}/body`}>
-              <span className="cg-ladder-anchor-tag">RUNG 01 · LIVE TODAY</span>
+              <span className="cg-ladder-anchor-tag">RUNG 01 · THE STARTING PLACEHOLDER</span>
               <span className="cg-ladder-anchor-go">
-                Watch the NCA null model walk this exact body, live, on the Body tab →
+                Watch rung 01 — the NCA null model — walk this exact body, live, on the
+                Body tab →
               </span>
             </a>
             <figcaption>
-              Rung 01, the NCA null model walking the FlyGym body (native gain,
-              live-physics validated) — the placeholder the brain replaces. The body
-              and the slot stay fixed; each rung up replaces only what fills the
-              controller slot, and the top rung is the real connectome on this page.
+              Rung 01 is where the line <em>starts</em>: the generic NCA null model
+              walking the FlyGym body (native gain, live-physics validated) — the
+              placeholder the connectome replaces, not the destination. The body and
+              the slot stay fixed, so each rung up changes only the controller&apos;s
+              internal structure; rung 03, the real connectome on this page, is the top.
             </figcaption>
           </figure>
         </div>

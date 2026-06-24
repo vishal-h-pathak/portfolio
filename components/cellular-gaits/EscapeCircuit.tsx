@@ -124,11 +124,12 @@ const NODES: Node[] = [
     kind: "real",
     plain: (
       <>
-        The descending neuron where <strong>~55 LC4 + ~108 LPLC2</strong>{" "}
-        synapses converge on the lateral dendrite. The Giant Fiber effectively{" "}
-        <strong>sums size + velocity</strong>; the timing of its{" "}
-        <strong>single spike</strong> sets the motor program — a short (fast,
-        less stable) vs long (slower, coordinated) takeoff.
+        The descending neuron where the looming detectors converge on the lateral
+        dendrite — <strong>~55 LC4 + ~108 LPLC2 neurons per hemisphere</strong>,
+        through hundreds of synapses (LC4 ~374–431, LPLC2 ~458–622 per side in
+        FlyWire v783). The Giant Fiber effectively <strong>sums size + velocity</strong>;
+        the timing of its <strong>single spike</strong> sets the motor program — a
+        short (fast, less stable) vs long (slower, coordinated) takeoff.
       </>
     ),
   },
