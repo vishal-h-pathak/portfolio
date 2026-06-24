@@ -303,13 +303,17 @@ export function ConnectomeCloud({
           backdropGeom = new THREE.BufferGeometry();
           backdropGeom.setAttribute("position", new THREE.BufferAttribute(ba, 3));
           backdropMat = new THREE.PointsMaterial({
+            // NormalBlending (not additive): with ~40k dense points additive
+            // accumulates to solid white and buries the lit circuit. Normal
+            // blending makes a flat dim haze that never brightens past the
+            // point color — a faint resting cloud the circuit reads against.
             color: 0x2a3340,
-            size: 0.9,
+            size: 0.7,
             sizeAttenuation: true,
             transparent: true,
-            opacity: 0.22,
+            opacity: 0.3,
             depthWrite: false,
-            blending: THREE.AdditiveBlending,
+            blending: THREE.NormalBlending,
           });
           backdropPoints = new THREE.Points(backdropGeom, backdropMat);
           group.add(backdropPoints);
