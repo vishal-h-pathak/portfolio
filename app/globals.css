@@ -2660,6 +2660,7 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   white-space: nowrap;
 }
 .cg-beh-status[data-status="building"] { color: var(--green); }
+.cg-beh-status[data-status="exploratory"] { color: var(--amber); border-style: dashed; }
 .cg-beh-status[data-status="queued"] { color: var(--ink-faint); border-style: dashed; }
 .cg-beh-row {
   display: flex;
@@ -3667,3 +3668,183 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   .cg-eb-topdown-clips { grid-template-columns: 1fr; }
 }
 
+
+/* ── connectome point cloud: the real escape circuit in 3-D space (R2-WP4) ──
+   The honest, anatomical counterpart to <BrainCircuitMap>: 316 real FlyWire
+   v783 neurons at their measured positions, lit by the computed LIF activity. */
+.cg-cc { display: flex; flex-direction: column; gap: 14px; }
+.cg-cc-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.cg-cc-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.cg-cc-conds { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.cg-cc-stage {
+  position: relative;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  /* pure-black field so the additive glow blooms like Eon's brain panel */
+  background:
+    radial-gradient(120% 90% at 50% 38%, rgba(20, 28, 34, 0.55) 0%, rgba(6, 7, 9, 0.9) 62%, #050507 100%),
+    #050507;
+  overflow: hidden;
+}
+.cg-cc-canvas { width: 100%; line-height: 0; cursor: grab; }
+.cg-cc-canvas:active { cursor: grabbing; }
+
+.cg-cc-status {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 24px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-dim);
+  pointer-events: none;
+}
+.cg-cc-status-err { color: var(--amber); }
+
+.cg-cc-legend {
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  pointer-events: none;
+}
+.cg-cc-key {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.02em;
+  color: var(--ink-dim);
+}
+.cg-cc-key-rest { color: var(--ink-faint); }
+.cg-cc-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.cg-cc-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.cg-cc-play { min-width: 78px; text-align: center; }
+.cg-cc-scrub {
+  flex: 1 1 auto;
+  appearance: none;
+  -webkit-appearance: none;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--rule);
+  cursor: pointer;
+}
+.cg-cc-scrub:disabled { opacity: 0.4; cursor: default; }
+.cg-cc-scrub::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--green);
+  border: none;
+  box-shadow: 0 0 6px var(--green-dim);
+}
+.cg-cc-scrub::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border: none;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green-dim);
+}
+.cg-cc-readout {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--ink-dim);
+  min-width: 64px;
+  text-align: right;
+}
+
+.cg-cc-asym {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+}
+.cg-cc-asym-lab { text-transform: uppercase; letter-spacing: 0.12em; font-size: 9.5px; }
+.cg-cc-asym-pair { display: flex; gap: 10px; }
+.cg-cc-asym-cell { color: var(--ink-dim); }
+.cg-cc-asym-cell strong { color: var(--ink-dim); font-weight: 600; }
+.cg-cc-asym[data-firing="1"] .cg-cc-asym-cell strong { color: var(--green); }
+.cg-cc-asym-cell[data-strong="1"] strong { color: #F8D26B; }
+
+.cg-cc-cap {
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  color: var(--ink-dim);
+  margin: 0;
+  max-width: 70ch;
+}
+.cg-cc-cap strong { color: var(--ink); font-weight: 500; }
+.cg-cc-cap code {
+  font-size: 10px;
+  color: var(--amber);
+  background: rgba(232, 155, 61, 0.08);
+  padding: 0 3px;
+  border-radius: 3px;
+}
+.cg-cc-honest {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  color: var(--ink-faint);
+  margin: 0;
+  max-width: 70ch;
+}
+
+.cg-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 560px) {
+  .cg-cc-legend { position: static; margin: -6px 12px 10px; }
+  .cg-cc-stage { display: flex; flex-direction: column; }
+}

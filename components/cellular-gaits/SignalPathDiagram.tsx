@@ -321,17 +321,17 @@ function SystemNowPanel({ idp }: { idp: string }) {
         })()}
 
         {/* brain branch — tied to the controller slot (no arrowhead: it is an
-            alternative controller, not a feed). Detail + the Embodied page in
-            the popout. */}
+            alternative controller, not a feed). SOLID thin tie: this rung is
+            built and live (the Embodied page), so it reads "real, swappable rung",
+            not "planned/unwired". Detail + the Embodied page in the popout. */}
         <line
           x1={NX + NW}
           y1={gridMid}
           x2={BX}
           y2={gridMid}
           stroke={GREEN}
-          strokeWidth={1.2}
-          strokeDasharray="2 3"
-          opacity={0.8}
+          strokeWidth={1.4}
+          opacity={1}
         />
         <g
           role="button"
@@ -360,8 +360,8 @@ function SystemNowPanel({ idp }: { idp: string }) {
             rx={6}
             fill="rgba(111,227,154,0.05)"
             stroke={GREEN}
-            strokeOpacity={active === "brain" ? 1 : 0.55}
-            strokeWidth={active === "brain" ? 1.8 : 1}
+            strokeOpacity={active === "brain" ? 1 : 0.85}
+            strokeWidth={active === "brain" ? 1.8 : 1.2}
           />
           <text x={NX + 12} y={BLOCKS[0].y + 23} fill={GREEN} fontSize={11.5} fontWeight={500}>
             connectome

@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 type Behavior = {
   label: string;
   href?: string;
-  status: "live" | "building" | "queued";
+  status: "live" | "building" | "exploratory" | "queued";
   sense: string;
   reward: string;
   why: string;
@@ -52,7 +52,7 @@ const BEHAVIORS: Behavior[] = [
   {
     label: "Obstacle navigation",
     href: `${CG_BASE}/behaviors/navigation`,
-    status: "building",
+    status: "exploratory",
     sense: "short-range distance ‘feelers’ + goal bearing",
     reward: "reach the goal, penalize collisions",
     why: "fuses seek + avoid — the most robot-demo-compelling of the four, and the one honest about having no clean real-circuit seam.",
@@ -116,7 +116,7 @@ export default function BehaviorsHubPage() {
           tab). <strong>Perturbation</strong> and{" "}
           <strong>chemotaxis</strong> are the other live ones; navigation — the
           seek-plus-avoid synthesis, and the one behavior without a clean
-          real-circuit seam — is building.
+          real-circuit seam — is exploratory.
         </p>
         <ul className="cg-beh-list">
           {BEHAVIORS.map((b) => {
@@ -125,7 +125,13 @@ export default function BehaviorsHubPage() {
                 <span className="cg-beh-head">
                   <span className="cg-beh-label">{b.label}</span>
                   <span className="cg-beh-status" data-status={b.status}>
-                    {b.status === "live" ? "live" : b.status === "building" ? "live soon" : "queued"}
+                    {b.status === "live"
+                      ? "live"
+                      : b.status === "building"
+                        ? "live soon"
+                        : b.status === "exploratory"
+                          ? "exploratory"
+                          : "queued"}
                   </span>
                 </span>
                 <span className="cg-beh-row">

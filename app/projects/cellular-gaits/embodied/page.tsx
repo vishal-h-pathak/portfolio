@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ControllerLadder } from "@/components/cellular-gaits/ControllerLadder";
 import { EmbodiedLoop, type LoopCondition, type LoopConfig } from "@/components/cellular-gaits/EmbodiedLoop";
 import { BrainCircuitMap, type CircuitData } from "@/components/cellular-gaits/BrainCircuitMap";
+import { ConnectomeCloud } from "@/components/cellular-gaits/ConnectomeCloud";
 import { GfResponse, type GfResponseData } from "@/components/cellular-gaits/GfResponse";
 import {
   EmbodiedConditions,
@@ -233,8 +234,33 @@ export default function EmbodiedTabPage() {
             {circuit.convergence_syn_ge_1["LPLC2->DNp01_left"].total_synapses} for
             LPLC2 — which is exactly why the right Giant Fiber out-fires the left in
             the live run. The brain outline is a hand-drawn schematic for placement,
-            not a literal neuropil render; the counts and synapses are real.
+            not a literal neuropil render; the counts and synapses are real —{" "}
+            <em>but</em> the next section drops the schematic and puts these exact 316
+            cells where they really sit, then lets them fire.
           </p>
+        </div>
+      </section>
+
+      {/* ── §2b the same circuit, in real anatomical space, lighting up ── */}
+      <section className="cg-section" aria-labelledby="cg-eb-cloud-h">
+        <p className="cg-section-eyebrow" id="cg-eb-cloud-h">
+          § THE REAL CIRCUIT · FIRING IN ANATOMICAL SPACE
+        </p>
+        <p className="cg-section-lead">
+          The schematic above is for reading the wiring; this is the same circuit
+          told straight. Every one of the <strong>316 neurons</strong> sits at its{" "}
+          <strong>measured FlyWire v783 position</strong>, and each one lights by the{" "}
+          <strong>real per-window firing we computed</strong> in the escape run — the
+          LC4/LPLC2 drive and the DNp01 (Giant Fiber) rate, the same numbers the curve
+          and the result panels below are made of. Pick a condition and scrub the
+          escape: resting is cool and dim, a loom warms the threat side&apos;s
+          detectors and blooms the Giant Fiber gold, and baseline stays dark. This is
+          the honest version of the &ldquo;brain lighting up&rdquo; visual —{" "}
+          <em>measured</em> activity in real anatomy, not predicted glow.
+        </p>
+
+        <div className="cg-tab-module" role="region" aria-label="The escape circuit as a 3-D point cloud at real FlyWire positions">
+          <ConnectomeCloud conditions={CONDITIONS} />
         </div>
       </section>
 
