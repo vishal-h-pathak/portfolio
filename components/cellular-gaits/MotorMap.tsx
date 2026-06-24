@@ -186,6 +186,18 @@ export function MotorMap() {
 
   return (
     <div className="cg-mm">
+      {/* ---- what the module is doing, in plain language ---- */}
+      <p className="cg-mm-intro">
+        The evolved rule produces an <strong>8×8×4</strong> grid of numbers every
+        tick. To drive the body we read <strong>channel 0</strong> of the top-left{" "}
+        <strong>7×6</strong> block, row by row — 42 numbers, one per joint. Number{" "}
+        <code>i</code> becomes the target for actuator <code>i</code>, rescaled{" "}
+        <code>clip(u,−1,1)·3.14 rad</code>: the rule&apos;s unitless −1…1 output
+        turned into a joint angle of ±180°, which the physics engine then drives
+        that joint toward. Hover a grid cell or a leg joint to trace that wiring —
+        the grid position is deliberately <em>unrelated</em> to which leg moves.
+      </p>
+
       {/* ---- the two synced mapping surfaces ---- */}
       <div className="cg-mm-surfaces">
         <Grid
@@ -225,6 +237,25 @@ export function MotorMap() {
           onToggle={setOverrideOn}
           onVal={setOverrideVal}
         />
+      </div>
+
+      {/* ---- the alternatives are the interesting part (promoted) ---- */}
+      <div className="cg-mm-alts">
+        <p className="cg-mm-alts-h">The alternatives are the interesting part</p>
+        <p>
+          One cell → one joint is just the cheap wiring. The directions worth
+          building out — and worth visualizing — are richer: a{" "}
+          <strong>learned readout</strong> that lets evolution place the motor taps
+          itself; a <strong>population code</strong> where many cells vote on each
+          joint instead of one cell owning it; and the real biological version, a{" "}
+          <strong>descending-neuron interface</strong> — command neurons projecting
+          from the brain onto the leg controllers. That last one isn&apos;t
+          hypothetical here: the Giant Fiber (<strong>DNp01</strong>) firing rate is
+          already read out as the escape drive in the embodied loop.{" "}
+          <a className="cg-inline-link" href="/projects/cellular-gaits/embodied">
+            See the descending interface on the Embodied tab →
+          </a>
+        </p>
       </div>
     </div>
   );
@@ -497,6 +528,14 @@ function Override({
   const disabled = pinned == null;
   return (
     <div className="cg-mm-override">
+      <p className="cg-mm-ov-h">Override one joint</p>
+      <p className="cg-mm-ov-def">
+        Pin a cell, then this slider <em>overrides</em> it — forcing that one
+        joint&apos;s target to a value you pick instead of letting the evolved rule
+        set it. The other 41 keep walking, so you can see exactly which leg that
+        single number drives. The slider is the raw output <code>u ∈ [−1, 1]</code>;
+        the fly receives <code>clip(u,−1,1)·3.14 rad</code>.
+      </p>
       <label className="cg-mm-ov-toggle">
         <input
           type="checkbox"
@@ -531,11 +570,61 @@ function Override({
           {val.toFixed(2)} → {(Math.max(-1, Math.min(1, val)) * 3.14).toFixed(2)} rad
         </span>
       </div>
+      <PinnedFlyGlyph pinned={pinned} />
       <p className="cg-mm-ov-note">
         Clamps that one joint&apos;s target; the other 41 keep running the evolved
         gait — live MuJoCo.
       </p>
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// A small top-down fly under the override slider: highlights which leg + joint
+// the pinned cell actually drives, so the abstract index i lands on real anatomy.
+// ---------------------------------------------------------------------------
+function PinnedFlyGlyph({ pinned }: { pinned: number | null }) {
+  if (pinned == null) {
+    return (
+      <p className="cg-mm-ov-glyph-hint">
+        pin a joint to see which leg it moves
+      </p>
+    );
+  }
+  const legKey = LEG_KEYS[legOf(pinned)];
+  const dof = dofOf(pinned);
+  const node = nodeXY(legKey, dof);
+  return (
+    <figure className="cg-mm-ov-glyph">
+      <svg
+        viewBox={`10 58 300 292`}
+        role="img"
+        aria-label={`Top-down fly with the ${LEG_LABEL[legKey]} ${DOF_LABEL[dof]} joint highlighted`}
+      >
+        <ellipse cx={160} cy={92} rx={20} ry={26} className="cg-mm-body" />
+        <ellipse cx={160} cy={178} rx={30} ry={52} className="cg-mm-body" />
+        <ellipse cx={160} cy={278} rx={22} ry={56} className="cg-mm-body" />
+        {LEG_KEYS.map((k) => {
+          const g = LEG_GEO[k];
+          const tip = legTip(k);
+          return (
+            <line
+              key={k}
+              x1={g.bx}
+              y1={g.by}
+              x2={tip.x}
+              y2={tip.y}
+              className="cg-mm-limb"
+              data-active={k === legKey ? "1" : undefined}
+            />
+          );
+        })}
+        <circle cx={node.x} cy={node.y} r={8} className="cg-mm-node" data-active="1" />
+      </svg>
+      <figcaption className="cg-mm-cap">
+        affecting <strong>{LEG_LABEL[legKey]}</strong> · {DOF_LABEL[dof]}
+      </figcaption>
+    </figure>
   );
 }
 

@@ -19,6 +19,26 @@ export const metadata: Metadata = {
 function SearchObjectiveModule() {
   return (
     <div className="cg-obj-module">
+      <div className="cg-obj-framing">
+        <p className="cg-obj-framing-h">What we tried, and how it went</p>
+        <p>
+          <strong>It worked.</strong> Starting from random weights, CMA-ES tuned the
+          660-parameter neural cellular automaton from a twitching stagger into a
+          clean forward walk — <strong>86.6 mm in 3 seconds, about 29 mm/s</strong>.
+          No gradients, no hand-coded gait: score a candidate by how far the fly
+          walks, keep what works, repeat. The two panels below <em>are</em> that
+          result — first the objective the search was scored against, then the
+          search itself climbing it.
+        </p>
+        <p className="cg-obj-framing-note">
+          What this <em>isn&apos;t</em>: this is the gait-controller search, and it
+          succeeded. It&apos;s a separate experiment from the navigation
+          reinforcement-learning attempt — that one tried to learn goal-directed
+          steering and did <em>not</em> generalize. Don&apos;t read the two together;
+          the locomotion search on this page is the one that produced a working walk.
+        </p>
+      </div>
+
       <div className="cg-mathblock">
         <p className="cg-math-h3">What fitness rewarded</p>
         <div className="cg-math-eq">

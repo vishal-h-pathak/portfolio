@@ -6,7 +6,7 @@ import { ToyCmaEs } from "@/components/cellular-gaits/ToyCmaEs";
  *
  *   1. <ToyCmaEs/> — a live, in-browser toy: the real CMA-ES algorithm on a 2-D
  *      Rosenbrock valley, to build intuition for the mechanism. Clearly a toy.
- *   2. <EvolutionCurve/> — the REAL fly run, rendered statically from D's
+ *   2. <EvolutionCurve/> — the REAL fly run, rendered statically from the
  *      precomputed `public/cellular-gaits/data/evolution.json`. No live fitness
  *      recompute (that needs real MuJoCo rollouts). The original→resumed phase
  *      split — the machine-restart that warm-started from the gen-35 checkpoint
@@ -197,6 +197,20 @@ function EvolutionCurve() {
         from the gen-35 checkpoint), so step keeps them in order. Fitness ={" "}
         forward distance − 0.05·n<sub>below</sub>. Precomputed — no live rollout.
       </p>
+
+      <p className="cg-opt-flynote">
+        What this is, on the fly: each step is one generation of 32 candidate
+        controllers, each scored by a full MuJoCo rollout. The best curve climbing
+        0 → 86.6 mm <em>is</em> the walk getting better — gen-0 champions twitch and
+        topple, late ones walk the clean ~29 mm/s gait. The recorded gaits on the{" "}
+        <a className="cg-inline-link" href="/projects/cellular-gaits/controller">
+          Controller tab
+        </a>{" "}
+        show that final walk. What&apos;s missing is side-by-side clips of an early
+        vs. mid vs. late generation — <strong>a compute follow-up</strong>
+        (re-render the gen-0 / gen-20 / gen-50 champions from their checkpoints),
+        flagged here rather than faked.
+      </p>
     </div>
   );
 }
@@ -207,6 +221,11 @@ export function OptimizerModule() {
       <div className="cg-opt-block">
         <p className="cg-opt-h">
           Toy CMA-ES <em className="cg-opt-live">· live · illustrative</em>
+        </p>
+        <p className="cg-opt-sub">
+          A 2-D stand-in for the 660-D fly search, so you can actually watch the
+          mechanism the fly run uses. The fly&apos;s landscape can&apos;t run in a
+          browser; this toy one can.
         </p>
         <ToyCmaEs />
       </div>

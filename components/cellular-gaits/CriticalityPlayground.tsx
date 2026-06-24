@@ -411,11 +411,12 @@ export function CriticalityPlayground({
         <canvas
           ref={gridRef}
           className="cg-pg-grid"
+          style={{ borderColor: reg.color }}
           role="img"
           aria-label="Four-channel cellular automaton state; channel 0 motor cells outlined in amber"
         />
         <div className="cg-pg-cap">
-          4 channels · 8×8 · real evolved rule
+          the 4 state channels · 8×8 · ch0 (amber) → motors
           {bestFit != null ? ` · ${bestFit.toFixed(1)} mm/3s` : ""}
         </div>
       </div>
@@ -447,11 +448,11 @@ export function CriticalityPlayground({
 
         <div className="cg-pg-sense">
           <canvas ref={senseRef} className="cg-pg-sense-canvas" role="img" aria-label="Sensitivity map: how a tiny perturbation spreads" />
-          <span className="cg-pg-cap">sensitivity · ε spread</span>
+          <span className="cg-pg-cap">sensitivity · dark = order · lit = chaos</span>
         </div>
 
         <canvas ref={sparkRef} className="cg-pg-spark" role="img" aria-label="Instantaneous divergence with running-mean lambda line" />
-        <div className="cg-pg-cap">log(d/ε) per tick · colored line = mean λ</div>
+        <div className="cg-pg-cap">trajectory divergence / tick · flat = order · colored line = mean λ</div>
       </div>
 
       <div className="cg-pg-controls">
@@ -495,10 +496,80 @@ export function CriticalityPlayground({
           </button>
         </div>
         <p className="cg-pg-do">
-          Drag the gain past ~1.3 and watch λ cross zero while the change-rate
-          barely moves. (λ needs a few seconds to settle after each change.)
+          <strong>gain</strong> slides the whole system order → edge → chaos · the
+          four <strong>presets</strong> jump to fixed points on that axis ·{" "}
+          <strong>play/pause/step</strong> run or single-step the ticks ·{" "}
+          <strong>reseed</strong> restarts from a fresh random state ·{" "}
+          <strong>reset λ</strong> clears the running average. Drag the gain past
+          ~1.3 and watch λ cross zero while the change-rate barely moves.
+        </p>
+        <p className="cg-pg-do">
+          <strong>Why the dials seem to lag:</strong> every gain change restarts
+          λ&apos;s average, so it takes ~2–3 seconds of ticks to re-settle on the
+          new value — the readouts aren&apos;t stuck, they&apos;re re-measuring
+          from scratch. The live body below re-poses immediately, so watch it for
+          the instant response.
         </p>
       </div>
+      </div>
+
+      <div className="cg-pg-explain">
+        <p className="cg-pg-explain-h">
+          Reading the dials — what each number is, and why it&apos;s here
+        </p>
+        <dl className="cg-pg-explain-grid">
+          <div>
+            <dt>the channel grid</dt>
+            <dd>
+              The automaton&apos;s 4 state channels, laid out 2×2 — each an 8×8
+              grid of cells colored by activation (blue −, red +). Channel 0 (the
+              amber-outlined cells) is the slice that becomes the 42 motor
+              commands. Across regimes it looks like much the same flashing rhythm
+              because the evolved rule is <em>saturated</em>, so the regime shows
+              up in the sensitivity map and the live body below — <em>not</em> in
+              the raw channels.
+            </dd>
+          </div>
+          <div>
+            <dt>λ · lyapunov exponent</dt>
+            <dd>
+              Start two identical copies of the network a hair apart; λ is the
+              average rate the gap between them grows (+) or shrinks (−) per tick.
+              Negative = order, positive = chaos, <strong>zero = the edge</strong>.
+              It&apos;s the headline number because λ=0 is the gait cliff: walking
+              distance peaks just inside the ordered side and collapses the moment
+              λ tips positive.
+            </dd>
+          </div>
+          <div>
+            <dt>state-change rate</dt>
+            <dd>
+              RMS change of the grid per tick — how &ldquo;busy&rdquo; it looks. It
+              stays pinned near its max across almost the whole gain range, so the
+              obvious activity number <em>can&apos;t</em> locate the edge. That
+              contrast is the lesson sitting next to λ: λ finds the edge, this
+              can&apos;t.
+            </dd>
+          </div>
+          <div>
+            <dt>sensitivity map</dt>
+            <dd>
+              A one-cell nudge dropped into a free-running copy, each cell colored
+              by how far that nudge has spread. Dark when order damps it out; it
+              ignites across the grid in chaos, where small differences blow up.
+              This is the regime made visible.
+            </dd>
+          </div>
+          <div>
+            <dt>log(d/ε) trace</dt>
+            <dd>
+              The raw per-tick divergence λ is averaged from. In the ordered
+              regime the two copies stay locked together, so it sits flat on the
+              zero line — the flat trace <em>is</em> the ordered signature, not a
+              dead plot. Push the gain past the edge and it lifts off the line.
+            </dd>
+          </div>
+        </dl>
       </div>
 
       {loaded && (

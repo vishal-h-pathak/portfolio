@@ -1119,6 +1119,58 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
 /* ── objective viz (ObjectiveChart.tsx) ─────────────────────────────── */
 .cg-obj-module .cg-mathblock { margin: 0 0 22px; }
 
+/* R3b: "what we tried / how it went" framing — reads as a success up top */
+.cg-obj-framing {
+  margin: 0 0 26px;
+  border-left: 2px solid var(--green-dim);
+  padding: 4px 0 4px 18px;
+}
+.cg-obj-framing-h {
+  margin: 0 0 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--green);
+}
+.cg-obj-framing p:not(.cg-obj-framing-h) {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+  max-width: 72ch;
+}
+.cg-obj-framing p + p { margin-top: 12px; }
+.cg-obj-framing strong { color: var(--ink); font-weight: 500; }
+.cg-obj-framing em { color: var(--ink); font-style: italic; }
+.cg-obj-framing-note { font-size: 14px !important; color: var(--ink-faint) !important; }
+
+/* R3b: persistent variable key under the bar chart */
+.cg-obj-defs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px 24px;
+  margin: 14px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule-soft);
+}
+.cg-obj-defs div { min-width: 0; }
+.cg-obj-defs dt {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--amber);
+  margin-bottom: 2px;
+}
+.cg-obj-defs dt sub { font-size: 0.78em; }
+.cg-obj-defs dd {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-dim);
+}
+.cg-obj-defs dd sub { font-size: 0.78em; }
+
 .cg-obj {
   border: 1px solid var(--rule);
   background: var(--bg-raised);
@@ -1610,6 +1662,49 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   margin: 0;
   max-width: 64ch;
 }
+.cg-pg-do strong { color: var(--ink-dim); font-weight: 500; }
+.cg-pg-do em { color: var(--ink); font-style: normal; }
+.cg-pg-do + .cg-pg-do { margin-top: 10px; }
+
+/* "reading the dials" explainer — plain what-it-is for every readout (R3b) */
+.cg-pg-explain {
+  border: 1px solid var(--rule);
+  background: var(--bg-raised);
+  padding: 18px 20px;
+}
+.cg-pg-explain-h {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 0 0 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.cg-pg-explain-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px 28px;
+  margin: 0;
+}
+.cg-pg-explain-grid div { min-width: 0; }
+.cg-pg-explain-grid dt {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--green);
+  margin-bottom: 4px;
+}
+.cg-pg-explain-grid dd {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-dim);
+}
+.cg-pg-explain-grid dd strong { color: var(--ink); font-weight: 500; }
+.cg-pg-explain-grid dd em { color: var(--ink); font-style: italic; }
 
 /* ── optimizer tab (OptimizerModule.tsx + ToyCmaEs.tsx) ──────────────── */
 .cg-opt {
@@ -1668,6 +1763,26 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   max-width: 78ch;
 }
 .cg-opt-cap em { color: var(--ink-dim); font-style: normal; }
+
+/* R3b: toy context line + the real-run → fly connection / compute flag */
+.cg-opt-sub {
+  margin: -4px 0 2px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-dim);
+  max-width: 70ch;
+}
+.cg-opt-sub em { color: var(--ink); font-style: italic; }
+.cg-opt-flynote {
+  margin: 2px 0 0;
+  font-family: var(--serif);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+  max-width: 78ch;
+}
+.cg-opt-flynote strong { color: var(--amber); font-weight: 500; }
+.cg-opt-flynote em { color: var(--ink); font-style: italic; }
 
 @media (max-width: 720px) {
   .cg-opt-toy {
@@ -2232,6 +2347,89 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   line-height: 1.55;
   color: var(--ink-dim);
 }
+
+/* R3b: plain-language module intro + override definition + pinned-joint glyph */
+.cg-mm-intro {
+  margin: 0 0 18px;
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+  max-width: 70ch;
+}
+.cg-mm-intro strong { color: var(--ink); font-weight: 500; }
+.cg-mm-intro em { color: var(--ink); font-style: italic; }
+.cg-mm-intro code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  color: var(--ink);
+  background: rgba(232, 230, 223, 0.06);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.cg-mm-ov-h {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.cg-mm-ov-def {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+}
+.cg-mm-ov-def em { color: var(--ink); font-style: italic; }
+.cg-mm-ov-def code {
+  font-family: var(--mono);
+  font-size: 0.86em;
+  color: var(--green);
+  background: rgba(111, 227, 154, 0.08);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.cg-mm-ov-glyph {
+  margin: 4px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+.cg-mm-ov-glyph svg { width: 132px; height: auto; }
+.cg-mm-ov-glyph figcaption strong { color: var(--green); font-weight: 500; }
+.cg-mm-ov-glyph-hint {
+  margin: 4px 0 0;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+}
+.cg-mm-alts {
+  margin-top: 22px;
+  border-top: 1px solid var(--rule);
+  border-left: 2px solid var(--green-dim);
+  padding: 18px 20px 4px;
+  background: rgba(111, 227, 154, 0.03);
+}
+.cg-mm-alts-h {
+  margin: 0 0 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--green);
+}
+.cg-mm-alts p:not(.cg-mm-alts-h) {
+  margin: 0 0 14px;
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+  max-width: 72ch;
+}
+.cg-mm-alts strong { color: var(--ink); font-weight: 500; }
 
 @media (max-width: 640px) {
   .cg-mm { padding: 14px; }

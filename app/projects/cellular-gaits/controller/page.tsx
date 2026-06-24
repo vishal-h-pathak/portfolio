@@ -20,8 +20,8 @@ export default function ControllerTabPage() {
           <em>gain</em> knob is the one dial that moves the whole system between
           order and the edge of chaos. The playground only <em>poses</em> the
           criticality question — λ flips sign as you cross the edge while the
-          state-change rate barely moves. Below it is the answer: D ran the real
-          MuJoCo physics across nine gains, and walking distance peaks exactly at
+          state-change rate barely moves. Below it is the answer: the real MuJoCo
+          physics, run across nine gains, where walking distance peaks exactly at
           the native gain and collapses the moment λ tips into chaos.
         </>
       }
@@ -30,7 +30,7 @@ export default function ControllerTabPage() {
           <CriticalityPlayground />
 
           <div className="cg-result">
-            <p className="cg-result-eyebrow">§ THE ANSWER · D RAN THE PHYSICS</p>
+            <p className="cg-result-eyebrow">§ THE ANSWER · THE REAL PHYSICS</p>
             <p className="cg-result-lead">
               The playground&apos;s old caveat — <em>&ldquo;we haven&apos;t run
               the physics yet&rdquo;</em> — is now resolved. In the real engine,
@@ -48,6 +48,16 @@ export default function ControllerTabPage() {
               tab.
             </p>
             <GainSweepChart />
+            <p className="cg-result-lead">
+              The same axis on the body itself — three recorded MuJoCo rollouts.{" "}
+              <strong>Low gain</strong> is over-damped and plods; the{" "}
+              <strong>native gain</strong> sits just inside the ordered edge and
+              gives the clean, fast walk (the 86.6 mm peak — about{" "}
+              <strong>29 mm/s</strong>); <strong>high gain</strong> pushes past
+              the edge into chaos and the gait shakes itself apart. That&apos;s
+              &ldquo;edge of chaos → good gait&rdquo; you can <em>watch</em>, not
+              just read off a plot.
+            </p>
             <GaitClips />
           </div>
         </div>

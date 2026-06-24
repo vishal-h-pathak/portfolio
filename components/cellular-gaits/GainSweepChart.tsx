@@ -2,7 +2,7 @@
  * GainSweepChart — the *answered* criticality result.
  *
  * The CriticalityPlayground only *poses* the edge-of-chaos question in-browser
- * (λ flips sign as you turn the gain). This chart is the answer D measured in
+ * (λ flips sign as you turn the gain). This chart is the answer measured in
  * the real engine: a precomputed MuJoCo gain→gait sweep, dual-axis, walking
  * distance (mm, left/green) and the Lyapunov exponent λ (right/amber) against
  * the gain knob. Distance is single-peaked at the native gain (1.0) and
@@ -222,7 +222,7 @@ export function GainSweepChart() {
       </svg>
 
       <figcaption className="cg-chart-cap">
-        Real MuJoCo gain→gait sweep (D · run {gainSweep.meta.run_id}, {gainSweep.meta.checkpoint},{" "}
+        Real MuJoCo gain→gait sweep (run {gainSweep.meta.run_id}, {gainSweep.meta.checkpoint},{" "}
         {gainSweep.meta.n_steps} steps). Distance peaks at the{" "}
         <strong>native gain 1.0 ({PEAK.toFixed(1)} mm)</strong> and collapses on
         both sides; <strong>λ crosses 0 between gain {CROSS_LO} and {CROSS_HI}</strong>,

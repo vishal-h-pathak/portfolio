@@ -5,7 +5,7 @@ import { useEffect, useId, useMemo, useState } from "react";
 /**
  * Objective viz — the real fitness, not a live re-optimization.
  *
- * Plots D's precomputed gain sweep (public/cellular-gaits/data/gain_sweep.json):
+ * Plots the precomputed gain sweep (public/cellular-gaits/data/gain_sweep.json):
  * forward distance vs the controller gain knob, single-peaked at native gain 1.0
  * (86.6 mm) and collapsing on both sides. This is the curve the *chosen* objective
  * rewarded — we visualize it, we do not recompute fitness for a new objective
@@ -300,6 +300,32 @@ export function ObjectiveChart({
           {showPenalty ? "F = distance − 0.05·N_below" : "distance (mm)"}
         </text>
       </svg>
+
+      {/* persistent variable key — every symbol on the chart, defined */}
+      <dl className="cg-obj-defs">
+        <div>
+          <dt>gain g</dt>
+          <dd>the one criticality knob; detunes the frozen controller, order (low) → edge → chaos (high)</dd>
+        </div>
+        <div>
+          <dt>distance</dt>
+          <dd>how far the thorax travels forward in the 3-second rollout, in mm — higher is better</dd>
+        </div>
+        <div>
+          <dt>
+            N<sub>below</sub>
+          </dt>
+          <dd>control steps the thorax sagged below half standing height — a proxy for collapsing or dragging</dd>
+        </div>
+        <div>
+          <dt>penalty</dt>
+          <dd>−0.05 × N<sub>below</sub>, the cost subtracted for sagging (it stayed 0 across this whole sweep)</dd>
+        </div>
+        <div>
+          <dt>fitness F</dt>
+          <dd>distance − penalty: the single number the search actually maximized</dd>
+        </div>
+      </dl>
 
       {/* readout + honesty note */}
       <div className="cg-obj-readout" aria-live="polite">

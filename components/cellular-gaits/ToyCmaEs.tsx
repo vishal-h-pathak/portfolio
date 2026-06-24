@@ -417,7 +417,7 @@ export function ToyCmaEs() {
           aria-label="Toy CMA-ES: sampling cloud and covariance ellipse aligning with a tilted 2-D quadratic valley and contracting onto the optimum."
         />
         <span className="cg-pg-cap">
-          tilted quadratic valley · σ√D ellipse = search distribution · ✛ = optimum
+          valley = a stand-in score landscape (bright = good) · ellipse = where the search is sampling · ✛ = best spot
         </span>
       </div>
 
@@ -459,11 +459,15 @@ export function ToyCmaEs() {
         </div>
 
         <p className="cg-pg-do">
-          Watch the green covariance ellipse rotate to align with the tilted
-          valley, then contract as the mean (✛ amber) settles on the optimum.
-          That covariance-shaping is what lets CMA-ES find a search direction
-          with no gradient — only candidate scores. Same algorithm runs the fly;
-          there it shapes a 660-dimensional ellipsoid instead of this 2-D one.
+          Each dot is one candidate the search tries this round; the bright{" "}
+          <strong>green</strong> dots scored best, the faded ones worse. The{" "}
+          <strong>ellipse</strong> is the search&apos;s current guess about where
+          good candidates live — it stretches along whichever direction has been
+          paying off and shrinks as it grows confident. It clusters on the bright
+          valley because that&apos;s where the high scores are: the search is
+          concentrating on the parameters that work. The real fly run is this exact
+          algorithm in 660 dimensions instead of 2 — each candidate there is a full
+          controller, scored by how far the fly walks.
         </p>
       </div>
     </div>
