@@ -1,62 +1,133 @@
 import type { Metadata } from "next";
 import { ConceptScaffold } from "@/components/cellular-gaits/ConceptScaffold";
-import { OptimizerModule } from "@/components/cellular-gaits/OptimizerModule";
-import { ObjectiveChart } from "@/components/cellular-gaits/ObjectiveChart";
+import { BlackBoxObjective } from "@/components/cellular-gaits/BlackBoxObjective";
+import { FitnessAnatomy } from "@/components/cellular-gaits/FitnessAnatomy";
+import { EvolutionClimb } from "@/components/cellular-gaits/EvolutionClimb";
+import { GaitGenerations } from "@/components/cellular-gaits/GaitGenerations";
+import { SelectionRound } from "@/components/cellular-gaits/SelectionRound";
 import { Math } from "@/components/cellular-gaits/Math";
 
 export const metadata: Metadata = {
   title: "Search & Objective — Cellular Gaits",
   description:
-    "What fitness rewarded and how that rule was found: the objective the controller was selected against, then the CMA-ES search that climbed it.",
+    "How a 660-parameter controller was tuned from a stagger into a walk: why it had to be a gradient-free search, the one hand-set number that defined a good walk, and the real CMA-ES run that climbed it to 86.6 mm.",
 };
 
-/** The merged module. Lead with *what fitness rewarded* — the F formula plus the
- *  real gain sweep (ObjectiveChart) — then *how that rule was found*: the toy +
- *  real CMA-ES run (OptimizerModule). The objective gloss ends "selected against
- *  the search below," which is now literally the optimizer beneath it. The single
- *  MAP-Elites frontier the two pages used to duplicate now lives once, in the
- *  explainer. */
+/**
+ * Search & Objective — rebuilt. The page answers one question end to end: how do
+ * you get a fly to walk when you can't write the gait and can't differentiate
+ * the physics? The arc:
+ *
+ *   It worked  →  A: why search (the objective is a black box)
+ *              →  B: what "good" was (the one hand-set number)
+ *              →  C: the climb (the honest centerpiece — it worked)
+ *              →  D: watch it improve (footage slot — compute follow-up)
+ *              →  under the hood: how CMA-ES moves with only scores
+ *
+ * Every visual ties a decision to a fly behavior: the black box holds a walking
+ * fly, F is how far it walked, the climb's numbers are the gait getting better,
+ * the slots are the gait you'd watch improve. The gain-sweep bar chart that used
+ * to live here was the Controller's edge-of-chaos story (gain detuning of frozen
+ * weights, not the search) and is dropped — it lives once, on the Controller tab.
+ */
 function SearchObjectiveModule() {
   return (
-    <div className="cg-obj-module">
-      <div className="cg-obj-framing">
-        <p className="cg-obj-framing-h">What we tried, and how it went</p>
+    <div className="cg-opt">
+      <div className="cg-opt-framing">
+        <p className="cg-opt-framing-h">What we tried, and how it went</p>
         <p>
-          <strong>It worked.</strong> Starting from random weights, CMA-ES tuned the
-          660-parameter neural cellular automaton from a twitching stagger into a
-          clean forward walk — <strong>86.6 mm in 3 seconds, about 29 mm/s</strong>.
-          No gradients, no hand-coded gait: score a candidate by how far the fly
-          walks, keep what works, repeat. The two panels below <em>are</em> that
-          result — first the objective the search was scored against, then the
-          search itself climbing it.
+          <strong>It worked.</strong> Starting from random weights, a gradient-free
+          search tuned the 660-parameter neural cellular automaton from a twitching
+          stagger into a clean forward walk — <strong>86.6 mm in 3 seconds, about
+          29 mm/s</strong>. No gradients, no hand-coded gait: score a candidate
+          controller by how far the fly walks, keep what works, repeat.
         </p>
-        <p className="cg-obj-framing-note">
+        <p className="cg-opt-framing-note">
           What this <em>isn&apos;t</em>: this is the gait-controller search, and it
           succeeded. It&apos;s a separate experiment from the navigation
           reinforcement-learning attempt — that one tried to learn goal-directed
-          steering and did <em>not</em> generalize. Don&apos;t read the two together;
-          the locomotion search on this page is the one that produced a working walk.
+          steering and did <em>not</em> generalize. The locomotion search on this
+          page is the one that produced a working walk.
         </p>
       </div>
 
-      <div className="cg-mathblock">
-        <p className="cg-math-h3">What fitness rewarded</p>
-        <div className="cg-math-eq">
-          <Math tex="F = \big(x^{\text{end}}_{\text{thorax}} - x^{\text{start}}_{\text{thorax}}\big) - 0.05\, N_{\text{below}}, \qquad z_{\text{thr}} = 0.5\, z_{\text{thorax}}" />
+      {/* A — why search, not gradients */}
+      <section className="cg-opt-sec">
+        <p className="cg-opt-sec-eyebrow">§ A · WHY SEARCH, NOT GRADIENTS</p>
+        <p className="cg-opt-sec-lead">
+          You can&apos;t write the gait by hand, and you can&apos;t train it by
+          backprop either. The fitness comes out of a contact-rich physics rollout —
+          so the only thing you can do is <em>try</em> a controller and{" "}
+          <em>measure</em> how far the fly walked.
+        </p>
+        <BlackBoxObjective />
+      </section>
+
+      {/* B — what counts as a good walk */}
+      <section className="cg-opt-sec">
+        <p className="cg-opt-sec-eyebrow">§ B · WHAT COUNTS AS A GOOD WALK</p>
+        <p className="cg-opt-sec-lead">
+          &ldquo;Good&rdquo; has to become a single number the search can climb.
+          Here it&apos;s the simplest one that turns &ldquo;walk forward&rdquo; into
+          a score: distance, minus a small guardrail against collapsing.
+        </p>
+        <div className="cg-mathblock">
+          <div className="cg-math-eq">
+            <Math tex="F = \big(x^{\text{end}}_{\text{thorax}} - x^{\text{start}}_{\text{thorax}}\big) - 0.05\, N_{\text{below}}, \qquad z_{\text{thr}} = 0.5\, z_{\text{thorax}}" />
+          </div>
+          <p className="cg-math-gloss">
+            Reward forward distance walked; subtract <code>0.05</code> for every
+            control step the thorax sags below half its standing height (
+            <Math tex="N_{\text{below}}" display={false} /> = number of such steps,
+            where <Math tex="z < z_{\text{thr}}" display={false} />). Distance is
+            measured after a short warm-up, so it scores control, not the initial
+            settle.
+          </p>
         </div>
-        <p className="cg-math-gloss">
-          Reward forward distance walked; subtract <code>0.05</code> for every
-          control step the thorax sags below half its standing height (
-          <Math tex="N_{\text{below}}" display={false} /> = number of such steps,
-          where <Math tex="z < z_{\text{thr}}" display={false} />). Distance is
-          measured after a short warm-up so it scores control, not the initial
-          settle. This is what the search below was selected against.
+        <FitnessAnatomy />
+      </section>
+
+      {/* C — the climb (centerpiece) */}
+      <section className="cg-opt-sec">
+        <p className="cg-opt-sec-eyebrow">§ C · THE CLIMB — IT WORKED</p>
+        <p className="cg-opt-sec-lead">
+          Fifty generations of that search, scored by real MuJoCo rollouts. The
+          best controller climbs from a stagger at <strong>F ≈ 0</strong> to a
+          clean walk at <strong>86.6 mm</strong> — and that single climbing line{" "}
+          <em>is</em> the gait getting better.
         </p>
-      </div>
+        <EvolutionClimb />
+      </section>
 
-      <ObjectiveChart />
+      {/* D — watch it improve (footage slot) */}
+      <section className="cg-opt-sec">
+        <p className="cg-opt-sec-eyebrow">§ D · WATCH IT IMPROVE</p>
+        <p className="cg-opt-sec-lead">
+          The same three milestones — ① ② ③ from the climb — as side-by-side
+          clips, so you could watch the gait go from stagger to walk. This footage
+          has to be re-rendered from the checkpoints; the slots stand honest and
+          empty until it is.
+        </p>
+        <GaitGenerations />
+      </section>
 
-      <OptimizerModule />
+      {/* under the hood — demoted aside */}
+      <details className="cg-opt-aside">
+        <summary>
+          <span className="cg-opt-aside-tag">under the hood</span> how a
+          gradient-free search moves with only scores
+        </summary>
+        <div className="cg-opt-aside-body">
+          <p className="cg-opt-sec-lead">
+            The search is <strong>CMA-ES</strong> (population <strong>32</strong>,{" "}
+            <code>σ₀ = 0.3</code>). Given only scores, it samples a cloud of
+            candidate controllers, keeps the best, and reshapes itself toward what
+            worked — discovering <em>which</em> directions matter without ever
+            seeing a gradient. One round, frozen to a picture:
+          </p>
+          <SelectionRound />
+        </div>
+      </details>
     </div>
   );
 }
@@ -65,7 +136,14 @@ export default function SearchObjectiveTabPage() {
   return (
     <ConceptScaffold
       name="Search & Objective"
-      lead="What counts as a good walk, and how the rule was found: the fitness the search maximized — the single-peaked curve it actually rewarded — and the gradient-free evolution that climbed it."
+      lead={
+        <>
+          How do you get a fly to walk when you can&apos;t write the gait and
+          can&apos;t differentiate the physics? Define one number for &ldquo;good&rdquo;
+          — forward distance — and let a gradient-free search climb it. It tuned 660
+          parameters from a stagger to a <strong>86.6 mm</strong> walk.
+        </>
+      }
       module={<SearchObjectiveModule />}
       explainer={{
         chose: (
@@ -79,26 +157,20 @@ export default function SearchObjectiveTabPage() {
             population <strong>32</strong>, <code>σ₀ = 0.3</code>,{" "}
             <strong>50</strong> generations. It adapts a full covariance over the
             search space, so it discovers <em>which</em> directions matter without
-            ever seeing a gradient — best reached <code>F ≈ 86.6 mm</code> at native
-            gain <code>1.0</code>.
+            ever seeing a gradient — best reached <code>F ≈ 86.6 mm</code>.
           </p>
         ),
         why: (
           <p>
             The objective is the simplest signal that produces walking at all:
             distance rewards locomotion, the penalty discourages collapsing or
-            dragging. It&rsquo;s a hand-set objective, not a law — a choice that
-            happened to select a working gait, the single-peaked curve the{" "}
-            <a className="cg-inline-link" href="/projects/cellular-gaits/controller">
-              Controller
-            </a>{" "}
-            tab reads as the edge-of-chaos result. And the search <em>has</em> to be
-            gradient-free: the score comes from a contact-rich MuJoCo rollout —
-            collisions, friction, stiff contacts — so <code>F(θ)</code> is{" "}
-            <strong>not differentiable</strong> and backprop is off the table.
-            CMA-ES only needs to <em>score</em> candidates, never differentiate
-            them. The price is sample cost: every candidate is a full 3-second
-            physics rollout, which is why the run is precomputed, not live.
+            dragging (though in this run it never fired). And the search{" "}
+            <em>has</em> to be gradient-free: the score comes from a contact-rich
+            MuJoCo rollout — collisions, friction, stiff contacts — so{" "}
+            <code>F(θ)</code> is <strong>not differentiable</strong> and backprop is
+            off the table. CMA-ES only needs to <em>score</em> candidates, never
+            differentiate them. The price is sample cost: every candidate is a full
+            3-second physics rollout, which is why the run is precomputed, not live.
           </p>
         ),
         alternatives: (
