@@ -1,5 +1,6 @@
 import "katex/dist/katex.min.css";
 import { CgTabNav } from "@/components/cellular-gaits/CgTabNav";
+import { CgBreadcrumb } from "@/components/cellular-gaits/CgBreadcrumb";
 
 const GITHUB_URL = "https://github.com/vishal-h-pathak/cellular-gaits";
 
@@ -28,6 +29,7 @@ export default function CellularGaitsLayout({
       </header>
 
       <CgTabNav />
+      <CgBreadcrumb />
 
       <main className="cg-page">
         {children}

@@ -18,8 +18,9 @@ const GREEN = "#6FE39A";
 const GRAY = "rgba(232,230,223,0.45)";
 const SUB = "#8C8B83";
 
-// One panel coordinate system; the <svg> scales to fill its grid cell.
-const W = 240;
+// One panel coordinate system; the <svg> scales to fill its grid cell. W leaves
+// a right-hand column so the proprioceptive-arc label reads horizontally.
+const W = 300;
 const H = 300;
 
 type Box = { y: number; title: string; sub: string };
@@ -67,20 +68,18 @@ function Panel({ closed, idp }: { closed: boolean; idp: string }) {
       {closed && (
         <>
           <path
-            d={`M${BX + BW} ${BOXES[2].y + BH / 2} C 226 ${BOXES[2].y + 6}, 226 ${BOXES[0].y + BH - 6}, ${BX + BW} ${BOXES[0].y + BH / 2}`}
+            d={`M${BX + BW} ${BOXES[2].y + BH / 2} C 206 ${BOXES[2].y + 6}, 206 ${BOXES[0].y + BH - 6}, ${BX + BW} ${BOXES[0].y + BH / 2}`}
             fill="none"
             stroke={GRAY}
             strokeWidth={1.4}
             strokeDasharray="5 4"
             markerEnd={`url(#${idp}-gray)`}
           />
-          {/* One clean rotated label. The "planned · not wired · Stage 2"
-              status is already carried by the figcaption and the dashed stroke,
-              so a single line keeps it readable (two rotated lines on the same x
-              overlapped into garbled stacked text). */}
-          <text x={220} y={H / 2} fill={SUB} fontSize={10} textAnchor="middle" transform={`rotate(90 220 ${H / 2})`}>
-            joint angles + foot contacts
-          </text>
+          {/* Horizontal label in the right column (was rotated vertical). The
+              "planned · not wired · Stage 2" status is carried by the figcaption
+              and the dashed stroke. */}
+          <text x={214} y={H / 2 - 6} fill={SUB} fontSize={9.5}>joint angles</text>
+          <text x={214} y={H / 2 + 7} fill={SUB} fontSize={9.5}>+ foot contacts</text>
         </>
       )}
 

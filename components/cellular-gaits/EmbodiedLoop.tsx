@@ -251,7 +251,10 @@ export function EmbodiedLoop({
   const bc = CARDS[1].box;
   const LC4 = { x: bc.x + 16, y: bc.y + 22, w: 74, h: 28 };
   const LPLC2 = { x: bc.x + 16, y: bc.y + 64, w: 74, h: 28 };
-  const GFB = { x: bc.x + 222, y: bc.y + 42, w: 104, h: 34 };
+  // Wider + shifted left so the "DNp01 · Giant Fiber" label fits inside the box
+  // with padding — it used to overflow onto the converging arrowheads (clipping
+  // "DNp01" to "p01").
+  const GFB = { x: bc.x + 206, y: bc.y + 42, w: 132, h: 34 };
   const lc4Out: [number, number] = [LC4.x + LC4.w, LC4.y + LC4.h / 2];
   const lplc2Out: [number, number] = [LPLC2.x + LPLC2.w, LPLC2.y + LPLC2.h / 2];
   const gfInTop: [number, number] = [GFB.x, GFB.y + 10];
@@ -521,7 +524,7 @@ export function EmbodiedLoop({
                       stroke={d.firing ? GREEN : SUB}
                       strokeWidth={d.firing ? 1.8 : 1}
                     />
-                    <text x={GFB.x + GFB.w / 2} y={GFB.y + 15} textAnchor="middle" fill={d.firing ? GREEN : SUB} fontSize={11} fontWeight={500}>
+                    <text x={GFB.x + GFB.w / 2} y={GFB.y + 15} textAnchor="middle" fill={d.firing ? GREEN : SUB} fontSize={10} fontWeight={500}>
                       DNp01 · Giant Fiber
                     </text>
                     <text x={GFB.x + GFB.w / 2} y={GFB.y + 28} textAnchor="middle" fill={d.firing ? GREEN : SUB} fontSize={11}>

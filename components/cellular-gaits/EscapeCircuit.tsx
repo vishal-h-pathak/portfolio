@@ -374,7 +374,10 @@ export function EscapeCircuit() {
 
         {/* the FlyWire seam — dashed band over the LC→DNp01 edge (now wired in) */}
         <g {...handlers("seam")} aria-label="The FlyWire seam: where the real LC4/LPLC2 to DNp01 wiring is now wired in, run as a spiking connectome in the embodied loop. Activate to reveal more.">
-          <rect x={SEAM.x} y={SEAM.y} width={SEAM.w} height={SEAM.h} rx={5} fill="rgba(232,230,223,0.04)" stroke={RULE} strokeWidth={active === "seam" ? 1.6 : 1} strokeDasharray="6 4" />
+          {/* Opaque fill (page bg) so the two converging arrows pass behind the
+              band instead of running through its label text — the convergence
+              still reads as entering the seam, then descending into the GF. */}
+          <rect x={SEAM.x} y={SEAM.y} width={SEAM.w} height={SEAM.h} rx={5} fill="rgba(11,11,12,0.96)" stroke={RULE} strokeWidth={active === "seam" ? 1.6 : 1} strokeDasharray="6 4" />
           <text x={cx(SEAM)} y={SEAM.y + SEAM.h / 2 + 3.5} fill={SUB} fontSize={9.5} textAnchor="middle">
             ↳ the real FlyWire LC4/LPLC2 → DNp01 wiring is wired in HERE
           </text>

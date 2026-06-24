@@ -33,7 +33,9 @@ const SUB = "#8C8B83";
 
 // One panel coordinate system; the <svg> scales to fill its grid cell. Block
 // fractions (x/W, y/H) map linearly onto the container for popout positioning.
-const W = 264;
+// W is wide enough to hold a right-hand label column so the proprioceptive-arc
+// labels read horizontally instead of being rotated vertical.
+const W = 330;
 const H = 320;
 
 const BX = 20;
@@ -214,7 +216,7 @@ function LoopPanel({ closed, idp }: { closed: boolean; idp: string }) {
   // y-centres of the three boxes for the forward + return geometry.
   const topMid = BLOCKS[0].y + BH / 2;
   const botMid = BLOCKS[2].y + BH / 2;
-  const arcX = W - 18; // far edge of the return curve
+  const arcX = W - 96; // far edge of the return curve (leaves a right label column)
 
   return (
     <div
@@ -286,12 +288,25 @@ function LoopPanel({ closed, idp }: { closed: boolean; idp: string }) {
                 strokeDasharray={closed ? undefined : "5 4"}
                 markerEnd={`url(#${idp}-arc)`}
               />
-              <text x={arcX + 2} y={(topMid + botMid) / 2 - 4} fill={SUB} fontSize={9.5} textAnchor="middle" transform={`rotate(90 ${arcX + 2} ${(topMid + botMid) / 2 - 4})`}>
-                {closed ? "joint angles + foot contacts" : "proprioception"}
-              </text>
-              <text x={arcX + 14} y={(topMid + botMid) / 2 + 8} fill={closed ? GREEN : SUB} fontSize={9} textAnchor="middle" opacity={0.9} transform={`rotate(90 ${arcX + 14} ${(topMid + botMid) / 2 + 8})`}>
-                {closed ? "wired · solid" : "not wired · dashed"}
-              </text>
+              {/* Horizontal label column to the right of the arc (was rotated
+                  vertical, which read poorly). */}
+              {(() => {
+                const lx = arcX + 16;
+                const ly = (topMid + botMid) / 2;
+                return closed ? (
+                  <>
+                    <text x={lx} y={ly - 14} fill={SUB} fontSize={9}>joint angles</text>
+                    <text x={lx} y={ly - 2} fill={SUB} fontSize={9}>+ foot contacts</text>
+                    <text x={lx} y={ly + 14} fill={GREEN} fontSize={9} opacity={0.9}>wired · solid</text>
+                  </>
+                ) : (
+                  <>
+                    <text x={lx} y={ly - 8} fill={SUB} fontSize={9}>proprioception</text>
+                    <text x={lx} y={ly + 6} fill={SUB} fontSize={9}>not wired</text>
+                    <text x={lx} y={ly + 18} fill={SUB} fontSize={9} opacity={0.9}>· dashed</text>
+                  </>
+                );
+              })()}
             </g>
           );
         })()}

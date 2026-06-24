@@ -333,10 +333,13 @@ export function BrainCircuitMap({ circuit }: { circuit: CircuitData }) {
         </desc>
 
         <defs>
-          <marker id="bcm-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          {/* markerUnits=userSpaceOnUse → a fixed arrowhead size regardless of
+              the edge's stroke width (which encodes synapse count), so the heavy
+              edges don't sprout a giant arrowhead over the DNp01 nodes. */}
+          <marker id="bcm-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto-start-reverse">
             <path d="M0 0L10 5L0 10z" fill={AMBER} />
           </marker>
-          <marker id="bcm-arrow-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <marker id="bcm-arrow-g" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto-start-reverse">
             <path d="M0 0L10 5L0 10z" fill={GREEN} />
           </marker>
         </defs>
@@ -410,7 +413,10 @@ export function BrainCircuitMap({ circuit }: { circuit: CircuitData }) {
                 strokeLinecap="round"
                 markerEnd="url(#bcm-arrow)"
               />
-              <text x={mx + (e.side === "left" ? -8 : 8)} y={my} fill={SUB} fontSize={9} textAnchor={e.side === "left" ? "end" : "start"}>
+              {/* Label sits in the open gap between the lateral node and the
+                  central DNp01 (text extends inward), lifted off the edge line —
+                  so it never lands on the LC4/LPLC2 node text. */}
+              <text x={mx + (e.side === "left" ? 8 : -8)} y={my - 5} fill={SUB} fontSize={9} textAnchor={e.side === "left" ? "start" : "end"}>
                 {e.syn} syn
               </text>
             </g>

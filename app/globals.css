@@ -857,9 +857,11 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   border-bottom: 1px solid var(--rule);
 }
 .cg-tabnav-list {
-  max-width: 920px;
+  /* Wide enough to hold all 9 tabs on one row at desktop without clipping the
+     last label ("APPENDIX"); still scrolls horizontally on narrow screens. */
+  max-width: 1080px;
   margin: 0 auto;
-  padding: 0 40px;
+  padding: 0 24px;
   display: flex;
   gap: 2px;
   list-style: none;
@@ -873,10 +875,10 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   white-space: nowrap;
   font-family: var(--mono);
   font-size: 11px;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.11em;
   text-transform: uppercase;
   color: var(--ink-faint);
-  padding: 13px 12px;
+  padding: 13px 10px;
   border-bottom: 2px solid transparent;
   transition: color 0.15s, border-color 0.15s;
 }
@@ -888,6 +890,33 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
 @media (max-width: 700px) {
   .cg-tabnav-list { padding: 0 12px; }
   .cg-tab { padding: 12px 10px; font-size: 10px; letter-spacing: 0.1em; }
+}
+
+/* Up-to-parent breadcrumb — an explicit back control on every page so no page
+   is a dead end (no reliance on browser-back). */
+.cg-breadcrumb {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 10px 40px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.cg-breadcrumb-up {
+  color: var(--ink-faint);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.cg-breadcrumb-up:hover,
+.cg-breadcrumb-up:focus-visible { color: var(--amber); }
+.cg-breadcrumb-leaf { color: var(--ink-dim); display: inline-flex; gap: 6px; }
+.cg-breadcrumb-sep { color: var(--ink-faint); }
+@media (max-width: 700px) {
+  .cg-breadcrumb { padding: 8px 12px 0; font-size: 10px; letter-spacing: 0.06em; }
 }
 
 .cg-page {

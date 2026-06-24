@@ -509,9 +509,11 @@ export function ControllerLadder() {
           strokeWidth={1.5}
           markerEnd="url(#ladder-green)"
         />
+        {/* Centered above the slot+body pair — the slot→body gap is far too
+            narrow to hold this label without it running across both boxes. */}
         <text
-          x={(blockById("slot").x + blockById("slot").w + blockById("body").x) / 2}
-          y={FEED_Y - 10}
+          x={(blockById("slot").x + blockById("body").x + blockById("body").w) / 2}
+          y={blockById("slot").y - 12}
           textAnchor="middle"
           fill="#6FE39A"
           fontSize={10}

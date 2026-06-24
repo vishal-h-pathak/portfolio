@@ -177,7 +177,9 @@ export function GfResponse({ data }: { data: GfResponseData }) {
               stroke={GREEN}
               strokeDasharray="2 4"
               strokeOpacity={0.5}
-              label={{ value: `saturates ≈ ${peak} Hz`, position: "insideTopRight", fill: GREEN, fontSize: 10.5, fontFamily: "var(--mono)" }}
+              // position "top" lifts the label clear above the dashed line so the
+              // line no longer strikes through the annotation text.
+              label={{ value: `saturates ≈ ${peak} Hz`, position: "top", fill: GREEN, fontSize: 10.5, fontFamily: "var(--mono)" }}
             />
           </LineChart>
         </ResponsiveContainer>

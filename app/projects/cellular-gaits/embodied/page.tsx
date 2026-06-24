@@ -130,7 +130,7 @@ export default function EmbodiedTabPage() {
             biomechanically real fly body in MuJoCo, in a closed sensory-motor
             loop. A looming &ldquo;predator&rdquo; is seen by the fly&apos;s
             looming-detector neurons; their spikes propagate through the actual
-            wiring to the <strong>Giant Fiber</strong> escape command neuron; and
+            wiring to the <strong>Giant Fiber</strong>{" "}escape command neuron; and
             that neuron&apos;s firing makes the simulated fly bolt away — after
             which its movement changes what it sees, and the loop repeats.
           </p>

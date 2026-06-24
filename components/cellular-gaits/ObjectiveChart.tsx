@@ -123,7 +123,7 @@ export function ObjectiveChart({
         <div className="cg-obj-title">
           {showPenalty ? "fitness F" : "distance"} vs gain
           <span className="cg-obj-sub">
-            · D&rsquo;s real MuJoCo sweep · {data.meta?.distance_units ?? "mm"}
+            · real MuJoCo sweep · {data.meta?.distance_units ?? "mm"}
           </span>
         </div>
         <div className="cg-obj-toggles" role="group" aria-label="Objective terms">

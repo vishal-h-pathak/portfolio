@@ -40,6 +40,13 @@ type SensorSnapshot = { contacts: Uint8Array; angles: Float32Array };
 export function SensingModule() {
   const [m, setM] = useState<FlyStageMetrics | null>(null);
   const [sensor, setSensor] = useState<SensorSnapshot | null>(null);
+  // The open-loop walker is a fixed motor program; with no feedback it eventually
+  // tumbles the real body into untrained territory and the physics diverges to
+  // NaN — which blanks the 3D and latches the readout. Self-heal with one reset
+  // (the same guard the Chemotaxis/Escape live demos use), so the headline stage
+  // never gets stuck blank.
+  const [resetSignal, setResetSignal] = useState(0);
+  const diverged = useRef(false);
 
   // The open-loop NCA driving the fly. We supply it ourselves (rather than
   // letting FlyStage build the default) so the same control-step callback can
@@ -82,7 +89,22 @@ export function SensingModule() {
   }, []);
 
   const controller = useCallback((ctx: FlyStageCtx): Float32Array => {
-    if (ctx.controlStep === 0 && prevStep.current !== 0) ncaRef.current?.reset();
+    // Guard the physics: if the body has gone non-finite, stop driving it and ask
+    // the stage for one clean re-pose (self-heal), so the stage recovers instead
+    // of rendering NaN forever.
+    const [tx, ty, tz] = ctx.sim.thoraxXyz();
+    if (!Number.isFinite(tx) || !Number.isFinite(ty) || !Number.isFinite(tz)) {
+      if (!diverged.current) {
+        diverged.current = true;
+        setResetSignal((r) => r + 1);
+      }
+      return zero.current;
+    }
+
+    if (ctx.controlStep === 0 && prevStep.current !== 0) {
+      ncaRef.current?.reset();
+      diverged.current = false;
+    }
     prevStep.current = ctx.controlStep;
     const u = ncaRef.current ? ncaRef.current.motors() : zero.current;
     // Sample the body state the controller does NOT consume (open loop).
@@ -115,6 +137,7 @@ export function SensingModule() {
             controller={controller}
             onStep={setM}
             height={380}
+            resetSignal={resetSignal}
             fallbackClipSrc="/cellular-gaits/data/clip_gain_native.mp4"
           />
           {sensor && (

@@ -129,14 +129,17 @@ export class FlySim {
   private thoraxId: number;
   private keyId: number;
 
-  // Live views into WASM memory — valid for the lifetime of `data`.
-  private ctrl: Float64Array;
-  private geomXposView: Float64Array;
-  private geomXmatView: Float64Array;
-  private xposView: Float64Array;
-  private xmatView: Float64Array; // body world rotations, row-major 3×3 × nbody
-  private actLenView: Float64Array; // actuator_length, 42 (== joint angles)
-  private xfrcView: Float64Array; // xfrc_applied, [fx fy fz tx ty tz] × nbody
+  // Live views into WASM memory. Re-acquired on every reset() because an
+  // Emscripten heap growth detaches previously-captured typed-array views, after
+  // which reads silently return NaN/undefined — the root cause of a diverged sim
+  // that stays blank/NaN even after a reset. (`!` = assigned via refreshViews().)
+  private ctrl!: Float64Array;
+  private geomXposView!: Float64Array;
+  private geomXmatView!: Float64Array;
+  private xposView!: Float64Array;
+  private xmatView!: Float64Array; // body world rotations, row-major 3×3 × nbody
+  private actLenView!: Float64Array; // actuator_length, 42 (== joint angles)
+  private xfrcView!: Float64Array; // xfrc_applied, [fx fy fz tx ty tz] × nbody
 
   readonly geoms: FlyGeom[];
   private meshes: Map<number, FlyMesh> = new Map();
@@ -172,13 +175,7 @@ export class FlySim {
     this.keyId = keyId;
 
     // Live views.
-    this.ctrl = data.ctrl as Float64Array;
-    this.geomXposView = data.geom_xpos as Float64Array;
-    this.geomXmatView = data.geom_xmat as Float64Array;
-    this.xposView = data.xpos as Float64Array;
-    this.xmatView = data.xmat as Float64Array;
-    this.actLenView = data.actuator_length as Float64Array;
-    this.xfrcView = data.xfrc_applied as Float64Array;
+    this.refreshViews();
 
     this.resolveContactGeoms();
 
@@ -390,16 +387,46 @@ export class FlySim {
     };
   }
 
+  /**
+   * (Re-)acquire the live typed-array views into the current WASM heap. Called
+   * once at construction and again after every reset: if the Emscripten heap has
+   * grown, the old views are detached (length 0 / undefined reads → NaN), which
+   * is what leaves a diverged sim rendering blank with NaN metrics even after a
+   * reset. Re-reading the getters rebinds them to the current ArrayBuffer.
+   */
+  private refreshViews(): void {
+    const data = this.data;
+    this.ctrl = data.ctrl as Float64Array;
+    this.geomXposView = data.geom_xpos as Float64Array;
+    this.geomXmatView = data.geom_xmat as Float64Array;
+    this.xposView = data.xpos as Float64Array;
+    this.xmatView = data.xmat as Float64Array;
+    this.actLenView = data.actuator_length as Float64Array;
+    this.xfrcView = data.xfrc_applied as Float64Array;
+  }
+
   reset(): void {
+    // Full reset to qpos0 first, then overlay the neutral keyframe. A bare
+    // keyframe restore can leave NaN/inf in state the keyframe doesn't address
+    // (e.g. the free-joint root after a physics blow-up), so the diverged values
+    // survive the "reset" and poison every later read. mj_resetData clears the
+    // whole MjData to finite defaults; the keyframe then sets the neutral pose.
+    this.mod.mj_resetData(this.model, this.data);
     if (this.keyId >= 0) {
       this.mod.mj_resetDataKeyframe(this.model, this.data, this.keyId);
-    } else {
-      this.mod.mj_resetData(this.model, this.data);
     }
+    // Re-bind views in case the heap grew during the run, then clear forces and
+    // run forward kinematics so xpos/xmat reflect the restored pose.
+    this.refreshViews();
     this.clearThoraxForce();
     this.mod.mj_forward(this.model, this.data);
-    this.spawn = this.thoraxXyz();
-    this.spawnHeading = this.rawHeading();
+    // Only commit a finite spawn — if the restore somehow still read non-finite,
+    // keep the prior spawn so `distance` can never latch to NaN permanently.
+    const sp = this.thoraxXyz();
+    if (Number.isFinite(sp[0]) && Number.isFinite(sp[1]) && Number.isFinite(sp[2])) {
+      this.spawn = sp;
+      this.spawnHeading = this.rawHeading();
+    }
   }
 
   dispose(): void {
