@@ -8,7 +8,9 @@
  * regardless of what the legs actually do; the grid never reads joint angles or
  * foot contacts back. We make that legible three ways:
  *   1. the live FlyStage (open-loop — the default evolved NCA *is* open-loop),
- *   2. a side-by-side open- vs closed-loop signal path (SignalPathDiagram),
+ *   2. a single diagram of the loop as built now (SignalPathDiagram) — the
+ *      proprioceptive return arc solid and live, the connectome brain a branch
+ *      to Embodied (no redundant open-vs-closed before/after),
  *   3. the direct open-vs-closed result — the closed loop is built and trained,
  *      with the live A/B on the Perturbation tab (no promissory "someday" test).
  *
@@ -162,15 +164,26 @@ export function SensingModule() {
       </div>
 
       <div className="cg-sense-explain">
-        <p className="cg-sense-h">Signal path · open vs closed</p>
+        <p className="cg-sense-h">The loop, closed</p>
         <p className="cg-sense-p">
           The forward path is real and wired (green): the{" "}
           <code>8×8×4</code> grid ticks once per control step, channel&nbsp;0 of
           the top-left sub-grid becomes <code>42</code> joint targets, and the
-          MuJoCo fly steps at 250&nbsp;Hz. The return arc — joint angles and foot
-          contacts written back into the cells — is the one thing a closed loop
-          adds: <strong>unwired in the open-loop default shown here</strong>,
-          wired in the trained closed-loop controller on the Perturbation tab.
+          MuJoCo fly steps at 250&nbsp;Hz. The return arc — <code>42</code> joint
+          angles and <code>6</code> foot contacts written back into the cells — is
+          the one thing a closed loop adds, and it is now{" "}
+          <strong>solid: wired, trained, and live across the behaviors</strong>.
+          (The default walker above still runs it open — that is the null model —
+          but the closed controller is built, and its A/B is one tab over.) The
+          same controller slot also takes the top rung, the real connectome brain;
+          that loop is the{" "}
+          <a
+            className="cg-inline-link"
+            href="/projects/cellular-gaits/embodied"
+          >
+            Embodied
+          </a>{" "}
+          page.
         </p>
         <SignalPathDiagram />
       </div>

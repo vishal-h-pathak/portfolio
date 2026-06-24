@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { CG_BASE } from "@/components/cellular-gaits/tabs";
-import { ClosedLoopDiagram } from "@/components/cellular-gaits/ClosedLoopDiagram";
+import { BehaviorMap } from "@/components/cellular-gaits/ClosedLoopDiagram";
 
 export const metadata: Metadata = {
   title: "Behaviors — Cellular Gaits",
@@ -66,36 +66,41 @@ export default function BehaviorsHubPage() {
         <p className="cg-section-eyebrow">§ BEHAVIORS</p>
         <p className="cg-section-lead">
           Walking is solved — but it is solved <em>open-loop</em>, the same rhythm
-          played every step regardless of the body. The next leap is{" "}
-          <strong>goal-directed, sensorimotor</strong> behavior: the controller
-          has to turn <em>what it senses</em> into <em>what it does</em>. That
-          requires <strong>closing the sensory loop</strong> — the shared
-          prerequisite for every behavior below.
+          played every step regardless of the body.{" "}
+          <strong>Goal-directed, sensorimotor</strong> behavior needs more: the
+          controller has to turn <em>what it senses</em> into <em>what it does</em>.
+          That means <strong>closing the sensory loop</strong> — the shared
+          prerequisite, now done, for every behavior below.
         </p>
         <p className="cg-frame-p">
           A closed loop writes body state — joint angles, foot contacts — back
           into the grid each control step, so the rule can react to what is
-          actually happening instead of replaying a fixed motor program. This is
-          the dashed proprioceptive arc from the{" "}
+          actually happening instead of replaying a fixed motor program. That is
+          the closed proprioceptive loop established on the{" "}
           <a className="cg-inline-link" href={`${CG_BASE}/sensing`}>
             Sensing
           </a>{" "}
-          tab and the{" "}
+          tab and in the{" "}
           <a className="cg-inline-link" href={`${CG_BASE}/appendix`}>
             system diagram
           </a>
-          , finally going solid.
+          — now solid and live. Each behavior below builds on it.
         </p>
       </section>
 
       <section className="cg-section">
-        <p className="cg-section-eyebrow">§ OPEN LOOP → CLOSED LOOP</p>
+        <p className="cg-section-eyebrow">§ HOW THEY CONNECT</p>
         <p className="cg-section-lead">
-          The same forward path, before and after. Hover, tap, or focus any block
-          to read what it does; the difference between the two is the one arc on
-          the right.
+          Not four separate projects — one closed loop with four payoffs. Each
+          behavior is that same loop plus <em>one new sense</em> and a reward.{" "}
+          <strong>Escape</strong> is the bridge: it maps onto a real, mapped
+          circuit and plugs into the connectome brain on the{" "}
+          <a className="cg-inline-link" href={`${CG_BASE}/embodied`}>
+            Embodied
+          </a>{" "}
+          page.
         </p>
-        <ClosedLoopDiagram />
+        <BehaviorMap />
       </section>
 
       <section className="cg-section">
