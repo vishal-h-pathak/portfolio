@@ -20,7 +20,13 @@ const PARTS = [
   { key: "connectome", label: "Connectome link" },
 ];
 
-type SeedMetrics = { heading_error_deg: number; post_shove_dx: number; forward_dx: number };
+type SeedMetrics = {
+  heading_error_deg: number;
+  post_shove_dx: number;
+  forward_dx: number;
+  /** present on the aggregate open_loop / closed_loop blocks (0–1). */
+  stayed_upright_rate?: number;
+};
 type Robustness = {
   config: { pert_magnitude: number };
   open_loop: SeedMetrics;
@@ -50,6 +56,8 @@ export default async function PerturbationTabPage() {
   const seedClosedDeg = headline?.closed.heading_error_deg ?? 19;
   const openPostDx = metrics.open_loop.post_shove_dx;
   const closedPostDx = metrics.closed_loop.post_shove_dx;
+  const openUpright = metrics.open_loop.stayed_upright_rate ?? 1;
+  const closedUpright = metrics.closed_loop.stayed_upright_rate ?? 1;
   const mag = metrics.config.pert_magnitude;
 
   return (
@@ -106,15 +114,30 @@ export default async function PerturbationTabPage() {
             </div>
           </div>
 
-          {/* 2 — the standalone heading-error visual (real numbers) */}
+          {/* 2 — the standalone result visual + the explicit objective scorecard */}
           <div>
-            <p className="cg-sense-h">Where they end up</p>
+            <p className="cg-sense-h">How well does it hold course?</p>
+            <p className="cg-sense-p">
+              There&apos;s no destination here. <strong>On course</strong> just
+              means the heading the fly was already walking before it got
+              shoved — the task is <strong>heading retention</strong> (keep
+              going the same way), not reaching a place. So &ldquo;how well is it
+              doing&rdquo; is the gap between where it ends up pointed and that
+              original line. The scorecard below makes that explicit: it grades
+              both controllers on the three things the reward actually rewards —{" "}
+              <strong>hold your heading</strong>,{" "}
+              <strong>stay upright</strong>, and keep making forward progress.
+            </p>
             <HeadingError
               openDeg={openDeg}
               closedDeg={closedDeg}
               seedOpenDeg={seedOpenDeg}
               seedClosedDeg={seedClosedDeg}
               seed={HEADLINE_SEED}
+              openUpright={openUpright}
+              closedUpright={closedUpright}
+              openPostDx={openPostDx}
+              closedPostDx={closedPostDx}
             />
           </div>
 
@@ -131,14 +154,29 @@ export default async function PerturbationTabPage() {
             <PerturbationDemo />
           </div>
 
-          {/* 4 — what proprioception actually feeds in */}
+          {/* 4 — what proprioception actually feeds in (and where it comes from) */}
           <div className="cg-perturb-vis">
             <p className="cg-sense-h">What proprioception feeds in</p>
             <p className="cg-sense-p">
               The new sense this behavior adds, exactly as the trained controller
               uses it: <strong>42 joint angles</strong> on the motor block and{" "}
               <strong>6 foot contacts</strong> on the bottom row, two extra input
-              channels written fresh from the body each step.
+              channels written fresh from the body each step. Both come straight
+              out of the physics engine, not from a sensor model bolted on top:
+            </p>
+            <p className="cg-sense-p">
+              The <strong>joint angles</strong> are MuJoCo&apos;s{" "}
+              <code>actuator_length</code> — the current length of each of the 42
+              leg actuators, which <em>is</em> the joint angle the motor spans —
+              read out of the live sim each control step (
+              <code>sim.actuatorLengths()</code>) and normalized{" "}
+              <code>θ/3.14</code> so it lands in roughly <code>[−1, 1]</code>.
+              The <strong>foot contacts</strong> are a boolean per leg from the
+              sim&apos;s contact detection (<code>sim.footContacts()</code>):{" "}
+              <code>1</code> when that leg&apos;s tarsus is touching the ground,{" "}
+              <code>0</code> when it&apos;s in swing. So a shove changes the
+              numbers the controller sees the instant it lands a leg wrong or
+              twists a joint — that&apos;s the signal it steers on.
             </p>
             <SensorChannels />
           </div>

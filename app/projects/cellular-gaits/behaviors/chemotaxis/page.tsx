@@ -78,12 +78,32 @@ export default async function ChemotaxisTabPage() {
       explainerParts={PARTS}
       module={
         <div className="cg-chemo">
-          {/* 1 — the key standalone visual (no data dependency) */}
+          {/* 1 — the headline: the live forager, antennae lighting up as it closes in */}
           <div>
-            <p className="cg-sense-h">How the choice maps to the fly</p>
+            <p className="cg-sense-h">Smell it out — live, in your browser</p>
             <p className="cg-sense-p">
-              A top-down odor field with the source at the centre of the bump.
-              The fly samples the concentration at two antennae,{" "}
+              The real closed loop: one live MuJoCo fly running the trained
+              controller, and a top-down arena where you{" "}
+              <strong>drag the food source</strong>. Each control step it reads
+              the fly&apos;s pose from the sim, evaluates the odor field{" "}
+              <code>C(p) = exp(−‖p − src‖ / λ)</code> at each antenna, and feeds
+              the two readings in. Watch the two{" "}
+              <strong>antennae light up</strong> — brighter the more odor each
+              one catches — and the fly bias toward the stronger side and walk in
+              to the source. Move the source anywhere and it re-aims. The turn
+              isn&apos;t scripted; it falls out of the <code>cL − cR</code>{" "}
+              difference. (The <em>why</em> is unpacked just below.)
+            </p>
+            <ChemotaxisDemo />
+          </div>
+
+          {/* 2 — the mechanism: cL − cR → turn, in a clean static field you can scrub */}
+          <div>
+            <p className="cg-sense-h">Why it turns: the cL − cR difference</p>
+            <p className="cg-sense-p">
+              The same idea, frozen so you can see the mechanism. A top-down odor
+              field with the source at the centre of the bump; the fly samples
+              concentration at two antennae,{" "}
               <strong>
                 <code>cL</code>
               </strong>{" "}
@@ -99,7 +119,7 @@ export default async function ChemotaxisTabPage() {
             <GradientField />
           </div>
 
-          {/* 2 — the guaranteed headline: recorded approaches both ways + trajectory viz */}
+          {/* 3 — the guaranteed headline result: recorded approaches both ways */}
           <div>
             <p className="cg-sense-h">It reaches the source — turning both ways</p>
             <p className="cg-sense-p">
@@ -156,7 +176,7 @@ export default async function ChemotaxisTabPage() {
             </div>
           </div>
 
-          {/* 3 — the top-down trajectory visual (real recorded paths) */}
+          {/* 4 — the top-down trajectory visual (real recorded paths) */}
           <div>
             <p className="cg-sense-h">Every path, top-down</p>
             <p className="cg-sense-p">
@@ -167,21 +187,6 @@ export default async function ChemotaxisTabPage() {
               approach is annotated.
             </p>
             <ChemoTrajectories episodes={trainedEpisodes} lambda={trajectories.odor_field.lambda} />
-          </div>
-
-          {/* 4 — the live, in-browser place-the-source forager */}
-          <div>
-            <p className="cg-sense-h">Place the source yourself</p>
-            <p className="cg-sense-p">
-              The real closed loop, in your browser: one live MuJoCo fly running the
-              trained controller, and a top-down arena where you{" "}
-              <strong>drag the food source</strong>. The loop reads the fly&apos;s
-              pose from the sim, evaluates the odor field{" "}
-              <code>C(p) = exp(−‖p − src‖ / λ)</code> at each antenna, and feeds the
-              two readings in — the fly turns toward the side that smells stronger
-              and walks to it.
-            </p>
-            <ChemotaxisDemo />
           </div>
         </div>
       }

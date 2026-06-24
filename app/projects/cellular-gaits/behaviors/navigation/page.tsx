@@ -51,14 +51,43 @@ export default function NavigationTabPage() {
             </p>
           </div>
 
-          {/* 2 — the N-C placeholder slot (mirrors escape's X-C stub exactly) */}
+          {/* 2 — the honest call: no live demo here, and why (a flagged compute follow-up) */}
           <div>
-            <p className="cg-sense-h">Place the goal, drag the obstacles — coming soon</p>
-            <div className="cg-tab-module-stub">
-              <span className="cg-tab-todo">
-                {/* TODO: N-C wires the live place-the-goal / drag-the-obstacles navigation FlyStage + recorded detour clips + top-down trajectory viz here. */}
-                {`// TODO: N-C — live place-the-goal / drag-the-obstacles FlyStage + detour clips + trajectory viz`}
-              </span>
+            <p className="cg-sense-h">No live demo here — on purpose</p>
+            <div className="cg-sense-test">
+              <p className="cg-sense-p">
+                The arbitration above is <strong>analytic and real</strong> — true
+                ray casts against the wall, true vector sums — but it&apos;s a{" "}
+                <em>frozen</em> schematic, not a trained fly walking. A live
+                place-the-goal / drag-the-obstacles demo, the kind{" "}
+                <a className="cg-inline-link" href={`${CG_BASE}/behaviors/perturbation`}>
+                  perturbation
+                </a>{" "}
+                and{" "}
+                <a className="cg-inline-link" href={`${CG_BASE}/behaviors/chemotaxis`}>
+                  chemotaxis
+                </a>{" "}
+                ship, would need something that doesn&apos;t exist yet: a
+                navigation controller actually <strong>trained with the feeler
+                inputs</strong> and exported alongside recorded rollouts and
+                top-down trajectories — a new <code>data-n</code> compute bundle,
+                the same shape as the <code>data-c2</code> and{" "}
+                <code>data-ch</code> bundles those live demos replay.
+              </p>
+              <p className="cg-sense-p" style={{ marginBottom: 0 }}>
+                Rather than ship a stub or fake a controller, navigation stays
+                what it honestly is: the <strong>exploratory, least
+                connectome-aligned</strong> behavior of the four. Unlike{" "}
+                <a className="cg-inline-link" href={`${CG_BASE}/behaviors/escape`}>
+                  escape
+                </a>
+                , which drops onto a real LC4 / LPLC2 → Giant-Fiber circuit, the
+                feelers are a robotics abstraction with no neuron behind them. It
+                earns its place as the seek-plus-avoid <em>synthesis</em>, shown
+                analytically — and the live trained demo is a{" "}
+                <strong>flagged compute follow-up</strong>, not a promise rendered
+                as a placeholder.
+              </p>
             </div>
           </div>
         </div>
@@ -112,8 +141,10 @@ export default function NavigationTabPage() {
             side.&rdquo; The two drives are genuinely competing (seek pulls toward
             the goal, avoid pushes off the wall), and the behavior is the learned{" "}
             <em>arbitration</em> between them. The visual above is that
-            arbitration, frozen in one frame; the live place-the-goal demo is{" "}
-            <strong>coming soon</strong>.
+            arbitration, frozen in one frame; a live place-the-goal demo would
+            need a trained navigation controller we haven&apos;t run — it&apos;s
+            a <strong>flagged compute follow-up</strong>, deliberately not faked
+            here.
           </p>
         ),
         connectome: (

@@ -1,15 +1,25 @@
 /**
- * <HeadingError> — the standalone, house-style heading-error visual for the
- * perturbation result (Behaviors / perturbation, C2-C). Server-rendered SVG, no
- * client JS: two trajectory rays diverging from the shove point — the open loop
- * ends `openDeg` off its original heading, the closed loop only `closedDeg` —
- * with the headline single shove (seed 202) as the callout.
+ * <HeadingError> — the standalone, house-style perturbation result visual
+ * (Behaviors / perturbation, C2-C). Server-rendered SVG + an objective
+ * scorecard, no client JS. Two trajectory rays diverge from the shove point —
+ * the open loop ends `openDeg` off its original heading, the closed loop only
+ * `closedDeg` — with the headline single shove (seed 202) as the callout; below
+ * it, an explicit "the objective" scorecard makes *how well each controller is
+ * doing* legible: it scores both flies on the actual reward terms — hold your
+ * heading, stay upright, keep moving — so success vs failure isn't left to be
+ * inferred from a pair of diverging lines.
+ *
+ * "On course" here = the heading the fly held *before* the shove. There is no
+ * goal location; the task is heading retention (keep walking the same way),
+ * not reaching a place.
  *
  * Numbers are read from data-c2/robustness_metrics.json by the page and passed
  * in; nothing here is hardcoded. The win shown is *course correction*: at this
  * shove magnitude neither controller falls, so this is about staying on course,
  * not catching a fall.
  */
+
+import type { CSSProperties } from "react";
 
 const GREEN = "#6FE39A";
 const AMBER = "#E89B3D";
@@ -43,12 +53,22 @@ export function HeadingError({
   seedOpenDeg,
   seedClosedDeg,
   seed,
+  openUpright,
+  closedUpright,
+  openPostDx,
+  closedPostDx,
 }: {
   openDeg: number;
   closedDeg: number;
   seedOpenDeg: number;
   seedClosedDeg: number;
   seed: number;
+  /** Fraction of seeds the open / closed loop stayed upright (0–1). */
+  openUpright: number;
+  closedUpright: number;
+  /** Forward distance covered *after* the shove, mm (open / closed). */
+  openPostDx: number;
+  closedPostDx: number;
 }) {
   // Open veers down (+), closed veers up (−) so the rays don't overlap.
   const openEnd = ray(openDeg);
@@ -105,8 +125,11 @@ export function HeadingError({
           strokeWidth={1.4}
           strokeDasharray="5 5"
         />
-        <text x={refEnd.x + 6} y={OY + 4} fill={SUB} fontSize={10.5}>
+        <text x={refEnd.x + 6} y={OY + 1} fill={SUB} fontSize={10.5}>
           on course
+        </text>
+        <text x={refEnd.x + 6} y={OY + 13} fill={SUB} fontSize={8.5} opacity={0.8}>
+          = heading before the shove
         </text>
 
         {/* the shove: a lateral impulse at the origin */}
@@ -174,6 +197,15 @@ export function HeadingError({
         </g>
       </svg>
 
+      <ObjectiveScorecard
+        openDeg={openDeg}
+        closedDeg={closedDeg}
+        openUpright={openUpright}
+        closedUpright={closedUpright}
+        openPostDx={openPostDx}
+        closedPostDx={closedPostDx}
+      />
+
       <figcaption className="cg-heading-cap">
         Mean post-shove heading error across 18 seeds: closing the loop roughly{" "}
         <strong>halves</strong> it ({openDeg.toFixed(1)}° → {closedDeg.toFixed(1)}°).
@@ -181,6 +213,145 @@ export function HeadingError({
         <strong>course correction, not catching a fall</strong>.
       </figcaption>
     </figure>
+  );
+}
+
+/**
+ * The objective scorecard: scores both controllers on the three terms the
+ * perturbation reward actually cares about, so "how well is it doing" is
+ * explicit instead of inferred from two diverging lines. Pure inline styles
+ * (house tokens) — no client JS, no shared CSS.
+ */
+function ObjectiveScorecard({
+  openDeg,
+  closedDeg,
+  openUpright,
+  closedUpright,
+  openPostDx,
+  closedPostDx,
+}: {
+  openDeg: number;
+  closedDeg: number;
+  openUpright: number;
+  closedUpright: number;
+  openPostDx: number;
+  closedPostDx: number;
+}) {
+  const headingRatio = closedDeg > 0 ? openDeg / closedDeg : 0;
+
+  type Row = {
+    name: string;
+    goal: string;
+    open: string;
+    closed: string;
+    /** which side wins ("closed" highlights green; "both" is a neutral pass). */
+    winner: "closed" | "both";
+    verdict: string;
+  };
+
+  const rows: Row[] = [
+    {
+      name: "Hold your heading",
+      goal: "end pointed the way you started — small angle off",
+      open: `${openDeg.toFixed(1)}° off`,
+      closed: `${closedDeg.toFixed(1)}° off`,
+      winner: "closed",
+      verdict: `closed holds ~${headingRatio.toFixed(1)}× tighter`,
+    },
+    {
+      name: "Stay upright",
+      goal: "don't fall — thorax stays up through the hit",
+      open: `${Math.round(openUpright * 100)}% upright`,
+      closed: `${Math.round(closedUpright * 100)}% upright`,
+      winner: "both",
+      verdict: "both clear it — no fall at this shove",
+    },
+    {
+      name: "Keep moving forward",
+      goal: "still cover ground after the shove (mm)",
+      open: `${openPostDx.toFixed(1)} mm`,
+      closed: `${closedPostDx.toFixed(1)} mm`,
+      winner: "closed",
+      verdict: "closed travels further",
+    },
+  ];
+
+  const card: CSSProperties = {
+    marginTop: 16,
+    border: `1px solid ${RULE}`,
+    borderLeft: `2px solid ${GREEN}`,
+    borderRadius: 4,
+    background: "rgba(232,230,223,0.02)",
+    padding: "14px 16px 16px",
+    fontFamily: "var(--mono)",
+  };
+
+  return (
+    <div style={card} role="table" aria-label="The perturbation objective, scored open loop vs closed loop">
+      <p
+        style={{
+          margin: "0 0 12px",
+          fontSize: 11,
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
+          color: SUB,
+        }}
+      >
+        the objective — scored on the actual reward, not the picture
+      </p>
+
+      {rows.map((r, i) => (
+        <div
+          key={r.name}
+          role="row"
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "baseline",
+            gap: "4px 14px",
+            padding: "10px 0",
+            borderTop: i === 0 ? "none" : `1px solid ${RULE}`,
+          }}
+        >
+          <div style={{ flex: "1 1 220px", minWidth: 0 }}>
+            <div style={{ color: INK, fontSize: 12.5, fontWeight: 500 }}>{r.name}</div>
+            <div style={{ color: SUB, fontSize: 10.5, marginTop: 2, lineHeight: 1.4 }}>
+              goal: {r.goal}
+            </div>
+          </div>
+
+          <div
+            style={{
+              flex: "1 1 200px",
+              display: "flex",
+              alignItems: "baseline",
+              gap: 8,
+              fontSize: 12.5,
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            <span style={{ color: AMBER }}>
+              open <strong style={{ fontWeight: 500 }}>{r.open}</strong>
+            </span>
+            <span style={{ color: SUB }}>→</span>
+            <span style={{ color: GREEN }}>
+              closed <strong style={{ fontWeight: 500 }}>{r.closed}</strong>
+            </span>
+          </div>
+
+          <div
+            style={{
+              flex: "1 1 100%",
+              fontSize: 11,
+              color: r.winner === "closed" ? GREEN : SUB,
+            }}
+          >
+            {r.winner === "closed" ? "✓ " : "= "}
+            {r.verdict}
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 
