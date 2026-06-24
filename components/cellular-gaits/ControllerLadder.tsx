@@ -287,12 +287,15 @@ function BlockShape({
       >
         {b.title}
       </text>
-      <text x={b.x + 14} y={b.y + (b.stage ? 64 : 54)} fill={SUB} fontSize={11.5}>
+      <text x={b.x + 14} y={b.y + (b.stage ? 59 : 54)} fill={SUB} fontSize={11.5}>
         {b.sub}
       </text>
+      {/* Bottom-right affordance. Dropped to the card's lower edge and the stage
+          sub lifted (above), so a long sub like "looming → Giant Fiber → escape"
+          no longer runs into this right-aligned line. */}
       <text
         x={b.x + b.w - 12}
-        y={b.y + b.h - 11}
+        y={b.y + b.h - 8}
         fill={SUB}
         fontSize={10}
         opacity={0.85}
