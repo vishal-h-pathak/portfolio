@@ -17,7 +17,7 @@
  * plotted against its OWN t_s, never joined by index.
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const GREEN = "#6FE39A";
 const THREAT = "#F2683C";
@@ -183,6 +183,20 @@ function BodyPath({ trace }: { trace: Trace }) {
 export function EmbodiedConditions({ conditions }: { conditions: ConditionMeta[] }) {
   const [traces, setTraces] = useState<Record<string, Trace> | null>(null);
   const [error, setError] = useState(false);
+  const gridRef = useRef<HTMLDivElement | null>(null);
+
+  // The clips are loaded muted but React's declarative `autoPlay` doesn't
+  // reliably start playback (autoplay heuristics leave them paused on a blank
+  // first frame). Explicitly drive each <video> after mount — and again on
+  // canplay (see onCanPlay below) — so all three panels actually run.
+  useEffect(() => {
+    gridRef.current
+      ?.querySelectorAll<HTMLVideoElement>("video.cg-eb-cond-clip")
+      .forEach((v) => {
+        v.muted = true;
+        void v.play().catch(() => {});
+      });
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -222,7 +236,7 @@ export function EmbodiedConditions({ conditions }: { conditions: ConditionMeta[]
 
   return (
     <div className="cg-eb-conditions">
-      <div className="cg-eb-cond-grid">
+      <div className="cg-eb-cond-grid" ref={gridRef}>
         {conditions.map((c) => {
           const tr = traces?.[c.key];
           const isBaseline = c.azimuth_deg == null;
@@ -242,7 +256,12 @@ export function EmbodiedConditions({ conditions }: { conditions: ConditionMeta[]
                 loop
                 muted
                 playsInline
-                preload="metadata"
+                preload="auto"
+                onCanPlay={(e) => {
+                  const v = e.currentTarget;
+                  v.muted = true;
+                  void v.play().catch(() => {});
+                }}
                 aria-label={`Recorded clip: ${c.label} — ${c.outcome}.`}
               />
               <p className="cg-eb-cond-outcome">{c.outcome}</p>
