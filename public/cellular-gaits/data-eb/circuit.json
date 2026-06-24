@@ -1,0 +1,56 @@
+{
+  "description": "The real FlyWire v783 escape sub-circuit: LC4 (~angular velocity) + LPLC2 (~angular size/looming) converge ipsilaterally onto DNp01, the Giant Fiber escape command neuron. Counts and synapse totals are CX-1's curation of the public connectome (no model in the loop here).",
+  "flywire_release": "783",
+  "query_date": "2026-06-22",
+  "sources": {
+    "cell_types": "flyconnectome/flywire_annotations Supplemental_file1_neuron_annotations.tsv",
+    "connectivity": "Zenodo 10676866 proofread_connections_783.feather"
+  },
+  "all_edges_ipsilateral": true,
+  "neurons": {
+    "LC4": {
+      "left": 54,
+      "right": 50,
+      "both": 104,
+      "encodes": "angular velocity",
+      "transmitter": "acetylcholine (excitatory)"
+    },
+    "LPLC2": {
+      "left": 108,
+      "right": 102,
+      "both": 210,
+      "encodes": "angular size / looming",
+      "transmitter": "acetylcholine (excitatory)"
+    },
+    "DNp01": {
+      "left": 1,
+      "right": 1,
+      "both": 2,
+      "encodes": "Giant Fiber escape command",
+      "transmitter": "descending read-out"
+    }
+  },
+  "convergence_syn_ge_1": {
+    "LC4->DNp01_left": {
+      "n_presynaptic_neurons": 54,
+      "total_synapses": 374
+    },
+    "LC4->DNp01_right": {
+      "n_presynaptic_neurons": 50,
+      "total_synapses": 431
+    },
+    "LPLC2->DNp01_left": {
+      "n_presynaptic_neurons": 94,
+      "total_synapses": 458
+    },
+    "LPLC2->DNp01_right": {
+      "n_presynaptic_neurons": 95,
+      "total_synapses": 622
+    }
+  },
+  "asymmetry": {
+    "note": "right Giant Fiber carries more converging synapses than left (matches right-GF > left-GF firing, neurons_report.md \u00a74e)",
+    "LC4_right_minus_left": 57,
+    "LPLC2_right_minus_left": 164
+  }
+}

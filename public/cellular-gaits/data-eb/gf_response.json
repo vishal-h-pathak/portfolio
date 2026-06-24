@@ -1,0 +1,59 @@
+{
+  "description": "Brain-only escape-circuit response: bilateral Poisson drive of LC4=LPLC2 (Hz) -> mean DNp01 (Giant Fiber) firing rate (Hz), via the real v783 wiring (no body). The silenced variant knocks out LC4/LPLC2 to show the response is routed entirely through them.",
+  "units": {
+    "input_hz": "Hz Poisson drive per VPN type (LC4 and LPLC2 equal)",
+    "dnp01_hz": "Hz mean Giant Fiber firing rate"
+  },
+  "method": "live, persistent build_looming_drive network stepped per point (1 s window); silenced = second build with LC4/LPLC2 synapses zeroed",
+  "duration_s": 1.0,
+  "response": {
+    "input_hz": [
+      0.0,
+      10.0,
+      25.0,
+      50.0,
+      75.0,
+      100.0,
+      150.0,
+      200.0
+    ],
+    "dnp01_hz": [
+      0.0,
+      35.5,
+      86.5,
+      128.0,
+      144.5,
+      160.5,
+      185.0,
+      201.5
+    ]
+  },
+  "silenced": {
+    "input_hz": [
+      0.0,
+      10.0,
+      25.0,
+      50.0,
+      75.0,
+      100.0,
+      150.0,
+      200.0
+    ],
+    "dnp01_hz": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "channels_at_150hz": {
+    "LC4_only": 109.0,
+    "LPLC2_only": 160.0,
+    "both": 184.5,
+    "summation": "sub-additive (LC4_only + LPLC2_only >> both): the Giant Fiber sums size + velocity with diminishing returns"
+  }
+}

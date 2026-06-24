@@ -1,0 +1,77 @@
+{
+  "project": "cellular-gaits \u2014 embodied escape (WP-D bundle for WP-E)",
+  "generated_by": "scripts/export_embodied.py",
+  "schema_version": 1,
+  "summary": "Looming -> the real FlyWire connectome (LC4/LPLC2 -> DNp01 Giant Fiber) -> an embodied NeuroMechFly escape, precomputed for in-browser replay. Three conditions share env seed + warm-up so they diverge only at looming onset.",
+  "config": {
+    "n_steps": 300,
+    "control_dt_s": 0.004,
+    "threat_seed": 7,
+    "sync_window_s": 0.015,
+    "loom_hz_gain": 150.0,
+    "loom_hz_max": 200.0,
+    "drive_peak": 0.2,
+    "dnp01_ref_hz": 150.0
+  },
+  "conditions": [
+    {
+      "key": "left_threat",
+      "label": "left threat (azimuth 90)",
+      "azimuth_deg": 90.0,
+      "trace": "trace_left.json",
+      "clip": "flee_left.mp4",
+      "gf_peak_hz": 133.33,
+      "outcome": "bolts right (away)"
+    },
+    {
+      "key": "right_threat",
+      "label": "right threat (azimuth 270)",
+      "azimuth_deg": 270.0,
+      "trace": "trace_right.json",
+      "clip": "flee_right.mp4",
+      "gf_peak_hz": 100.0,
+      "outcome": "turns left (away)"
+    },
+    {
+      "key": "baseline",
+      "label": "baseline (no threat)",
+      "azimuth_deg": null,
+      "trace": "trace_baseline.json",
+      "clip": "walk_baseline.mp4",
+      "gf_peak_hz": 0.0,
+      "outcome": "walks (Giant Fiber silent)"
+    }
+  ],
+  "circuit": "circuit.json",
+  "gf_response": "gf_response.json",
+  "files": {
+    "trace_left.json": "left-threat (az 90) brain+body time series",
+    "trace_right.json": "right-threat (az 270) brain+body time series",
+    "trace_baseline.json": "no-threat baseline (GF silent, fly walks)",
+    "flee_left.mp4": "left-threat escape clip (body bolts right, away)",
+    "flee_right.mp4": "right-threat escape clip (body turns left, away)",
+    "walk_baseline.mp4": "baseline walk clip (no escape)",
+    "circuit.json": "LC4/LPLC2/DNp01 counts + convergence (CX-1 / FlyWire)",
+    "gf_response.json": "looming-Hz -> DNp01-rate sweep + silenced variant"
+  },
+  "units": {
+    "rate_hz": "spikes/s",
+    "loom": "magnitude in [0,1] per eye",
+    "drive": "escape drive in [0,1]",
+    "bearing_deg": "threat bearing, CCW+ = fly's left",
+    "thorax_xy": "world x,y (body units)",
+    "thorax_z": "thorax height (body units)",
+    "yaw_deg": "body heading, deg, wrapped (-180,180]",
+    "t_s": "seconds"
+  },
+  "trace_fields": {
+    "brain": "per sync-window (window_step, t_s, loom_L/R, hz_L/R, dnp01_mean/L/R, drive, bearing_deg); baseline is flat zero",
+    "body": "per control step (t_s, thorax_xy, thorax_z, yaw_deg)",
+    "summary": "gf_peak_hz, drive_peak, displacement, heading_change_deg, turn_vs_baseline_deg {60ms,100ms,160ms,200ms} (the escape signature: unwrapped turn vs the no-threat baseline; left threat negative=bolts right, right threat positive=turns left), threat_min_dist, threat_hit"
+  },
+  "caveats": [
+    "Not a calibrated escape threshold: the isolated Giant Fiber saturates (no whole-brain inhibition). The claim is 'the real connectome routes a looming cue to an embodied escape', not selectivity.",
+    "The left-strong / right-weak escape asymmetry is the X-A body controller's, inherited and reported, not a new artifact.",
+    "Three interface mappings (loom->Hz, DNp01->drive, 15 ms sync) are hand-chosen knobs; one descending neuron stands in for the whole escape command; the looming front-end is a hand-built stand-in."
+  ]
+}
