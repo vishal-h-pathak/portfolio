@@ -1714,6 +1714,16 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
 }
 .cg-opt-gen { margin: 0; display: flex; flex-direction: column; gap: 8px; }
 .cg-opt-gen-frame { position: relative; }
+.cg-opt-gen-clip {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 3px;
+  background: rgba(232, 230, 223, 0.015);
+  border: 1px solid rgba(232, 230, 223, 0.12);
+}
 .cg-opt-gen-badge {
   position: absolute;
   top: 6px;

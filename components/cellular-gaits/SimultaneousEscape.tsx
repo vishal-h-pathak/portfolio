@@ -351,8 +351,9 @@ export function SimultaneousEscape({
       </p>
       <p className="cg-se-honest">
         316 real FlyWire {positions?.coordinate_frame ?? "FAFB-v14.1"} positions · only the computed
-        circuit neurons light up · the ~139k full-brain backdrop is a flagged wave-2 add (the hook is in
-        place). Drag the brain to orbit.
+        circuit neurons light up · the dim grey volume behind them is a 40k-point full-brain backdrop in
+        the same FlyWire frame — <strong>resting brain, positions only, not computed activity</strong>.
+        Drag the brain to orbit.
       </p>
     </div>
   );

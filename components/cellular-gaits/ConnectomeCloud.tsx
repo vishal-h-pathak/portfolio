@@ -20,9 +20,11 @@
  * whenever `brain` / `windowIndex` change.
  *
  * Honest: only the neurons we actually computed light up. The dim full-brain
- * ~139k backdrop (Eon's exact look) is NOT in positions.json (that is the
- * 316-circuit only) — there is a clean hook for it (`backdropUrl`), still a
- * flagged cellular-gaits follow-up (wave 2). It is not built here.
+ * ~40k backdrop (Eon's exact look) is loaded via `backdropUrl` — a separate
+ * subsample of FlyWire v783 positions in the same frame/units as the 316-circuit
+ * positions.json, so it registers directly. It is the **resting brain, positions
+ * only — not computed activity**: a static, dim grey volume behind the lit
+ * circuit. Only the 316 circuit neurons carry real firing.
  *
  * Perf/mobile: 316 points is trivial; WebGL is disposed on unmount, auto-rotate
  * honours prefers-reduced-motion, and a missing-WebGL path degrades to a note.
@@ -266,20 +268,37 @@ export function ConnectomeCloud({
     if (backdropUrl) {
       fetch(backdropUrl)
         .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-        .then((bp: { neurons?: { x: number; y: number; z: number }[] } | number[][]) => {
+        .then((bp: { points?: number[]; neurons?: { x: number; y: number; z: number }[] } | number[][]) => {
           if (backdropCancelled) return;
-          const raw = Array.isArray(bp) ? bp : bp.neurons ?? [];
-          const M = raw.length;
-          if (!M) return;
-          const ba = new Float32Array(M * 3);
-          for (let i = 0; i < M; i++) {
-            const p = raw[i] as { x: number; y: number; z: number } | number[];
-            const px = Array.isArray(p) ? p[0] : p.x;
-            const py = Array.isArray(p) ? p[1] : p.y;
-            const pz = Array.isArray(p) ? p[2] : p.z;
-            ba[i * 3] = (px - cx) * sc;
-            ba[i * 3 + 1] = -(py - cy) * sc;
-            ba[i * 3 + 2] = -(pz - cz) * sc;
+          // Accepted shapes (the staged wave-2 export uses `points`):
+          //   { points: [x0,y0,z0, x1,y1,z1, ...] }  — flat int array, length 3*M
+          //   { neurons: [{x,y,z}, ...] }            — object list
+          //   [[x,y,z], ...]                         — array of triples
+          let ba: Float32Array;
+          if (!Array.isArray(bp) && Array.isArray(bp.points)) {
+            const flat = bp.points;
+            const M = Math.floor(flat.length / 3);
+            if (!M) return;
+            ba = new Float32Array(M * 3);
+            for (let i = 0; i < M; i++) {
+              ba[i * 3] = (flat[i * 3] - cx) * sc;
+              ba[i * 3 + 1] = -(flat[i * 3 + 1] - cy) * sc;
+              ba[i * 3 + 2] = -(flat[i * 3 + 2] - cz) * sc;
+            }
+          } else {
+            const raw = Array.isArray(bp) ? bp : bp.neurons ?? [];
+            const M = raw.length;
+            if (!M) return;
+            ba = new Float32Array(M * 3);
+            for (let i = 0; i < M; i++) {
+              const p = raw[i] as { x: number; y: number; z: number } | number[];
+              const px = Array.isArray(p) ? p[0] : p.x;
+              const py = Array.isArray(p) ? p[1] : p.y;
+              const pz = Array.isArray(p) ? p[2] : p.z;
+              ba[i * 3] = (px - cx) * sc;
+              ba[i * 3 + 1] = -(py - cy) * sc;
+              ba[i * 3 + 2] = -(pz - cz) * sc;
+            }
           }
           backdropGeom = new THREE.BufferGeometry();
           backdropGeom.setAttribute("position", new THREE.BufferAttribute(ba, 3));
@@ -415,6 +434,11 @@ export function ConnectomeCloud({
         <span className="cg-cc-key cg-cc-key-rest">
           <span className="cg-cc-dot" style={{ background: "#2f5b5e" }} /> at rest
         </span>
+        {backdropUrl && (
+          <span className="cg-cc-key cg-cc-key-rest">
+            <span className="cg-cc-dot" style={{ background: "#2a3340" }} /> resting brain — positions only
+          </span>
+        )}
       </div>
     </div>
   );

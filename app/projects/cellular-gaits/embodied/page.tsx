@@ -280,7 +280,10 @@ export default function EmbodiedTabPage() {
         </p>
 
         <div className="cg-tab-module" role="region" aria-label="The fly and its brain, side by side on one synced timeline">
-          <SimultaneousEscape conditions={CONDITIONS} />
+          <SimultaneousEscape
+            conditions={CONDITIONS}
+            backdropUrl="/cellular-gaits/data-eb/backdrop_positions.json"
+          />
         </div>
 
         <p className="cg-section-lead cg-eb-result-sub">
