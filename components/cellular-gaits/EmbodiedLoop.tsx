@@ -83,7 +83,7 @@ function derive(c: LoopCondition, cfg: LoopConfig): Derived {
 type Card = { id: string; n: string; title: string; box: { x: number; y: number; w: number; h: number } };
 const CARDS: Card[] = [
   { id: "sense", n: "①", title: "SENSE", box: { x: 360, y: 56, w: 345, h: 84 } },
-  { id: "brain", n: "②", title: "BRAIN", box: { x: 360, y: 160, w: 345, h: 116 } },
+  { id: "brain", n: "②", title: "BRAIN", box: { x: 360, y: 160, w: 345, h: 120 } },
   { id: "descend", n: "③", title: "DESCEND", box: { x: 360, y: 296, w: 345, h: 80 } },
   { id: "body", n: "④", title: "BODY", box: { x: 360, y: 396, w: 345, h: 84 } },
 ];
@@ -249,12 +249,16 @@ export function EmbodiedLoop({
 
   // brain mini-circuit geometry (inside the BRAIN card)
   const bc = CARDS[1].box;
-  const LC4 = { x: bc.x + 16, y: bc.y + 22, w: 74, h: 28 };
-  const LPLC2 = { x: bc.x + 16, y: bc.y + 64, w: 74, h: 28 };
+  // The mini-circuit sits below the "② BRAIN" header with the same clear gap the
+  // other stage cards leave under their headers — the cluster used to start at
+  // bc.y+22, above the header baseline (bc.y+24), so the LC4 box top cut through
+  // the "BRAIN" text. Pushed down to bc.y+40.
+  const LC4 = { x: bc.x + 16, y: bc.y + 40, w: 74, h: 28 };
+  const LPLC2 = { x: bc.x + 16, y: bc.y + 82, w: 74, h: 28 };
   // Wider + shifted left so the "DNp01 · Giant Fiber" label fits inside the box
   // with padding — it used to overflow onto the converging arrowheads (clipping
-  // "DNp01" to "p01").
-  const GFB = { x: bc.x + 206, y: bc.y + 42, w: 132, h: 34 };
+  // "DNp01" to "p01"). Centered vertically between LC4 and LPLC2.
+  const GFB = { x: bc.x + 206, y: bc.y + 58, w: 132, h: 34 };
   const lc4Out: [number, number] = [LC4.x + LC4.w, LC4.y + LC4.h / 2];
   const lplc2Out: [number, number] = [LPLC2.x + LPLC2.w, LPLC2.y + LPLC2.h / 2];
   const gfInTop: [number, number] = [GFB.x, GFB.y + 10];
@@ -327,7 +331,9 @@ export function EmbodiedLoop({
             strokeDasharray="5 5"
             markerEnd="url(#eb-i)"
           />
-          <text x={250} y={533} fill={FAINT} fontSize={10} textAnchor="middle">
+          {/* Centered on the viewBox (was x=250, which pushed the long line off
+              the left edge so it rendered "e fly moves…"). */}
+          <text x={W / 2} y={533} fill={FAINT} fontSize={10} textAnchor="middle">
             the fly moves → the looming changes → back to ①   (the loop closes through the physics)
           </text>
 
