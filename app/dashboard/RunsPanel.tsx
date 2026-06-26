@@ -5,7 +5,7 @@ import { Btn } from "./components/Button";
 import { RunStatusBadge } from "./components/JobBadges";
 import { SkeletonRows } from "./components/Skeleton";
 import { useToast } from "./components/Toast";
-import { relativeTime } from "./lib/format";
+import { formatUsd, relativeTime } from "./lib/format";
 
 /**
  * RunsPanel — pipeline-run dispatch + recent runs ledger.
@@ -56,6 +56,9 @@ type Run = {
     review_url?: string | null;
     materials_url?: string | null;
   } | null;
+  // Denormalized per-run spend rollup (numeric(10,4), migration 016).
+  // NULL on optimistic rows and on runs the rollup hasn't written yet.
+  cost_usd: number | string | null;
   created_at: string;
 };
 
@@ -63,6 +66,17 @@ const POLL_BASE_MS = 15_000;
 const POLL_BOOST_MS = 5_000;
 const BOOST_WINDOW_MS = 30_000;
 const LIST_LIMIT = 10;
+
+// Soft per-run budget alert: a single run over this dollar amount paints
+// its cost amber. Not a hard cap — just a "this one was pricey" glance
+// signal. Tune as the Opus-scorer / Sonnet-tailor run costs settle.
+const RUN_BUDGET_USD = 1.0;
+
+function costOf(r: Run): number | null {
+  if (r.cost_usd === null || r.cost_usd === undefined) return null;
+  const v = Number(r.cost_usd);
+  return Number.isFinite(v) ? v : null;
+}
 
 // kind → dispatch endpoint. Not string-interpolated from kind because
 // 'tailor_manual' (DB enum, underscore) maps to /runs/tailor-manual
@@ -151,6 +165,20 @@ export default function RunsPanel() {
     [runs, dismissed],
   );
   const hasActive = useMemo(() => visibleRuns.some(isActive), [visibleRuns]);
+  // Footer rollup: sum the visible runs' spend (optimistic / unrolled rows
+  // contribute 0). null when no visible run carries a cost yet.
+  const visibleSpend = useMemo(() => {
+    let sum = 0;
+    let any = false;
+    for (const r of visibleRuns) {
+      const c = costOf(r);
+      if (c !== null) {
+        sum += c;
+        any = true;
+      }
+    }
+    return any ? sum : null;
+  }, [visibleRuns]);
 
   // Conditional polling: 5s inside the post-dispatch boost window, 15s
   // while anything is active, off otherwise. pollEpoch retriggers the
@@ -188,6 +216,7 @@ export default function RunsPanel() {
       failure_reason: null,
       github_run_url: null,
       result: null,
+      cost_usd: null,
       created_at: new Date().toISOString(),
     };
     setRuns((prev) => [optimistic, ...prev]);
@@ -334,6 +363,7 @@ export default function RunsPanel() {
             : "All runs cleared from this view."}
         </p>
       ) : (
+        <>
         <ul className="max-h-72 divide-y divide-rule-soft overflow-y-auto text-xs">
           {visibleRuns.map((r) => {
             const expanded = expandedId === r.id;
@@ -366,6 +396,25 @@ export default function RunsPanel() {
                     )}
                   </div>
                   <div className="flex shrink-0 items-center gap-2 text-[11px] text-ink-faint">
+                    {(() => {
+                      const cost = costOf(r);
+                      if (cost === null) {
+                        return <span className="tabular-nums text-ink-faint">—</span>;
+                      }
+                      const over = cost > RUN_BUDGET_USD;
+                      return (
+                        <span
+                          className={`tabular-nums ${over ? "text-amber" : "text-ink"}`}
+                          title={
+                            over
+                              ? `Over the $${RUN_BUDGET_USD.toFixed(2)} per-run budget`
+                              : "Run spend"
+                          }
+                        >
+                          {formatUsd(cost, 4)}
+                        </span>
+                      );
+                    })()}
                     {r.status === "failed" && (
                       <Btn
                         variant="ghost"
@@ -445,6 +494,15 @@ export default function RunsPanel() {
             );
           })}
         </ul>
+        <div className="mt-2 flex items-center justify-between border-t border-rule-soft pt-2">
+          <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+            visible spend
+          </span>
+          <span className="tabular-nums text-[11px] text-ink">
+            {formatUsd(visibleSpend, 4)}
+          </span>
+        </div>
+        </>
       )}
     </section>
   );

@@ -40,8 +40,11 @@ export async function GET(req: NextRequest) {
       // `result` (jsonb, migration 009) carries the manual-tailor flow's
       // back-channel payload: { job_id, status, confidence, title,
       // company, review_url|materials_url }. NULL on hunt/tailor runs.
+      // `cost_usd` (numeric(10,4), migration 016) is the denormalized
+      // per-run spend rollup the S5 RunsPanel renders as its cost column.
       "id, kind, status, triggered_by, args, started_at, ended_at, " +
-        "log_excerpt, failure_reason, github_run_url, result, created_at",
+        "log_excerpt, failure_reason, github_run_url, result, cost_usd, " +
+        "created_at",
     )
     .order("created_at", { ascending: false })
     .limit(limit);

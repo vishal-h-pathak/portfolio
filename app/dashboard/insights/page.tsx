@@ -23,6 +23,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DashboardNav from "../components/DashboardNav";
 import { Skeleton, SkeletonRows } from "../components/Skeleton";
 import { STATUS_LABEL } from "../lib/lifecycle";
+import { formatUsd } from "../lib/format";
 import {
   Bar,
   BarChart,
@@ -246,6 +247,26 @@ function computeKpis(jobs: Job[]): Kpis {
     k.bySource[src] = (k.bySource[src] ?? 0) + 1;
   }
   return k;
+}
+
+// ── Spend (cost tracker S5) ───────────────────────────────────────────────
+// Shape returned by GET /api/dashboard/costs (aggregated from cost_events).
+type CostsSummary = {
+  total: { allTime: number; d30: number; d7: number };
+  byStage: Record<string, number>;
+  byService: Record<string, number>;
+  byModel: Record<string, number>;
+  daily: { date: string; usd: number }[];
+  costPerApplied: number | null;
+  appliedCount: number;
+};
+
+type StageSpendRow = { stage: string; usd: number };
+function aggregateStageSpend(byStage: Record<string, number>): StageSpendRow[] {
+  return Object.entries(byStage)
+    .map(([stage, usd]) => ({ stage, usd }))
+    .filter((r) => r.usd > 0)
+    .sort((a, b) => b.usd - a.usd);
 }
 
 // ── Layout primitives ────────────────────────────────────────────────────
@@ -513,6 +534,7 @@ function PatternAnalysisSection({ mounted }: { mounted: boolean }) {
 
 export default function InsightsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [costs, setCosts] = useState<CostsSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -529,6 +551,21 @@ export default function InsightsPage() {
     if (inFlight.current) return inFlight.current;
     setRefreshing(true);
     const p = (async () => {
+      // Spend summary is best-effort and independent of jobs — a costs
+      // failure must not blank the rest of the page, so it rides alongside
+      // but never sets the page-level error.
+      const costsP = (async () => {
+        try {
+          const res = await fetch("/api/dashboard/costs", {
+            cache: "no-store",
+          });
+          if (!res.ok) return;
+          const json = (await res.json().catch(() => null)) as CostsSummary | null;
+          if (json && json.total) setCosts(json);
+        } catch {
+          // Transient — the next poll retries.
+        }
+      })();
       try {
         const res = await fetch("/api/dashboard/jobs?view=insights", {
           cache: "no-store",
@@ -546,6 +583,7 @@ export default function InsightsPage() {
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
       }
+      await costsP;
       setLoading(false);
       setRefreshing(false);
     })();
@@ -606,6 +644,10 @@ export default function InsightsPage() {
   );
   const daily = useMemo(() => aggregateDaily(jobs, sources), [jobs, sources]);
   const funnel = useMemo(() => aggregateFunnel(jobs), [jobs]);
+  const stageSpend = useMemo(
+    () => (costs ? aggregateStageSpend(costs.byStage) : []),
+    [costs],
+  );
 
   const tierShare = (k: string) =>
     `${(((kpis.byTier[k] ?? 0) / Math.max(kpis.total, 1)) * 100).toFixed(0)}% of all`;
@@ -697,6 +739,25 @@ export default function InsightsPage() {
             label="Submitted/Applied"
             value={funnel.find((f) => f.stage === "Submitted/Applied")?.count ?? 0}
             hint="End of the funnel"
+          />
+          {/* ── Spend (cost tracker S5) — amber accent groups these ── */}
+          <KpiTile
+            label="Total spend"
+            value={formatUsd(costs?.total.allTime)}
+            accent={CHART.amber}
+            hint="All-time, from cost_events"
+          />
+          <KpiTile
+            label="This week"
+            value={formatUsd(costs?.total.d7)}
+            accent={CHART.amber}
+            hint="Trailing 7 days"
+          />
+          <KpiTile
+            label="Cost-per-applied"
+            value={formatUsd(costs?.costPerApplied)}
+            accent={CHART.amber}
+            hint={`Total ÷ ${costs?.appliedCount ?? 0} applied`}
           />
         </section>
 
@@ -818,6 +879,58 @@ export default function InsightsPage() {
           </Panel>
         </div>
 
+        {/* ── Spend (cost tracker S5) ───────────────────────────── */}
+        <div className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <Panel>
+            <PanelHeader
+              title="Daily spend"
+              subtitle="USD per day across every billable call (scorer, tailor, chat, insight). The SerpAPI budget meter, realized."
+            />
+            <ChartFrame mounted={mounted} height={288}>
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                <LineChart data={costs?.daily ?? []}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHART.ruleSoft} />
+                  <XAxis dataKey="date" tick={TICK} />
+                  <YAxis tick={TICK} tickFormatter={(v) => `$${v}`} />
+                  <Tooltip
+                    contentStyle={TOOLTIP_STYLE}
+                    formatter={(v) => formatUsd(Number(v), 4)}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="usd"
+                    stroke={CHART.amber}
+                    strokeWidth={1.5}
+                    name="Spend"
+                    dot={{ r: 2, fill: CHART.amber }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartFrame>
+          </Panel>
+
+          <Panel>
+            <PanelHeader
+              title="Cost by stage"
+              subtitle="Where the money goes — which pipeline stage incurs the spend."
+            />
+            <ChartFrame mounted={mounted} height={288}>
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                <BarChart data={stageSpend}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHART.ruleSoft} />
+                  <XAxis dataKey="stage" tick={TICK} />
+                  <YAxis tick={TICK} tickFormatter={(v) => `$${v}`} />
+                  <Tooltip
+                    contentStyle={TOOLTIP_STYLE}
+                    formatter={(v) => formatUsd(Number(v), 4)}
+                  />
+                  <Bar dataKey="usd" fill={CHART.amber} name="Spend" />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartFrame>
+          </Panel>
+        </div>
+
         {/* ── Funnel ────────────────────────────────────────────── */}
         <Panel className="mb-4">
           <PanelHeader
@@ -852,7 +965,7 @@ export default function InsightsPage() {
 
         <p className="mt-8 text-center text-[10px] uppercase tracking-[0.18em] text-ink-faint">
           Live from Supabase · {jobs.length} rows · charts deferred for v2:
-          dead-link rate, SerpAPI budget meter
+          dead-link rate
         </p>
       </main>
     </>

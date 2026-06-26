@@ -51,6 +51,23 @@ export function relativeTime(iso: string | null | undefined): string | null {
   return `${Math.floor(months / 12)}y ago`;
 }
 
+/**
+ * USD cost formatter for the cost-tracker surfaces (S5). Per-call/per-run
+ * spend is tiny (numeric(10,4)), so callers pass dp=4 to keep precision;
+ * aggregates round to cents with the default dp=2. Non-finite input →
+ * em-dash, so a run with no rolled-up cost reads as "—" rather than "$NaN".
+ */
+export function formatUsd(
+  n: number | string | null | undefined,
+  dp = 2,
+): string {
+  const v = typeof n === "number" ? n : Number(n);
+  if (n === null || n === undefined || n === "" || !Number.isFinite(v)) {
+    return "—";
+  }
+  return `$${v.toFixed(dp)}`;
+}
+
 export type LocationBucket = "local" | "elsewhere";
 
 export function locationBucket(
