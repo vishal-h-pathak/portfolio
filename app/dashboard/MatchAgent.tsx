@@ -68,7 +68,12 @@ export default function MatchAgent({ job, onClose }: { job: Job; onClose: () => 
           mode: "match-agent",
         }),
       });
-      if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok || !res.body) {
+        // Surface the route's friendly message (e.g. the daily token-cap 429
+        // body from the chat cost ceiling) instead of a bare "HTTP 429".
+        const msg = await res.text().catch(() => "");
+        throw new Error(msg.trim() || `HTTP ${res.status}`);
+      }
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let acc = "";
