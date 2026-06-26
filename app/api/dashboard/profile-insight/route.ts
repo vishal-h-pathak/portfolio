@@ -24,6 +24,8 @@ import Anthropic from "@anthropic-ai/sdk";
 import { promises as fs } from "fs";
 import path from "path";
 import { NextRequest, NextResponse } from "next/server";
+import { createAdminClient } from "@/app/lib/supabase-admin";
+import { recordAnthropicCost } from "@/app/lib/cost-events";
 
 export const runtime = "nodejs";
 
@@ -68,6 +70,19 @@ async function classify(history: Message[]) {
     system: CLASSIFIER_SYSTEM,
     messages: [{ role: "user", content: userMsg }],
   });
+
+  // Record one cost_events row for this Haiku call (stage="insight",
+  // api_key). Best-effort and self-contained — recordAnthropicCost swallows
+  // its own errors, so telemetry can never break the classifier.
+  const admin = createAdminClient();
+  if (admin) {
+    await recordAnthropicCost(admin, {
+      stage: "insight",
+      model: MODEL,
+      usage: resp.usage,
+    });
+  }
+
   const text = resp.content
     .map((b) => (b.type === "text" ? b.text : ""))
     .join("");

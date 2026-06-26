@@ -2,8 +2,60 @@ import Anthropic from "@anthropic-ai/sdk";
 import { promises as fs } from "fs";
 import path from "path";
 import { NextRequest } from "next/server";
+import { createAdminClient } from "@/app/lib/supabase-admin";
+import { recordAnthropicCost } from "@/app/lib/cost-events";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
+
+// The chat model. Opus, API-key only (no oauth path in the portfolio).
+const MODEL = "claude-opus-4-6";
+
+// Per-day token ceiling — the audit's "cheap insurance" against a runaway
+// chat loop quietly burning Opus tokens. Counts all tokens (input + output +
+// cache) recorded under stage="chat" since 00:00 UTC; over the ceiling we
+// refuse with a friendly 429 before calling Anthropic. Env-overridable.
+const DEFAULT_CHAT_DAILY_TOKEN_CEILING = 1_000_000;
+
+function chatDailyTokenCeiling(): number {
+  const raw = Number(process.env.CHAT_DAILY_TOKEN_CEILING);
+  return Number.isFinite(raw) && raw > 0 ? raw : DEFAULT_CHAT_DAILY_TOKEN_CEILING;
+}
+
+// Sum today's stage="chat" token usage from cost_events. Returns null on any
+// error so the ceiling fails OPEN — a Supabase blip must never wedge the chat.
+async function chatTokensUsedToday(
+  admin: SupabaseClient,
+): Promise<number | null> {
+  const todayStartIso = `${new Date().toISOString().slice(0, 10)}T00:00:00.000Z`;
+  const { data, error } = await admin
+    .from("cost_events")
+    .select("units")
+    .eq("stage", "chat")
+    .gte("created_at", todayStartIso);
+  if (error || !data) {
+    if (error) console.warn(`chat ceiling: usage query failed: ${error.message}`);
+    return null;
+  }
+  let total = 0;
+  for (const row of data as { units: Record<string, number> | null }[]) {
+    const u = row.units ?? {};
+    total +=
+      (u.input_tokens ?? 0) +
+      (u.output_tokens ?? 0) +
+      (u.cache_read ?? 0) +
+      (u.cache_creation ?? 0);
+  }
+  return total;
+}
+
+// Seconds until the next 00:00 UTC, for the 429's Retry-After header.
+function secondsUntilUtcMidnight(): number {
+  const now = new Date();
+  const next = new Date(now);
+  next.setUTCHours(24, 0, 0, 0);
+  return Math.max(1, Math.ceil((next.getTime() - now.getTime()) / 1000));
+}
 
 let cachedProfile: string | null = null;
 async function getProfile() {
@@ -19,6 +71,30 @@ async function getProfile() {
 export async function POST(req: NextRequest) {
   const { messages, job, mode } = await req.json();
   const profile = await getProfile();
+
+  // Server-side service-role client for cost telemetry. Null if Supabase env
+  // vars are absent — in that case we skip the ceiling (fail open) and the
+  // cost-event write, never blocking the chat on missing telemetry config.
+  const admin = createAdminClient();
+
+  // Per-day token ceiling: refuse over budget BEFORE spending on Anthropic.
+  if (admin) {
+    const usedToday = await chatTokensUsedToday(admin);
+    const ceiling = chatDailyTokenCeiling();
+    if (usedToday !== null && usedToday >= ceiling) {
+      return new Response(
+        "The daily chat budget has been reached. This is a safety cap to " +
+          "keep API spend in check — please try again after 00:00 UTC.",
+        {
+          status: 429,
+          headers: {
+            "Content-Type": "text/plain; charset=utf-8",
+            "Retry-After": String(secondsUntilUtcMidnight()),
+          },
+        },
+      );
+    }
+  }
 
   const matchAgentInstructions = `You are the Match Agent. Your job is to interview Vishal briefly (3–4 targeted questions, one at a time) and then produce tailored application materials for this specific job.
 
@@ -52,7 +128,7 @@ Reasoning (why this matched): ${job?.reasoning ?? ""}`;
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
   const stream = await client.messages.stream({
-    model: "claude-opus-4-6",
+    model: MODEL,
     max_tokens: 2048,
     system,
     messages: messages.map((m: { role: string; content: string }) => ({
@@ -71,6 +147,27 @@ Reasoning (why this matched): ${job?.reasoning ?? ""}`;
             event.delta.type === "text_delta"
           ) {
             controller.enqueue(encoder.encode(event.delta.text));
+          }
+        }
+        // Stream finished cleanly — capture usage and record one cost_events
+        // row. finalMessage() resolves from the events we just iterated.
+        // job?.id ties this chat spend to the job being tailored. Telemetry is
+        // best-effort and self-contained: it must never surface to the user.
+        if (admin) {
+          try {
+            const finalMessage = await stream.finalMessage();
+            await recordAnthropicCost(admin, {
+              stage: "chat",
+              model: MODEL,
+              usage: finalMessage.usage,
+              jobId: job?.id ?? null,
+            });
+          } catch (recordErr) {
+            console.warn(
+              `chat cost recording failed: ${
+                recordErr instanceof Error ? recordErr.message : String(recordErr)
+              }`,
+            );
           }
         }
       } catch (err) {
