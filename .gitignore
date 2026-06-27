@@ -45,3 +45,5 @@ PROMPT_*.md
 # playwright + design-system audit artifacts (local-only)
 .playwright-mcp/
 design-system/
+
+__pycache__/
