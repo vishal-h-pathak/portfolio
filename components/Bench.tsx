@@ -40,7 +40,7 @@ export function Bench() {
             { label: "§ 4", body: "BENCH" },
             {
               label: "WHAT",
-              body: "Personal projects. Built in evenings + weekends, mostly with an LLM as a pair-programmer.",
+              body: "Real tools, built end-to-end with agentic workflows — an LLM in the loop, shipped solo across domains.",
             },
             {
               label: "VELOCITY",
@@ -48,7 +48,7 @@ export function Bench() {
             },
             {
               label: "WHY HERE",
-              body: "To make the seam between paid work and side work visible — not blurred.",
+              body: "Evidence of range — and that I take an idea all the way to something real, on my own initiative.",
             },
             { dim: true, body: "click any row to expand" },
           ]}
@@ -58,7 +58,7 @@ export function Bench() {
       <div className="sec-head">
         <div>
           <div className="eyebrow amber">§ 4 &nbsp;·&nbsp; BENCH</div>
-          <h2>The bench, off-hours.</h2>
+          <h2>The bench.</h2>
         </div>
         <div className="status amber">
           <span className="pulse" aria-hidden="true" />2 LIVE · 1 SHIPPED · 1
@@ -66,9 +66,9 @@ export function Bench() {
         </div>
       </div>
       <p className="bench-intro">
-        These are mine, on my time. They&rsquo;re where I learn agentic systems
-        from the inside — not from a podcast. Nothing here was built at GTRI or
-        with GTRI resources.
+        These are the tools I build with agentic systems — learned from the
+        inside, not from a podcast. All independent: nothing here was built at
+        GTRI or with GTRI resources.
       </p>
       {PROJECTS.map((project) => (
         <Project

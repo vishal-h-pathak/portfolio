@@ -40,9 +40,9 @@ export const LINEAGE: LineagePin[] = [
     year: "now",
     title: "Agents",
     summary:
-      "Day-job at GTRI — embedded ML / CV. Off-hours: agentic systems, with an LLM in the loop.",
+      "Building agentic systems with an LLM in the loop. Day-job at GTRI — embedded ML / CV.",
     detailLabel: "§ 2.4 · now",
     body:
-      "<strong>Agentic systems, mostly off-hours.</strong> Day-job is still GTRI — embedded ML and computer vision. The thing I've actually been spending my evenings on is what LLM agents can and can't do when you wire them into a real loop: trading, job pipelines, small private tools for friends. The bench section is the honest version of this pin.",
+      "<strong>Agentic systems, with an LLM in the loop.</strong> What LLM agents can and can't do when you wire them into a real loop: trading, job pipelines, small private tools for friends. Day-job is still GTRI — embedded ML and computer vision. The bench section is the honest version of this pin.",
   },
 ];
