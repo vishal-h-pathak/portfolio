@@ -2,7 +2,7 @@
  * Shared dashboard types. This module used to also export a browser
  * Supabase client built on NEXT_PUBLIC_SUPABASE_ANON_KEY; that client
  * was removed in the RLS lockdown — all dashboard data access now goes
- * through /api/dashboard/* routes (service role, dashboard_auth
+ * through /api/console/dashboard/* routes (service role, dashboard_auth
  * middleware), and the jobs / star_stories / pattern_analyses /
  * application_attempts tables have RLS enabled with no anon policies.
  * Don't reintroduce a client-side Supabase client here.
@@ -105,7 +105,7 @@ export type Job = {
   // score and tier are TEXT columns in Postgres (the hunter writes
   // strings; tier now includes "1.5"). PostgREST returns them as
   // strings, but older rows / older clients may surface numbers — use
-  // the normalizers in app/dashboard/lib/format.ts, never compare raw.
+  // the normalizers in app/console/jobs/lib/format.ts, never compare raw.
   score: number | string | null;
   tier: number | string | null;
   // Optional hunter column (degree-gate detection). Feature-detected by
@@ -170,7 +170,7 @@ export type Job = {
   legitimacy_reasoning: string | null;
   // Archetype routing (J-4). Tailor classifies each JD into one of the
   // archetypes defined in profile.yml; persisted here for analytics
-  // (/dashboard/insights) and to show the reviewer which lane was used.
+  // (/console/jobs/insights) and to show the reviewer which lane was used.
   archetype: string | null;
   archetype_confidence: number | null;
   // M-1: form-answer drafts (career-ops Block H). Authoritative source

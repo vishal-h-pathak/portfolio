@@ -5,11 +5,17 @@ import type { Project as ProjectData } from "@/content/projects";
 
 type ProjectProps = {
   project: ProjectData;
+  updatedLabel?: string;
   isOpen: boolean;
   onToggle: () => void;
 };
 
-export function Project({ project, isOpen, onToggle }: ProjectProps) {
+export function Project({
+  project,
+  updatedLabel,
+  isOpen,
+  onToggle,
+}: ProjectProps) {
   return (
     <article
       className={`project${isOpen ? " open" : ""}`}
@@ -27,9 +33,9 @@ export function Project({ project, isOpen, onToggle }: ProjectProps) {
           <span className="one-liner">{project.oneLiner}</span>
         </span>
         <span className="right">
-          <span className={`pill ${project.status}`}>
-            {project.statusLabel}
-          </span>
+          {updatedLabel ? (
+            <span className="updated">{updatedLabel}</span>
+          ) : null}
           <span className="chev" aria-hidden="true">
             ›
           </span>

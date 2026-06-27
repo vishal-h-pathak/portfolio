@@ -17,11 +17,11 @@ export function Hero() {
               label: "LOOKING FOR",
               body: (
                 <>
-                  neuromorphic ·
+                  applied / agentic AI ·
                   <br />
-                  mission-driven ML ·
+                  forward-deployed / SE ·
                   <br />
-                  SE at an AI co.
+                  mission-driven ML
                 </>
               ),
             },
@@ -31,29 +31,28 @@ export function Hero() {
     >
       <div className="eyebrow">§ 1 &nbsp;·&nbsp; THESIS</div>
       <h1>
-        Electrical engineer in Atlanta.{" "}
-        <span className="accent-g">Neuromorphic hardware</span> for ten years
-        — memristors on a PCB, spikes on Loihi, neurons in VHDL — and lately
-        a lot of <span className="accent-a">agentic systems</span>, off-hours,
-        with an LLM in the loop.
+        Electrical engineer in Atlanta, building{" "}
+        <span className="accent-a">agentic systems</span> with an LLM in the
+        loop. Ten years in <span className="accent-g">neuromorphic hardware</span>{" "}
+        before this — memristors on a PCB, spikes on Loihi, neurons in VHDL —
+        and it&rsquo;s still how I think about systems.
       </h1>
       <div className="thesis-cols">
         <p>
           This site is part working notebook, part workbench —{" "}
           <span className="accent-g">research on the left</span>,{" "}
           <span className="accent-a">builds on the right</span>. The notebook
-          traces the through-line of neuromorphic work; the bench is what
-          I&rsquo;ve been building on evenings and weekends to learn how
-          agentic systems actually behave.
+          traces the through-line that got me here — neuromorphic hardware to
+          now; the bench is what I build with agentic systems.
         </p>
         <p className="dim">
           Currently{" "}
           <span style={{ color: "var(--ink)" }}>
             Research Engineer at GTRI
           </span>{" "}
-          — embedded ML, neuromorphic, computer vision. Looking for
-          neuromorphic / mission-driven ML, or sales engineering at an AI
-          company doing something worth caring about.
+          — embedded ML, neuromorphic, computer vision. Looking for applied /
+          agentic AI, forward-deployed / sales engineering, or mission-driven
+          ML — somewhere doing something worth caring about.
         </p>
       </div>
       <div className="trace-card">
