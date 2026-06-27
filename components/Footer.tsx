@@ -1,13 +1,14 @@
+import { ConsoleLink } from "./ConsoleLink";
+
 export function Footer() {
   return (
     <footer>
       <span>VISHAL PATHAK · ATLANTA, GA · 2026</span>
-      <span className="footer-appendix">
-        <span className="label">APPENDIX</span>
-        <a href="/meridian">meridian</a>
-        <span className="sep" aria-hidden="true">·</span>
-        <a href="/dashboard" aria-label="Dashboard (private)">dashboard</a>
-      </span>
+      {/* Auth-aware console entry — renders only for the signed-in owner
+          (see ConsoleLink). Visitors see nothing here. The old public
+          APPENDIX links to /meridian + /dashboard were removed; that
+          machinery now lives behind the gated /console. */}
+      <ConsoleLink />
       <span>END OF ENTRY 042</span>
     </footer>
   );

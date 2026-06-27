@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(req: NextRequest) {
-  if (req.nextUrl.pathname.startsWith("/dashboard/login")) {
+  const { pathname } = req.nextUrl;
+  // The login surfaces (page + its POST handler) must stay reachable
+  // without auth, otherwise there's no way in.
+  if (pathname === "/console/login" || pathname === "/api/console/login") {
     return NextResponse.next();
   }
   const expected = process.env.DASHBOARD_PASSWORD;
@@ -11,19 +14,17 @@ export function middleware(req: NextRequest) {
   }
   const cookie = req.cookies.get("dashboard_auth")?.value;
   if (cookie !== expected) {
-    if (req.nextUrl.pathname.startsWith("/api/")) {
+    if (pathname.startsWith("/api/")) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    return NextResponse.redirect(new URL("/dashboard/login", req.url));
+    return NextResponse.redirect(new URL("/console/login", req.url));
   }
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    "/dashboard/:path*",
-    "/api/chat",
-    "/api/materials/:path*",
-    "/api/dashboard/:path*",
-  ],
+  // Gate the whole console surface and its API. Moving meridian under
+  // /console means it inherits the gate (it used to be ungated). The
+  // public /api/bench/activity feed is deliberately NOT matched.
+  matcher: ["/console/:path*", "/api/console/:path*"],
 };

@@ -29,7 +29,7 @@ export const meridian: Project = {
     { key: "BUILD", value: "Solo · Claude · 6 wks", build: true },
   ],
   actions: [
-    { label: "→ open meridian", href: "/meridian", primary: true },
+    { label: "→ open meridian", href: "/console/meridian", primary: true },
     { label: "readme", href: "https://github.com/vishal-h-pathak/trading-agent" },
   ],
 };

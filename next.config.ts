@@ -20,6 +20,30 @@ const nextConfig: NextConfig = {
         destination: "/projects/cellular-gaits/optimizer",
         permanent: true,
       },
+      // Private tooling moved under the gated /console umbrella. Keep the
+      // old paths working for any stale links. The specific /dashboard/login
+      // rule must precede the /dashboard/:path* catch-all (login now lives
+      // at /console/login, not /console/jobs/login).
+      {
+        source: "/meridian",
+        destination: "/console/meridian",
+        permanent: true,
+      },
+      {
+        source: "/dashboard/login",
+        destination: "/console/login",
+        permanent: true,
+      },
+      {
+        source: "/dashboard",
+        destination: "/console/jobs",
+        permanent: true,
+      },
+      {
+        source: "/dashboard/:path*",
+        destination: "/console/jobs/:path*",
+        permanent: true,
+      },
     ];
   },
 };
