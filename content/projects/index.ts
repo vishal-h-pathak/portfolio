@@ -11,12 +11,13 @@ import { meridian } from "./meridian";
 import { papercuts } from "./papercuts";
 import { jobPipeline } from "./job-pipeline";
 import { cellularGaits } from "./cellular-gaits";
+import { fleetControlSystem } from "./fleet-control-system";
 import { thisSite } from "./this-site";
 
 export * from "./schema";
 
 // Canonical order — matches the original single-file registry exactly.
-const RAW: Project[] = [meridian, papercuts, jobPipeline, cellularGaits, thisSite];
+const RAW: Project[] = [meridian, papercuts, jobPipeline, cellularGaits, fleetControlSystem, thisSite];
 
 // Build-time integrity guard. Plain TS (no zod in the client bundle): runs at
 // module load, so a malformed or duplicated entry throws and fails the build.
