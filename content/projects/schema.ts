@@ -68,6 +68,13 @@ export type Project = {
   // status + body (original fields, verbatim) -------------------------------
   status: ProjectStatus;
   statusLabel: string;
+
+  // last-updated provenance (additive) --------------------------------------
+  // `repo` is the GitHub source of truth (owner/name) for a live "last updated"
+  // date; `updated` is a manual YYYY-MM fallback used when the API can't
+  // resolve (e.g. a private repo with no GITHUB_TOKEN set).
+  repo?: string;
+  updated?: string;
   paragraphs: ProjectParagraph[];
   meta: ProjectMeta[];
   actions: ProjectAction[];

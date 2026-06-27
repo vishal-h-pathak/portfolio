@@ -11,6 +11,8 @@ export const meridian: Project = {
   oneLiner: "autonomous trading agent · paper portfolio · 14d cycles",
   status: "live",
   statusLabel: "LIVE · 14d",
+  repo: "vishal-h-pathak/trading-agent",
+  updated: "2026-06",
   paragraphs: [
     {
       text: "Multi-brain LLM-driven trading harness — fundamentals, technicals, news, options flow, sentiment, event/macro — running a paper portfolio in 14-day cycles. Confluence radar collapses six signal types into a single grade per ticker; a reasoning view exposes the prompt chain that produced each decision.",

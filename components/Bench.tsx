@@ -6,7 +6,12 @@ import { Margin } from "./Margin";
 import { Project } from "./Project";
 import { Section } from "./Section";
 
-export function Bench() {
+type BenchProps = {
+  // slug -> "updated …" label, resolved server-side in app/page.tsx.
+  updatedMap?: Record<string, string>;
+};
+
+export function Bench({ updatedMap }: BenchProps) {
   const [openProjects, setOpenProjects] = useState<Set<string>>(new Set());
 
   // Esc collapses all open project cards.
@@ -40,15 +45,7 @@ export function Bench() {
             { label: "§ 4", body: "BENCH" },
             {
               label: "WHAT",
-              body: "Real tools, built end-to-end with agentic workflows — an LLM in the loop, shipped solo across domains.",
-            },
-            {
-              label: "VELOCITY",
-              body: "1 weekend → in production. Boring infra, just less of it.",
-            },
-            {
-              label: "WHY HERE",
-              body: "Evidence of range — and that I take an idea all the way to something real, on my own initiative.",
+              body: "Tools I build end-to-end, solo, with agentic workflows.",
             },
             { dim: true, body: "click any row to expand" },
           ]}
@@ -58,22 +55,18 @@ export function Bench() {
       <div className="sec-head">
         <div>
           <div className="eyebrow amber">§ 4 &nbsp;·&nbsp; BENCH</div>
-          <h2>The bench.</h2>
+          <h2>Bench</h2>
         </div>
-        <div className="status amber">
-          <span className="pulse" aria-hidden="true" />2 LIVE · 1 SHIPPED · 1
-          WIP
-        </div>
+        <div className="status amber">5 projects</div>
       </div>
       <p className="bench-intro">
-        These are the tools I build with agentic systems — learned from the
-        inside, not from a podcast. All independent: nothing here was built at
-        GTRI or with GTRI resources.
+        Personal projects, built independently of GTRI.
       </p>
       {PROJECTS.map((project) => (
         <Project
           key={project.num}
           project={project}
+          updatedLabel={updatedMap?.[project.slug]}
           isOpen={openProjects.has(project.num)}
           onToggle={() => toggle(project.num)}
         />

@@ -10,6 +10,8 @@ export const papercuts: Project = {
   oneLiner: "private reading club · papercuts.cc",
   status: "live",
   statusLabel: "LIVE · day 1",
+  repo: "vishal-h-pathak/papercuts-site",
+  updated: "2026-06",
   paragraphs: [
     {
       text: "A private site for my book club — ten friends, a book a cycle, one of us picks each round. Replaces a sprawl of Google Calendar + Drive folder + group chat with one place: magic-link auth, schedule, books index, audiobook streaming behind signed URLs.",

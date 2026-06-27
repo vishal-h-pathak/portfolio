@@ -511,6 +511,13 @@ h2 {
 }
 .pill.shipped { color: var(--amber); border-color: var(--amber); }
 .pill.wip { color: var(--ink-dim); border-style: dashed; }
+.updated {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
 .chev {
   font-family: var(--mono);
   font-size: 14px;

@@ -13,11 +13,7 @@ export function Experience() {
             { label: "§ 3", body: "EXPERIENCE" },
             {
               label: "NOTE",
-              body: "Paid work, in reverse chron. The bench section below is for personal builds — kept separate on purpose.",
-            },
-            {
-              label: "FOOTNOTE",
-              body: "The Loihi work and the Rain PCBs were team efforts. The connectome work is current and ongoing.",
+              body: "Professional experience, most recent first.",
             },
           ]}
         />

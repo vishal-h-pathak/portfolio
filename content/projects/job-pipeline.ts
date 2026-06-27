@@ -10,6 +10,8 @@ export const jobPipeline: Project = {
   oneLiner: "hunt → tailor → submit · one pipeline",
   status: "wip",
   statusLabel: "WIP · v0",
+  repo: "vishal-h-pathak/job-pipeline",
+  updated: "2026-06",
   paragraphs: [
     {
       text: "One pipeline: hunt → tailor → submit. The hunter runs on a daily cron and surfaces roles I’d care about (filters defense / generic gov / mission-less); tailor drafts the materials per posting. The point is to learn agentic loops on something I’ll feel the cost of when they fail.",
