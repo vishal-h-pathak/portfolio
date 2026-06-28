@@ -20,6 +20,12 @@ const TOOLS = [
       "Live trading-agent telemetry — decision stream, confluence radar, paper portfolio.",
   },
   {
+    href: "/console/credits",
+    name: "Credits",
+    blurb:
+      "Statement-credit recovery across Amex + Chase — captured, remaining, and what's about to expire.",
+  },
+  {
     href: FLEET_URL,
     name: "Fleet",
     blurb:
