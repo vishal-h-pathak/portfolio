@@ -26,7 +26,7 @@ const FLEET_URL =
 const TOOLS = [
   { href: "/console/jobs", label: "Job pipeline", match: "/console/jobs" },
   { href: "/console/meridian", label: "Meridian", match: "/console/meridian" },
-  { href: "/console/credits", label: "Credits", match: "/console/credits" },
+  { href: "/console/credits", label: "Card-tracker", match: "/console/credits" },
 ];
 
 export function ConsoleNav() {

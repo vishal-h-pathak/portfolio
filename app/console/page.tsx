@@ -21,7 +21,7 @@ const TOOLS = [
   },
   {
     href: "/console/credits",
-    name: "Credits",
+    name: "Card-tracker",
     blurb:
       "Statement-credit recovery across Amex + Chase — captured, remaining, and what's about to expire.",
   },
