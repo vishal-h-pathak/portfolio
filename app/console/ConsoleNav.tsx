@@ -75,7 +75,7 @@ export function ConsoleNav() {
                 href={FLEET_URL}
                 className="inline-flex items-baseline border-b border-transparent py-1 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint transition-colors duration-150 hover:text-ink"
               >
-                Fleet ↗
+                Fleet
               </a>
             </li>
           </ul>

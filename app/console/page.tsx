@@ -21,7 +21,7 @@ const TOOLS = [
   },
   {
     href: FLEET_URL,
-    name: "Fleet ↗",
+    name: "Fleet",
     blurb:
       "Realtime telemetry over every machine — heartbeats, running jobs, and dispatch.",
     external: true,
