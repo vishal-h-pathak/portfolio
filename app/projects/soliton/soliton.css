@@ -1,0 +1,332 @@
+/*
+  SOLITON experiment page — scoped styles (.sol-*).
+  Imported only by app/projects/soliton/layout.tsx, per the refactor plan's
+  "don't grow globals.css" rule (§6). Colors come exclusively from the
+  :root tokens in globals.css; the two-accent marketing palette holds —
+  protagonists get green/amber, reference lines get inks + dashes.
+*/
+
+/* ── shell ─────────────────────────────────────────────────────────────── */
+
+.sol-topbar {
+  position: sticky; top: 0; z-index: 40;
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 16px;
+  padding: 14px 40px;
+  background: rgba(11, 11, 12, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--ink-dim);
+}
+.sol-topbar a { transition: color 0.15s; }
+.sol-topbar a:hover { color: var(--ink); }
+.sol-topbar-brand .name { color: var(--ink); }
+
+.sol-page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 48px 40px 80px;
+}
+@media (max-width: 720px) {
+  .sol-topbar { padding: 12px 20px; }
+  .sol-page { padding: 32px 20px 64px; }
+}
+
+.sol-section { margin-top: 56px; }
+.sol-section-head {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 8px;
+  margin: 0 0 20px;
+}
+
+/* ── masthead ──────────────────────────────────────────────────────────── */
+
+.sol-kicker {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.sol-title {
+  font-family: var(--serif);
+  font-size: clamp(30px, 5vw, 44px);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  margin: 12px 0 0;
+  color: var(--ink);
+}
+.sol-lede {
+  max-width: 64ch;
+  margin-top: 20px;
+  color: var(--ink-dim);
+}
+.sol-lede strong { color: var(--ink); font-weight: 600; }
+
+.sol-prelaunch {
+  margin-top: 24px;
+  border: 1px solid var(--amber-dim);
+  border-left: 3px solid var(--amber);
+  padding: 12px 16px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+}
+.sol-prelaunch strong { color: var(--amber); font-weight: 500; }
+
+/* ── race chart ────────────────────────────────────────────────────────── */
+
+.sol-race { margin: 0; }
+.sol-race svg { width: 100%; height: auto; display: block; }
+.sol-race-tick {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  fill: var(--ink-faint);
+  letter-spacing: 0.06em;
+}
+.sol-race-endlabel {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+.sol-race-endlabel-hi { font-weight: 600; }
+.sol-race-note {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  fill: var(--ink-dim);
+  letter-spacing: 0.04em;
+}
+
+.sol-legend {
+  margin-top: 18px;
+  display: grid;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.sol-legend-row {
+  display: grid;
+  grid-template-columns: 34px minmax(60px, auto) 1fr;
+  gap: 12px;
+  align-items: baseline;
+  color: var(--ink-dim);
+}
+.sol-legend-swatch { position: relative; top: -3px; }
+.sol-legend-id { color: var(--ink); white-space: nowrap; }
+.sol-legend-label { color: var(--ink-faint); }
+
+/* ── decision log ──────────────────────────────────────────────────────── */
+
+.sol-log { list-style: none; margin: 0; padding: 0; }
+.sol-log-day { margin-bottom: 28px; }
+.sol-log-date {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+.sol-log-entries {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; gap: 10px;
+}
+
+.sol-entry {
+  border-left: 2px solid var(--rule);
+  padding: 2px 0 2px 16px;
+}
+.sol-entry-hi { background: linear-gradient(90deg, var(--rule-soft), transparent 70%); }
+.sol-entry-head {
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+.sol-entry-track { font-weight: 600; }
+.sol-entry-kind { color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.14em; }
+.sol-entry-time { margin-left: auto; color: var(--ink-faint); font-size: 10px; }
+
+.sol-entry-body { margin: 6px 0 0; font-size: 15px; color: var(--ink-dim); }
+.sol-entry-body p { margin: 0 0 4px; }
+.sol-entry-body strong { color: var(--ink); font-weight: 600; }
+.sol-entry-result { font-family: var(--mono); font-size: 12.5px; }
+
+.sol-verbatim {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--ink-dim);
+  overflow-wrap: anywhere;
+}
+.sol-rationale {
+  margin: 8px 0 4px;
+  padding: 8px 14px;
+  border-left: 2px solid var(--green-dim);
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--ink);
+}
+.sol-order {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+.sol-transition { color: var(--amber); }
+.sol-dials-line { font-family: var(--mono); font-size: 12px; }
+
+/* ── track panels ──────────────────────────────────────────────────────── */
+
+.sol-panels {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  align-items: start;
+}
+.sol-panel {
+  border: 1px solid var(--rule);
+  border-top: 2px solid var(--rule);
+  background: var(--bg-raised);
+  padding: 18px 18px 14px;
+}
+.sol-panel-hi { background: var(--bg-card); }
+.sol-panel-head { margin-bottom: 4px; }
+.sol-panel-id {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  font-weight: 600;
+}
+.sol-panel-name {
+  font-family: var(--serif);
+  font-size: 16.5px;
+  line-height: 1.35;
+  margin: 6px 0 0;
+  color: var(--ink);
+  font-weight: 600;
+}
+.sol-evidence {
+  margin: 8px 0 0;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--amber);
+  overflow-wrap: anywhere;
+}
+.sol-panel-status {
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+}
+.sol-status-armed { color: var(--green); text-transform: uppercase; }
+.sol-status-halted { color: var(--amber); text-transform: uppercase; }
+.sol-halt { color: var(--amber); text-transform: uppercase; font-weight: 500; }
+.sol-halt-reason { margin: 6px 0 0; }
+
+.sol-panel-block {
+  border-top: 1px solid var(--rule-soft);
+  margin-top: 12px;
+  padding-top: 10px;
+}
+.sol-kv {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 12px;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+.sol-k {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.sol-v { color: var(--ink); text-align: right; }
+.sol-v .sol-dim { color: var(--ink-faint); }
+
+.sol-ivdial { width: 100%; height: auto; margin-top: 6px; display: block; }
+
+.sol-dials { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 6px; }
+.sol-dial {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 11.5px; color: var(--ink-faint);
+}
+.sol-dial-lamp {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--rule);
+}
+.sol-dial-lit { color: var(--ink); }
+.sol-dial-lit .sol-dial-lamp { background: var(--green); box-shadow: 0 0 6px var(--green-dim); }
+
+.sol-positions, .sol-trades, .sol-alarms {
+  list-style: none; margin: 6px 0 0; padding: 0;
+  font-family: var(--mono); font-size: 12px; line-height: 1.7;
+  color: var(--ink-dim);
+}
+.sol-alarms .sol-verbatim { font-size: 11.5px; }
+
+/* ── methodology ───────────────────────────────────────────────────────── */
+
+.sol-method {
+  display: grid; gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+.sol-method h3 {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+.sol-method p { margin: 0 0 10px; font-size: 14.5px; color: var(--ink-dim); }
+.sol-method a { color: var(--ink); border-bottom: 1px solid var(--rule); }
+.sol-method a:hover { border-bottom-color: var(--ink); }
+
+.sol-verdicts {
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--green);
+  background: var(--bg-raised);
+  padding: 16px 20px;
+  margin: 0 0 28px;
+}
+.sol-verdicts p { margin: 0 0 8px; font-size: 15px; color: var(--ink-dim); }
+.sol-verdicts p:last-child { margin-bottom: 0; }
+.sol-verdicts strong { color: var(--ink); }
+
+/* ── shared bits ───────────────────────────────────────────────────────── */
+
+.sol-pos { color: var(--green); }
+.sol-neg { color: var(--amber); }
+.sol-dim { color: var(--ink-faint); }
+
+.sol-asof {
+  margin-top: 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+}
+
+.sol-footer {
+  margin-top: 72px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rule);
+  display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--ink-faint);
+}
+.sol-footer a { color: var(--ink-dim); }
+.sol-footer a:hover { color: var(--ink); }

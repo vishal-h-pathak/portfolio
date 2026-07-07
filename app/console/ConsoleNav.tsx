@@ -21,7 +21,7 @@ import { usePathname } from "next/navigation";
 
 const TOOLS = [
   { href: "/console/jobs", label: "Job pipeline", match: "/console/jobs" },
-  { href: "/console/meridian", label: "Meridian", match: "/console/meridian" },
+  { href: "/console/soliton", label: "Soliton", match: "/console/soliton" },
 ];
 
 export function ConsoleNav() {

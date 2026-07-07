@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-07T22:30:44+00:00",
+  "as_of": "2026-07-07",
+  "benchmark": {
+    "symbol": "SPY",
+    "closes": [
+      [
+        "2026-07-07",
+        747.71
+      ]
+    ]
+  },
+  "tracks": [
+    {
+      "id": "A",
+      "name": "Track A — mechanical premium selling (S3 champion cell, public control)",
+      "symbol": "QQQ",
+      "evidence_label": "negative — launched as public control per brief §7.5",
+      "signals_only": false,
+      "status": "armed",
+      "halt_reason": null,
+      "virtual_capital": 100000.0,
+      "equity_curve": [
+        [
+          "2026-07-07",
+          100000.0
+        ]
+      ],
+      "spy_benchmark": [
+        [
+          "2026-07-07",
+          100000.0
+        ]
+      ],
+      "open_positions": [],
+      "trade_log": [],
+      "decisions": [
+        {
+          "timestamp": "2026-07-07T22:30:43+00:00",
+          "track": "A",
+          "record": "gate_evaluation",
+          "as_of": "2026-07-07",
+          "iv_rank": 88.4920634920635,
+          "gate": 85.0,
+          "n_open": 0,
+          "max_concurrent": 3,
+          "decision": "open_iron_condor",
+          "order": {
+            "expiration": "2026-08-21",
+            "strikes": [
+              655.0,
+              620.0,
+              760.0,
+              795.0
+            ],
+            "qty": 1,
+            "limit_credit": 8.42,
+            "modeled_credit_mid": 8.595
+          }
+        },
+        {
+          "timestamp": "2026-07-07T22:29:53+00:00",
+          "track": "A",
+          "record": "skip_decide",
+          "as_of": "2026-07-07",
+          "reason": "stale_data: {'ohlcv': '2026-07-02', 'iv_proxy': '2026-07-02', 'chain': None} (expected 2026-07-07)"
+        },
+        {
+          "timestamp": "2026-07-07T22:29:53+00:00",
+          "track": "A",
+          "record": "kill",
+          "as_of": "2026-07-07",
+          "reason": "stale_data: {'ohlcv': '2026-07-02', 'iv_proxy': '2026-07-02', 'chain': None} (expected 2026-07-07)"
+        }
+      ],
+      "last_updated": "2026-07-07T22:30:44+00:00"
+    },
+    {
+      "id": "C",
+      "name": "Track C — dynamical-state overlay (C2 registered default cell)",
+      "symbol": "SPY",
+      "evidence_label": "unproven — launched for public forward test per brief §7.5",
+      "signals_only": false,
+      "status": "halted",
+      "halt_reason": "stale_data: {'ohlcv': '2026-07-02', 'vix': '2026-07-02', 'vix3m': '2026-07-02'} (expected 2026-07-07)",
+      "virtual_capital": 100000.0,
+      "equity_curve": [
+        [
+          "2026-07-07",
+          100000.0
+        ]
+      ],
+      "spy_benchmark": [
+        [
+          "2026-07-07",
+          100000.0
+        ]
+      ],
+      "open_positions": [],
+      "trade_log": [],
+      "decisions": [
+        {
+          "timestamp": "2026-07-07T22:30:43+00:00",
+          "track": "C",
+          "record": "skip_decide",
+          "as_of": "2026-07-07",
+          "reason": "stale_data: {'ohlcv': '2026-07-02', 'vix': '2026-07-02', 'vix3m': '2026-07-02'} (expected 2026-07-07)"
+        },
+        {
+          "timestamp": "2026-07-07T22:29:53+00:00",
+          "track": "C",
+          "record": "skip_decide",
+          "as_of": "2026-07-07",
+          "reason": "stale_data: {'ohlcv': '2026-07-02', 'vix': '2026-07-02', 'vix3m': '2026-07-02'} (expected 2026-07-07)"
+        },
+        {
+          "timestamp": "2026-07-07T22:29:53+00:00",
+          "track": "C",
+          "record": "kill",
+          "as_of": "2026-07-07",
+          "reason": "stale_data: {'ohlcv': '2026-07-02', 'vix': '2026-07-02', 'vix3m': '2026-07-02'} (expected 2026-07-07)"
+        }
+      ],
+      "last_updated": "2026-07-07T22:30:44+00:00"
+    },
+    {
+      "id": "CS2",
+      "name": "Track C shadow — C2 nearest-miss QQQ|l0.2|d2|w0.5 (signals only)",
+      "symbol": "QQQ",
+      "evidence_label": "shadow — signals only, no capital (C2 report recommendation #3)",
+      "signals_only": true,
+      "status": "halted",
+      "halt_reason": "stale_data: {'ohlcv': '2026-07-02', 'vix': '2026-07-02', 'vix3m': '2026-07-02'} (expected 2026-07-07)",
+      "virtual_capital": 100000.0,
+      "equity_curve": [
+        [
+          "2026-07-07",
+          100000.0
+        ]
+      ],
+      "spy_benchmark": [
+        [
+          "2026-07-07",
+          100000.0
+        ]
+      ],
+      "open_positions": [],
+      "trade_log": [],
+      "decisions": [
+        {
+          "timestamp": "2026-07-07T22:30:43+00:00",
+          "track": "CS2",
+          "record": "skip_decide",
+          "as_of": "2026-07-07",
+          "reason": "stale_data: {'ohlcv': '2026-07-02', 'vix': '2026-07-02', 'vix3m': '2026-07-02'} (expected 2026-07-07)"
+        },
+        {
+          "timestamp": "2026-07-07T22:29:53+00:00",
+          "track": "CS2",
+          "record": "skip_decide",
+          "as_of": "2026-07-07",
+          "reason": "stale_data: {'ohlcv': '2026-07-02', 'vix': '2026-07-02', 'vix3m': '2026-07-02'} (expected 2026-07-07)"
+        },
+        {
+          "timestamp": "2026-07-07T22:29:53+00:00",
+          "track": "CS2",
+          "record": "kill",
+          "as_of": "2026-07-07",
+          "reason": "stale_data: {'ohlcv': '2026-07-02', 'vix': '2026-07-02', 'vix3m': '2026-07-02'} (expected 2026-07-07)"
+        }
+      ],
+      "last_updated": "2026-07-07T22:30:44+00:00"
+    }
+  ]
+}

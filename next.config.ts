@@ -20,15 +20,24 @@ const nextConfig: NextConfig = {
         destination: "/projects/cellular-gaits/optimizer",
         permanent: true,
       },
+      // MERIDIAN retired: SOLITON replaced it and its visuals are public
+      // now (the experiment page). Both the ancient public path and the
+      // consolidated console path land on /projects/soliton; the owner-side
+      // successor is /console/soliton, linked from the console home.
+      {
+        source: "/meridian",
+        destination: "/projects/soliton",
+        permanent: true,
+      },
+      {
+        source: "/console/meridian",
+        destination: "/projects/soliton",
+        permanent: true,
+      },
       // Private tooling moved under the gated /console umbrella. Keep the
       // old paths working for any stale links. The specific /dashboard/login
       // rule must precede the /dashboard/:path* catch-all (login now lives
       // at /console/login, not /console/jobs/login).
-      {
-        source: "/meridian",
-        destination: "/console/meridian",
-        permanent: true,
-      },
       {
         source: "/dashboard/login",
         destination: "/console/login",

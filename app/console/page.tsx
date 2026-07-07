@@ -10,10 +10,10 @@ const TOOLS = [
       "Hunt → tailor → review queue, with run controls and cost insights.",
   },
   {
-    href: "/console/meridian",
-    name: "Meridian",
+    href: "/console/soliton",
+    name: "Soliton",
     blurb:
-      "Live trading-agent telemetry — decision stream, confluence radar, paper portfolio.",
+      "Engine status for the public trading experiment — track arm/halt state, kill events, export freshness.",
   },
 ];
 
