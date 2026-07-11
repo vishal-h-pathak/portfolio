@@ -184,6 +184,60 @@
 .sol-transition { color: var(--amber); }
 .sol-dials-line { font-family: var(--mono); font-size: 12px; }
 
+/* ── daily digest ──────────────────────────────────────────────────────── */
+
+.sol-digest-intro {
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--green);
+  background: var(--bg-raised);
+  padding: 16px 20px;
+  margin: 0 0 28px;
+  max-width: 72ch;
+}
+.sol-digest-intro p { margin: 0 0 10px; font-size: 14.5px; color: var(--ink-dim); }
+.sol-digest-intro p:last-child { margin-bottom: 0; }
+.sol-digest-intro strong { color: var(--ink); }
+
+.sol-digest { list-style: none; margin: 0; padding: 0; }
+.sol-digest-day {
+  border-left: 2px solid var(--rule);
+  padding: 2px 0 2px 16px;
+  margin-bottom: 26px;
+}
+.sol-digest-date {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.sol-digest-body { max-width: 72ch; }
+.sol-digest-body p { margin: 0 0 8px; font-size: 15px; color: var(--ink-dim); }
+.sol-digest-body strong { color: var(--ink); font-weight: 600; }
+.sol-digest-excerpt {
+  padding-left: 18px;
+  font-size: 13px !important;
+}
+.sol-digest-excerpt a {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+.sol-digest-excerpt a:hover { color: var(--ink); }
+.sol-digest-ref {
+  font-size: 13.5px !important;
+  color: var(--ink-faint) !important;
+}
+.sol-flag {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--green);
+}
+.sol-flag-forced { color: var(--amber); }
+
 /* ── track panels ──────────────────────────────────────────────────────── */
 
 .sol-panels {

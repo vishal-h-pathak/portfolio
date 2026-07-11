@@ -20,18 +20,19 @@ const nextConfig: NextConfig = {
         destination: "/projects/cellular-gaits/optimizer",
         permanent: true,
       },
-      // MERIDIAN retired: SOLITON replaced it and its visuals are public
-      // now (the experiment page). Both the ancient public path and the
-      // consolidated console path land on /projects/soliton; the owner-side
-      // successor is /console/soliton, linked from the console home.
+      // MERIDIAN retired: its console is preserved as a public archive at
+      // /projects/meridian (which links forward to /projects/soliton, the
+      // rebuild). Both the ancient public path and the consolidated console
+      // path land on the archive; the owner-side successor is
+      // /console/soliton, linked from the console home.
       {
         source: "/meridian",
-        destination: "/projects/soliton",
+        destination: "/projects/meridian",
         permanent: true,
       },
       {
         source: "/console/meridian",
-        destination: "/projects/soliton",
+        destination: "/projects/meridian",
         permanent: true,
       },
       // Private tooling moved under the gated /console umbrella. Keep the

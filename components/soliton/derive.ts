@@ -15,10 +15,10 @@ import type {
 // ── Track roles ─────────────────────────────────────────────────────────────
 // The page's framing: the two Fable accounts are the protagonists;
 // everything else is a reference line. The engine doesn't export a role
-// field (schema v1), so classify off id/name. Expected Fable ids per the
-// brief are FC (fable-conservative) / FA (fable-aggressive); match the
-// name too so a different P5 id choice still lands on the right side of
-// the line. Flagged in REPORT_rebuild_p6 for P5 to keep stable.
+// field, so classify off id/name. Schema v2 PINS the Fable ids:
+// FA = fable-aggressive, FE = fable-economist (no FC — the conservative
+// account was removed by operator amendment before build). Match the name
+// too so any future protagonist still lands on the right side of the line.
 
 export type TrackRole = "protagonist" | "reference";
 
@@ -36,7 +36,7 @@ export function trackRole(track: Pick<SolitonTrack, "id" | "name">): TrackRole {
 export type TrackStyle = { color: string; dash?: string };
 
 const KNOWN_STYLES: Record<string, TrackStyle> = {
-  FC: { color: "var(--green)" },
+  FE: { color: "var(--green)" },
   FA: { color: "var(--amber)" },
   A: { color: "var(--ink-dim)", dash: "6 3" },
   C: { color: "var(--ink-dim)", dash: "2 3" },
@@ -127,16 +127,24 @@ export function mergedDecisions(bundle: SolitonBundle): TaggedDecision[] {
 }
 
 /**
- * Best-effort link from an opening decision to its closed result: spreads
- * carry the order expiration, and closed spread trades carry
- * expiration_close / a label that embeds the expiration. Schema v1 has no
- * stable decision↔trade key (flagged for P4/P5), so this stays fuzzy and
- * conservative — no match, no link.
+ * Link from an opening decision to its closed result. Schema v2 gives an
+ * EXACT key: position_key rides on the decision's order summary, the open
+ * position, and the closed trade. Fall back to the old fuzzy expiration
+ * match for anything without a key — no match, no link.
  */
 export function linkedTrade(
   track: SolitonTrack,
   decision: DecisionRecord,
 ): ClosedTrade | undefined {
+  const keys = [decision.order, ...(decision.orders ?? [])]
+    .map((o) => o?.position_key)
+    .filter((k): k is string => typeof k === "string");
+  if (keys.length > 0) {
+    const exact = track.trade_log.find(
+      (t) => t.position_key && keys.includes(t.position_key),
+    );
+    if (exact) return exact;
+  }
   const exp = decision.order?.expiration;
   if (!exp) return undefined;
   return track.trade_log.find(

@@ -6,12 +6,14 @@ import type {
 import {
   fmtDate,
   fmtDateTime,
+  fmtMoney,
   fmtSignedMoney,
   linkedTrade,
   mergedDecisions,
   trackRole,
   trackStyle,
 } from "./derive";
+import { decisionAnchor } from "./digest";
 
 /**
  * The decision log — every day's journal reasoning records, verbatim,
@@ -21,8 +23,9 @@ import {
  * lets us find it.
  *
  * Known record kinds render structured (gate_evaluation, state_print,
- * kill, skip_decide); unknown kinds — the Fable accounts will add some —
- * fall back to decision/reason/rationale so nothing gets dropped.
+ * kill, skip_decide, fable_decision); unknown kinds fall back to
+ * decision/reason/rationale so nothing gets dropped. Every entry carries
+ * the digest's anchor id so its excerpts can deep-link the full record.
  */
 
 const MAX_ENTRIES = 40;
@@ -71,6 +74,7 @@ function Entry({ track, d }: { track: SolitonTrack; d: DecisionRecord }) {
   const protagonist = trackRole(track) === "protagonist";
   return (
     <li
+      id={decisionAnchor(track.id, d)}
       className={"sol-entry" + (protagonist ? " sol-entry-hi" : "")}
       style={{ borderLeftColor: style.color }}
     >
@@ -94,6 +98,8 @@ function EntryBody({ track, d }: { track: SolitonTrack; d: DecisionRecord }) {
       return <GateEvaluation track={track} d={d} />;
     case "state_print":
       return <StatePrint d={d} />;
+    case "fable_decision":
+      return <FableDecision track={track} d={d} />;
     case "kill":
       return (
         <p className="sol-entry-body">
@@ -168,9 +174,106 @@ function StatePrint({ d }: { d: DecisionRecord }) {
 }
 
 /**
+ * fable_decision (v2) — the public log entry of the headline experiment.
+ * The model's rationale rides verbatim as untrusted prose (text only);
+ * orders shown are the CODE-built summaries, and every cap the decision
+ * violated is printed word for word. The provenance line (model, prompt
+ * version, cost) is what makes silent prompt changes detectable from the
+ * public record.
+ */
+function FableDecision({
+  track,
+  d,
+}: {
+  track: SolitonTrack;
+  d: DecisionRecord;
+}) {
+  const result = linkedTrade(track, d);
+  const outcome = d.validation?.outcome;
+  const problems = d.validation?.problems ?? [];
+  const orders = d.orders ?? [];
+  return (
+    <div className="sol-entry-body">
+      <p>
+        → <strong>{outcome ?? d.decision ?? "—"}</strong>
+        {d.mandate_forced != null && (
+          <span className="sol-dim">
+            {" "}
+            · {d.mandate_forced ? "mandate-forced" : "voluntary"}
+          </span>
+        )}
+        {d.mandate_met === false && (
+          <span className="sol-transition"> · mandate unmet</span>
+        )}
+      </p>
+      {d.rationale && (
+        <blockquote className="sol-rationale">{d.rationale}</blockquote>
+      )}
+      {orders.length > 0 && (
+        <ul className="sol-positions">
+          {orders.map((o, i) => (
+            <li key={o.position_key ?? i}>
+              {o.side ?? "order"} {o.symbol ?? o.underlying ?? "—"}
+              {o.shares != null && <> · {o.shares} sh</>}
+              {o.est_notional_usd != null && (
+                <> · ~{fmtMoney(o.est_notional_usd)}</>
+              )}
+              {o.risk_budget_usd != null && (
+                <> · {fmtMoney(o.risk_budget_usd)} at risk</>
+              )}
+              {typeof o.thesis_id === "string" && (
+                <span className="sol-dim"> · ‘{o.thesis_id}’</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {problems.length > 0 && (
+        <ul className="sol-alarms">
+          {problems.map((p, i) => (
+            <li key={i}>
+              <span className="sol-verbatim">“{p}”</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {(d.theses?.length ?? 0) > 0 && (
+        <p className="sol-order">
+          journal:{" "}
+          {d.theses!
+            .map(
+              (t) =>
+                `‘${t.title ?? t.id ?? "untitled"}’ (conviction ${
+                  t.conviction ?? "—"
+                }/5)`,
+            )
+            .join(" · ")}
+        </p>
+      )}
+      <p className="sol-order">
+        {d.model ?? "model —"}
+        {d.prompt_version && <> · prompt {d.prompt_version}</>}
+        {d.cost?.usd != null && <> · call cost ${d.cost.usd.toFixed(2)}</>}
+        {d.cost?.web_searches != null && d.cost.web_searches > 0 && (
+          <> · {d.cost.web_searches} web searches</>
+        )}
+      </p>
+      {result && (
+        <p className="sol-entry-result">
+          → closed {fmtDate(result.closed)}:{" "}
+          <strong className={result.pnl >= 0 ? "sol-pos" : "sol-neg"}>
+            {fmtSignedMoney(result.pnl)}
+          </strong>
+          {result.reason && <span className="sol-dim"> ({result.reason})</span>}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
  * Unknown record kind (future tracks). Render the model's own words when
- * present — rationale is the field the Fable accounts are expected to
- * carry — plus whatever decision/reason exists.
+ * present plus whatever decision/reason exists.
  */
 function GenericRecord({ d }: { d: DecisionRecord }) {
   return (

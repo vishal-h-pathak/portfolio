@@ -11,6 +11,7 @@ import {
   type TrackStyle,
 } from "@/components/soliton/derive";
 import { RaceChart } from "@/components/soliton/RaceChart";
+import { DailyDigest } from "@/components/soliton/DailyDigest";
 import { DecisionLog } from "@/components/soliton/DecisionLog";
 import { TrackPanel } from "@/components/soliton/TrackPanel";
 
@@ -39,25 +40,28 @@ export default async function SolitonPage() {
         </h1>
         <div className="sol-lede">
           <p>
-            This plate used to be MERIDIAN — five specialist LLMs deliberating
-            over filings and news sentiment. It produced sophisticated
-            reasoning and, in two months, exactly one trade. The honest review:
-            an analysis engine with no defined edge. SOLITON is the rebuild.
-            Every strategy in it is a mechanical, pre-registered rule set —
-            same inputs, same trade — backtested before it touches even paper
-            money, and run in public here.
+            This plate used to be{" "}
+            <a href="/projects/meridian">MERIDIAN</a> — five specialist LLMs
+            deliberating over filings and news sentiment. It produced
+            sophisticated reasoning and, in two months, exactly one trade. The
+            honest review: an analysis engine with no defined edge. SOLITON is
+            the rebuild — the predecessor&rsquo;s console is{" "}
+            <a href="/projects/meridian">preserved as an archive</a>. Every
+            strategy here is a mechanical, pre-registered rule set — same
+            inputs, same trade — backtested before it touches even paper
+            money, and run in public.
           </p>
           <p>
             The experiment sitting on top: <strong>two paper accounts are run
             by Fable</strong>, the most advanced Claude model available over an
-            API. <strong>Fable-conservative</strong> makes one call a day,
-            choosing from the same playbook menu the mechanical rules use — so
-            the running spread between them measures whether frontier-model
-            judgment adds anything over the rules it&rsquo;s allowed to deviate
-            from. <strong>Fable-aggressive</strong> buys short-dated convexity
-            off the macro calendar and headlines, inside caps enforced by code,
-            not prompt. Everything else on this page is a reference line: the
-            mechanical control, the dynamical-state overlay, SPY buy-and-hold.
+            API, both under a daily-trade mandate.{" "}
+            <strong>Fable-aggressive (FA)</strong> buys short-dated convexity
+            off the macro calendar, inside caps enforced by code, not prompt.{" "}
+            <strong>Fable-economist (FE)</strong> keeps a running thesis
+            journal on the AI economy — with web search as its eyes — and buys
+            the structural leverage points it finds. Everything else on this
+            page is a reference line: the mechanical control, the
+            dynamical-state overlay, SPY buy-and-hold.
           </p>
           <p style={{ color: "var(--ink-faint)" }}>
             Success was defined before launch: beat the controls over 100+
@@ -123,6 +127,14 @@ export default async function SolitonPage() {
         </p>
       </section>
 
+      {/* ── daily digest ──────────────────────────────────────────────── */}
+      <section className="sol-section" aria-labelledby="sol-digest-head">
+        <h2 className="sol-section-head" id="sol-digest-head">
+          The daily digest — the record, day by day
+        </h2>
+        <DailyDigest bundle={bundle} />
+      </section>
+
       {/* ── decision log ──────────────────────────────────────────────── */}
       <section className="sol-section" aria-labelledby="sol-log-head">
         <h2 className="sol-section-head" id="sol-log-head">
@@ -130,9 +142,10 @@ export default async function SolitonPage() {
         </h2>
         <p className="sol-lede" style={{ marginTop: 0, marginBottom: 24 }}>
           The engine journals every decision it makes — and every session it
-          refuses to trade, with the reason. Once the Fable accounts are live,
-          their one-paragraph rationales appear here word for word, next to
-          what actually happened. Nothing is edited after the fact.
+          refuses to trade, with the reason. The Fable accounts&rsquo;
+          one-paragraph rationales appear here word for word, next to the
+          orders the code actually built and every cap check they failed.
+          Nothing is edited after the fact.
         </p>
         <DecisionLog bundle={bundle} />
       </section>

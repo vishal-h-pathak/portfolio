@@ -2,8 +2,10 @@ import type { Project } from "./schema";
 
 // B-01 was MERIDIAN (the 5-specialist LLM trading harness). SOLITON is its
 // replacement after the honest review — the plate number carries over, the
-// architecture didn't. Old links: /meridian and /console/meridian both
-// redirect to /projects/soliton (next.config.ts).
+// architecture didn't. The retired console is preserved at
+// /projects/meridian (the archive; /meridian and /console/meridian redirect
+// there per next.config.ts), and the archive links forward to
+// /projects/soliton.
 export const soliton: Project = {
   num: "B-01",
   slug: "soliton",
