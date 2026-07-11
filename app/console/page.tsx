@@ -2,6 +2,10 @@ import Link from "next/link";
 
 export const metadata = { title: "Console" };
 
+// Fleet is a separate deployed app, not a /console/* route, so it links out.
+const FLEET_URL =
+  process.env.NEXT_PUBLIC_FLEET_URL ?? "https://fleet.vishal.pa.thak.io";
+
 const TOOLS = [
   {
     href: "/console/jobs",
@@ -14,6 +18,19 @@ const TOOLS = [
     name: "Soliton",
     blurb:
       "Engine status for the public trading experiment — track arm/halt state, kill events, export freshness.",
+  },
+  {
+    href: "/console/credits",
+    name: "Card-tracker",
+    blurb:
+      "Statement-credit recovery across Amex + Chase — captured, remaining, and what's about to expire.",
+  },
+  {
+    href: FLEET_URL,
+    name: "Fleet",
+    blurb:
+      "Realtime telemetry over every machine — heartbeats, running jobs, and dispatch.",
+    external: true,
   },
 ];
 
@@ -44,19 +61,31 @@ export default function ConsoleHome() {
         </header>
 
         <ul className="grid gap-3">
-          {TOOLS.map((tool) => (
-            <li key={tool.href}>
-              <Link
-                href={tool.href}
-                className="block border border-rule p-4 transition-colors duration-150 hover:border-amber"
-              >
+          {TOOLS.map((tool) => {
+            const cardClassName =
+              "block border border-rule p-4 transition-colors duration-150 hover:border-amber";
+            const inner = (
+              <>
                 <div className="font-mono text-sm uppercase tracking-[0.14em] text-ink">
                   {tool.name}
                 </div>
                 <p className="mt-1 text-sm text-ink-dim">{tool.blurb}</p>
-              </Link>
-            </li>
-          ))}
+              </>
+            );
+            return (
+              <li key={tool.href}>
+                {tool.external ? (
+                  <a href={tool.href} className={cardClassName}>
+                    {inner}
+                  </a>
+                ) : (
+                  <Link href={tool.href} className={cardClassName}>
+                    {inner}
+                  </Link>
+                )}
+              </li>
+            );
+          })}
         </ul>
 
         <p className="mt-8 font-mono text-[11px] tracking-[0.1em] text-ink-faint">

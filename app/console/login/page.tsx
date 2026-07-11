@@ -5,12 +5,12 @@
  * component — the form posts to the login route and middleware handles
  * the redirect.
  */
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { error?: string };
+  searchParams: Promise<{ error?: string }>;
 }) {
-  const error = searchParams?.error;
+  const { error } = await searchParams;
   return (
     <main className="internal-surface flex min-h-screen items-center justify-center px-4">
       <form
@@ -20,9 +20,9 @@ export default function LoginPage({
       >
         <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
           <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-green" />
-          Job pipeline — restricted
+          Console — restricted
         </div>
-        <h1 className="font-serif text-xl tracking-tight text-ink">Dashboard</h1>
+        <h1 className="font-serif text-xl tracking-tight text-ink">Console</h1>
         <label htmlFor="dashboard-password" className="sr-only">
           Password
         </label>

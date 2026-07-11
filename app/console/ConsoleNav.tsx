@@ -19,9 +19,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+// Fleet is a separate deployed app, not a /console/* route, so it links out.
+const FLEET_URL =
+  process.env.NEXT_PUBLIC_FLEET_URL ?? "https://fleet.vishal.pa.thak.io";
+
 const TOOLS = [
   { href: "/console/jobs", label: "Job pipeline", match: "/console/jobs" },
   { href: "/console/soliton", label: "Soliton", match: "/console/soliton" },
+  { href: "/console/credits", label: "Card-tracker", match: "/console/credits" },
 ];
 
 export function ConsoleNav() {
@@ -65,6 +70,15 @@ export function ConsoleNav() {
                 </li>
               );
             })}
+            {/* Fleet is off-app, so it's a plain anchor and never active. */}
+            <li className="shrink-0">
+              <a
+                href={FLEET_URL}
+                className="inline-flex items-baseline border-b border-transparent py-1 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-faint transition-colors duration-150 hover:text-ink"
+              >
+                Fleet
+              </a>
+            </li>
           </ul>
           <div className="ml-auto flex shrink-0 items-center">
             <a

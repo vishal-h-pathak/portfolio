@@ -12,6 +12,7 @@
 
 | Repo | Branch | Claimed by | Status | Notes |
 |------|--------|-----------|--------|-------|
+| cellular-gaits | `feat/cg-renders-w2` | _unclaimed (render DONE — not merged)_ | **Two-angle render of all 4 behaviours DONE** | `scripts/render_all.py` committed. Full render → `outputs/r2_all/` (gitignored): 20 mp4 + 7 json, primary legible cam + shared `topdown` for gait/chemo/pert/escape. All legible, headline behaviours intact. `ops/reports/REPORT_cg_render_all.md`. Not merged to main. NEXT: pick which angle ships + web-wire (later wave). |
 | cellular-gaits | `feat/n-navigation` | _unclaimed_ | calibrated, full run PENDING | run on WIN: `uv run python scripts/run_evolution_navigation.py --pop 48 --gens 70 --checkpoint-every 5 --workers 16` |
 | portfolio | `feat/n-navigation-scaffold` | _unclaimed_ | committed (230c040), not shipped | hold until N-C lands, then ship nav as a complete tab |
 | portfolio | `main` | — | production | escape is live (shipped from `feat/x-escape-live`) |
@@ -63,6 +64,15 @@ monitor it; `run <repo> "<directive>"` dispatches a delegated Claude CLI session
 
 ## Sync log (append-only, newest at top)
 
+- **2026-07-01 (MAC / Cowork)** — `cellular-gaits feat/cg-renders-w2` two-angle render wave **DONE**.
+  Preflight passed (all local artifacts present). `--quick` smoke (12 clips, 92.5s, no cam errors) →
+  reviewed → full render (`scripts/render_all.py --out outputs/r2_all/`, 162.2s, exit 0). Output:
+  20 mp4 + 7 json — gait/chemo/pert/escape each in primary legible cam + `topdown`. Escape ran the
+  live GF sweep on the v783 brain (138,639 neurons; GF peaks L 133.3 / R 100.0 Hz). Eyeballed: all
+  legible across static arenas both angles; gait forward-distance and perturbation open-vs-closed
+  drift intact in the new angle. `scripts/render_all.py` + `ops/reports/REPORT_cg_render_all.md`
+  committed on the branch. **Not merged to main.** Clips gitignored (stay local). Next: angle
+  selection + web-wiring in a later wave.
 - **2026-06-21 (MAC / Cowork)** — Cross-machine system created (Layers 1–3 specced, Layer 1
   live). Added `WINDOWS_SETUP.md` (bare-metal bootstrap, tiered) + `cockpit.sh` (Mac→WIN remote
   control). Escape confirmed shipped to production. Nav full run reassigned MAC → WIN (compute

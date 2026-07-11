@@ -47,3 +47,16 @@ PROMPT_*.md
 design-system/
 
 __pycache__/
+
+# planning / prompt / ops artifacts — local-only, not tracked in this repo.
+# Cross-machine sync files stay TRACKED (see below): SYNC.md, CROSS_MACHINE.md,
+# and the root cockpit.sh / push-cross-machine.sh.
+docs/REFACTOR_PLAN.md
+docs/REDESIGN_PLAN.md
+docs/DASHBOARD_UX_REVIEW_2026-06.md
+docs/cellular-gaits/*
+!docs/cellular-gaits/SYNC.md
+!docs/cellular-gaits/CROSS_MACHINE.md
+ops/refactor/
+ops/reports/
+ops/waves/
