@@ -1047,6 +1047,8 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
 .cg-tab-index-link:hover,
 .cg-tab-index-link:focus-visible {
   background: var(--bg-raised);
+}
+.cg-tab-index-link:hover {
   outline: none;
 }
 .cg-tab-index-label {
