@@ -1,7 +1,7 @@
 import type { Project } from "./schema";
 
 export const thisSite: Project = {
-  num: "B-05",
+  num: "B-06",
   slug: "this-site",
   tier: "project",
   domain: "site",
@@ -22,5 +22,7 @@ export const thisSite: Project = {
     { key: "URL", value: "you’re on it" },
     { key: "BUILD", value: "Solo · Claude · 4 days", build: true },
   ],
-  actions: [],
+  actions: [
+    { label: "readme", href: "https://github.com/vishal-h-pathak/portfolio" },
+  ],
 };
