@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>portfolio — architecture</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 2.5rem 1.5rem 4rem;
+    background: #fafafa;
+    color: #1d1d1f;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  header {
+    max-width: 1100px;
+    margin: 0 auto 1.75rem;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 650;
+    margin: 0 0 0.35rem;
+    letter-spacing: -0.01em;
+  }
+  .subtitle {
+    color: #6e6e73;
+    font-size: 0.95rem;
+    margin: 0 0 1.1rem;
+  }
+  .legend {
+    background: #fff;
+    border: 1px solid #e3e3e6;
+    border-radius: 10px;
+    padding: 0.9rem 1.15rem;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: #33343a;
+    max-width: 1100px;
+  }
+  .legend strong { color: #111; }
+  .diagram-wrap {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid #e3e3e6;
+    border-radius: 12px;
+    padding: 1.75rem;
+    overflow-x: auto;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .mermaid { display: flex; justify-content: center; }
+  footer {
+    max-width: 1100px;
+    margin: 1.5rem auto 0;
+    font-size: 0.78rem;
+    color: #9a9aa0;
+  }
+  a { color: #0066cc; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>portfolio — architecture</h1>
+    <p class="subtitle">public marketing site + the gated operator console, focused on the job-pipeline cockpit</p>
+    <div class="legend">
+      <strong>Legend:</strong> yellow subgraphs are in-repo areas (public site, auth gate, console, API layer, server lib helpers);
+      grey boxes are external systems (Supabase, GitHub, Anthropic, Vercel); the amber box mirrors job-pipeline's canonical status
+      enum. The console also fronts non-job-pipeline tabs (Amex credit tracker, trading-agent, fleet) — those are collapsed into
+      single boxes since their internals aren't load-bearing here.
+    </div>
+  </header>
+
+  <div class="diagram-wrap">
+    <pre class="mermaid">
+flowchart TD
+    classDef external fill:#eef0f2,stroke:#7a7a7a,stroke-width:1px,color:#333;
+    classDef spine fill:#fff6da,stroke:#b8860b,stroke-width:2px,color:#333;
+
+    subgraph PUBLIC["Public site (vishal.pa.thak.io)"]
+        MKT["Marketing site&lt;br/&gt;app/page.tsx + components&lt;br/&gt;(Hero, Bench, Experience, Lineage, Project, WorkshopRail)"]
+    end
+
+    subgraph GATE["Auth gate"]
+        AUTH["middleware.ts&lt;br/&gt;DASHBOARD_PASSWORD cookie gate&lt;br/&gt;matches /console/* + /api/console/*"]
+        LOGIN["/console/login + /api/console/login"]
+    end
+
+    subgraph CONSOLE["Console — operator cockpit (app/console/)"]
+        CJ["Jobs tab&lt;br/&gt;BrowseView, ReviewPanel, RunsPanel,&lt;br/&gt;ManualTailorPanel, WatcherPanel, MatchAgent, stories, insights"]
+        CO["Other tabs&lt;br/&gt;credits (Amex tracker), meridian (trading-agent), agents (fleet)"]
+    end
+
+    subgraph API["API layer (app/api/)"]
+        AJ["console/dashboard/jobs&lt;br/&gt;PATCH, mark-applied, mark-failed, prefill, skip"]
+        AR["console/dashboard/runs&lt;br/&gt;hunt, tailor, tailor-manual"]
+        AS["console/dashboard/storage&lt;br/&gt;signed material URLs"]
+        AM["console/dashboard misc&lt;br/&gt;pattern-analyses, profile-insight, stories, watchers"]
+        AC["console/chat&lt;br/&gt;MatchAgent"]
+        AMAT["console/materials/[jobId]/[kind]&lt;br/&gt;serve PDFs"]
+        AB["bench/activity&lt;br/&gt;public sanitized telemetry (ungated)"]
+    end
+
+    subgraph LIB["Server helpers (app/lib/)"]
+        LD["github-dispatch.ts&lt;br/&gt;workflow_dispatch"]
+        LS["supabase.ts / supabase-admin.ts&lt;br/&gt;service-role client"]
+        LST["job-status.generated.ts&lt;br/&gt;mirrors jobpipe status enum"]:::spine
+        LO["agent-spend / cost-events / fleet-status&lt;br/&gt;other tabs' telemetry"]
+    end
+
+    SUPA[("Supabase&lt;br/&gt;Postgres jobs/runs/application_attempts + Storage")]:::external
+    GH[("GitHub API")]:::external
+    JP["job-pipeline GitHub Actions&lt;br/&gt;(other repo)"]:::external
+    ANT["Anthropic API"]:::external
+    VERCEL["Vercel&lt;br/&gt;hosting + env/secrets"]:::external
+
+    VERCEL -->|"hosts + builds"| MKT
+    MKT -->|"GET sanitized activity feed"| AB
+    AB -->|"service-role read (aggregates only)"| LS
+
+    AUTH -->|"no/invalid cookie -&gt; redirect"| LOGIN
+    LOGIN -->|"POST password -&gt; sets dashboard_auth cookie"| AUTH
+    AUTH -->|"valid cookie"| CJ
+    AUTH -->|"valid cookie"| CO
+
+    CJ -->|"list / patch / mark-applied / mark-failed / skip"| AJ
+    CJ -->|"Run Hunt / Tailor All / Tailor Manual clicks"| AR
+    CJ -->|"request signed material URL"| AS
+    CJ -->|"pattern insights, profile insight, stories, watcher status"| AM
+    CJ -->|"chat turn"| AC
+    CJ -->|"view resume / cover-letter PDF"| AMAT
+    CO -->|"tab-specific reads/writes"| LO
+
+    AJ -->|"service-role client"| LS
+    AS -->|"service-role client"| LS
+    AM -->|"service-role client"| LS
+    AMAT -->|"service-role client"| LS
+    LO -->|"service-role client"| LS
+    LS -->|"reads/writes jobs, runs, application_attempts, Storage"| SUPA
+
+    AR -->|"workflow_dispatch(hunt.yml / tailor.yml / tailor-manual.yml)"| LD
+    LD -->|"POST /actions/workflows/{wf}/dispatches"| GH
+    GH -->|"triggers CI run"| JP
+
+    AC -->|"chat completion call"| ANT
+
+    LST -.->|"status -&gt; tone mapping (lib/lifecycle.ts)"| CJ
+    </pre>
+  </div>
+
+  <footer>Rendered with Mermaid via CDN · light theme · see <code>docs/ARCHITECTURE.md</code> for source + keep-current notes.</footer>
+
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: "default", securityLevel: "loose", flowchart: { htmlLabels: true } });
+  </script>
+</body>
+</html>
