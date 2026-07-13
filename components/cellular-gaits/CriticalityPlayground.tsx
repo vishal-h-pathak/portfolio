@@ -25,6 +25,14 @@ const FlyStage = dynamic(
 
 type NcaHandle = { motors: () => Float32Array; reset: (seed?: number) => void };
 
+function prefersReduced() {
+  return (
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
+
 /**
  * Live criticality playground.
  *
@@ -117,7 +125,7 @@ export function CriticalityPlayground({
 
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [running, setRunning] = useState(true);
+  const [running, setRunning] = useState(() => !prefersReduced());
   const [gain, setGain] = useState(1.0);
   const [readout, setReadout] = useState({ lambda: 0, cr: 0, tick: 0 });
   const [bestFit, setBestFit] = useState<number | null>(null);

@@ -65,6 +65,14 @@ const CONTROL_DT_S = 0.004;
 const MAX_STEPS_PER_FRAME = 6; // budget cap → physics never starves the renderer
 const MAX_FRAME_DT_S = 0.05; // clamp long stalls (tab switches, GC)
 
+function prefersReduced() {
+  return (
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
+
 export function FlyStage({
   controller,
   running = true,
@@ -82,10 +90,12 @@ export function FlyStage({
   const [phase, setPhase] = useState<"loading" | "ready" | "error" | "fallback">("loading");
   const [stage, setStage] = useState("loading engine");
   const [errMsg, setErrMsg] = useState<string | null>(null);
-  const [isRunning, setIsRunning] = useState(running);
+  // `running` is the caller's intent; a reduced-motion visitor still lands on a
+  // paused first frame (the on-canvas play button takes over from there).
+  const [isRunning, setIsRunning] = useState(() => running && !prefersReduced());
 
   // Mutable refs the rAF loop reads without re-subscribing.
-  const runningRef = useRef(running);
+  const runningRef = useRef(isRunning);
   const controllerRef = useRef<FlyStageController | undefined>(controller);
   const trackingRef = useRef(cameraTracking);
   const resetTick = useRef(0); // internal reset counter (button + resetSignal prop)
