@@ -41,7 +41,7 @@ export default async function SolitonPage() {
         <div className="sol-lede">
           <p>
             This plate used to be{" "}
-            <a href="/projects/meridian">MERIDIAN</a> — five specialist LLMs
+            <a href="/projects/meridian">MERIDIAN</a>{" "}— five specialist LLMs
             deliberating over filings and news sentiment. It produced
             sophisticated reasoning and, in two months, exactly one trade. The
             honest review: an analysis engine with no defined edge. SOLITON is
@@ -67,6 +67,11 @@ export default async function SolitonPage() {
             Success was defined before launch: beat the controls over 100+
             logged trades with every cap respected — not &ldquo;up in week
             one.&rdquo; Paper money throughout.
+          </p>
+          <p className="sol-design-cta">
+            <a href="/projects/soliton/design">
+              → THE DESIGN STORY — every decision in the rebuild, and why
+            </a>
           </p>
         </div>
 
@@ -228,7 +233,10 @@ export default async function SolitonPage() {
                 the repo
               </a>
               , negative results included. This page renders the engine&rsquo;s
-              own export bundle verbatim — same file, same labels.
+              own export bundle verbatim — same file, same labels. The full
+              reasoning — the MERIDIAN lesson, the data saga, the three
+              verdicts, why each track exists — is written up in{" "}
+              <a href="/projects/soliton/design">the design story</a>.
             </p>
           </div>
         </div>

@@ -1341,9 +1341,12 @@ function ArchiveBanner() {
           the page always carried between updates — design artifact, not
           trading record. MERIDIAN&rsquo;s real record is the sentence above.
         </p>
-        <p style={{ margin: '12px 0 0' }}>
+        <p style={{ margin: '12px 0 0', display: 'flex', gap: 28, flexWrap: 'wrap' }}>
           <a href="/projects/soliton" style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.14em', color: C.emerald, textDecoration: 'none', borderBottom: `1px solid ${C.emerald}55` }}>
             → SOLITON, THE REBUILD — LIVE
+          </a>
+          <a href="/projects/soliton/design" style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.14em', color: C.text2, textDecoration: 'none', borderBottom: `1px solid ${C.border}` }}>
+            → THE DESIGN STORY — WHY THE REBUILD LOOKS NOTHING LIKE THIS
           </a>
         </p>
       </div>
