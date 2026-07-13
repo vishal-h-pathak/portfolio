@@ -224,19 +224,14 @@ export default async function SolitonPage() {
           <div>
             <h3>The record</h3>
             <p>
-              The engine, the backtests, and the verdicts live in{" "}
-              <a
-                href="https://github.com/vishal-h-pathak/trading-agent"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                the repo
-              </a>
-              , negative results included. This page renders the engine&rsquo;s
-              own export bundle verbatim — same file, same labels. The full
-              reasoning — the MERIDIAN lesson, the data saga, the three
-              verdicts, why each track exists — is written up in{" "}
-              <a href="/projects/soliton/design">the design story</a>.
+              The engine, the backtests, and the verdicts live in the source
+              repo — private, since it&rsquo;s a live trading system —
+              negative results included. This page renders the engine&rsquo;s
+              own export bundle verbatim — same file, same labels. The public
+              artifact is{" "}
+              <a href="/projects/soliton/design">the design story</a>: the
+              MERIDIAN lesson, the data saga, the three verdicts, why each
+              track exists.
             </p>
           </div>
         </div>

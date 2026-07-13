@@ -1,7 +1,5 @@
 import "./soliton.css";
 
-const GITHUB_URL = "https://github.com/vishal-h-pathak/trading-agent";
-
 /**
  * Shell for the SOLITON experiment page — same bench-topbar pattern as the
  * Cellular Gaits microsite (app/projects/cellular-gaits/layout.tsx), with
@@ -32,9 +30,9 @@ export default function SolitonLayout({
         <footer className="sol-footer">
           <span>B-01 · PAPER MONEY · EVIDENCE LABELED PER TRACK</span>
           <span>
-            <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
-              github
-            </a>
+            <span>source: private (live trading system)</span>
+            <span aria-hidden="true"> · </span>
+            <a href="/projects/soliton/design">design story</a>
             <span aria-hidden="true"> · </span>
             <a href="/#bench">back to projects</a>
           </span>

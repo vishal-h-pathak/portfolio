@@ -32,10 +32,11 @@ export const soliton: Project = {
     { key: "STACK", value: "Python engine · Alpaca paper · Supabase · Next" },
     { key: "TRACKS", value: "2 Fable + 3 reference lines" },
     { key: "EVIDENCE", value: "labeled per track, negatives included" },
+    { key: "SOURCE", value: "private (live trading system)" },
     { key: "BUILD", value: "Solo · Claude · greenfield rebuild", build: true },
   ],
   actions: [
     { label: "→ watch the race", href: "/projects/soliton", primary: true },
-    { label: "readme", href: "https://github.com/vishal-h-pathak/trading-agent" },
+    { label: "design story", href: "/projects/soliton/design" },
   ],
 };
