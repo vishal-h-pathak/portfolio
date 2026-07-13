@@ -1329,6 +1329,9 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   background: var(--bg);
   max-width: 100%;
   height: auto;
+  /* Fixed intrinsic width (256px) doesn't stretch with the flex column below
+     800px — center it explicitly so it doesn't read as left-stuck. */
+  margin: 0 auto;
 }
 .cg-player-cap {
   font-family: var(--mono);

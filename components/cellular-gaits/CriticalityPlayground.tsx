@@ -293,10 +293,15 @@ export function CriticalityPlayground({
       gx.strokeStyle = "rgba(232, 230, 223, 0.16)";
       gx.lineWidth = 1;
       gx.strokeRect(ox + 0.5, oy + 0.5, sub - 1, sub - 1);
-      gx.fillStyle = "rgba(232, 230, 223, 0.82)";
+      // Dark chip behind the label — it sits over whatever cell colors the
+      // sim happens to show, and unbacked text vanishes over light cells.
       gx.font = "9.5px ui-monospace, Menlo, monospace";
       gx.textBaseline = "top";
-      gx.fillText(CHANNEL_LABELS[ci], ox + 4, oy + 4);
+      const chLabelW = gx.measureText(CHANNEL_LABELS[ci]).width;
+      gx.fillStyle = "rgba(11, 11, 12, 0.72)";
+      gx.fillRect(ox + 2, oy + 2, chLabelW + 6, 13);
+      gx.fillStyle = "rgba(232, 230, 223, 0.92)";
+      gx.fillText(CHANNEL_LABELS[ci], ox + 5, oy + 4);
     }
 
     // --- sensitivity heatmap (free-twin |A − Bfree|, summed over channels) ---
