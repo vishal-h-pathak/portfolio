@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { CAPlayer } from "@/components/cellular-gaits/CAPlayer";
 import { CG_BASE } from "@/components/cellular-gaits/tabs";
+import { bySlug } from "@/content/projects";
+
+const CG_NUM = bySlug("cellular-gaits")!.num;
 
 /** The concept tabs, each as the one question it isolates. Reading order = nav order. */
 const TAB_INDEX: { href: string; label: string; q: string }[] = [
@@ -56,7 +59,7 @@ export default function CellularGaitsFramePage() {
   return (
     <>
       <section className="cg-hero">
-        <p className="cg-eyebrow">B-05 · CELLULAR GAITS</p>
+        <p className="cg-eyebrow">{CG_NUM} · CELLULAR GAITS</p>
         <h1 className="cg-title">Cellular Gaits</h1>
         <p className="cg-pitch">
           A real fly connectome, run as a spiking brain, drives a real fly
