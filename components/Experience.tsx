@@ -29,8 +29,8 @@ export function Experience() {
           CURRENTLY AT GTRI
         </div>
       </div>
-      {EXPERIENCE.map((role, i) => (
-        <ExperienceEntry key={i} role={role} />
+      {EXPERIENCE.map((role) => (
+        <ExperienceEntry key={role.org} role={role} />
       ))}
     </Section>
   );

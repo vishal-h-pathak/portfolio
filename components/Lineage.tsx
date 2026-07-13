@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { LINEAGE, type LineageYear } from "@/content/lineage";
+import { useEscapeToClose } from "@/lib/useEscapeToClose";
 import { Margin } from "./Margin";
 import { Section } from "./Section";
 
@@ -20,16 +21,7 @@ export function Lineage() {
   }, [openPin]);
 
   // Esc closes whatever is open.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement | null)?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA") return;
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.key === "Escape" && openPin !== null) setOpenPin(null);
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [openPin]);
+  useEscapeToClose(openPin !== null, () => setOpenPin(null));
 
   const open = renderedPin
     ? LINEAGE.find((p) => p.year === renderedPin)
