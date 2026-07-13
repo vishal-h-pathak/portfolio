@@ -875,6 +875,22 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  /* Hiding the scrollbar removes the only native cue that the list overflows —
+     fade both edges so clipped tabs read as "more here", not a layout bug. */
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 20px,
+    black calc(100% - 20px),
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 20px,
+    black calc(100% - 20px),
+    transparent
+  );
 }
 .cg-tabnav-list::-webkit-scrollbar { display: none; }
 .cg-tab {
