@@ -27,6 +27,9 @@
   white-space: nowrap;
   color: var(--ink-dim);
   transition: color 0.15s;
+  /* >=24px tap target (ported from fix/a11y-interaction's .cg-back fix) */
+  padding: 5px 6px;
+  margin: -5px -6px;
 }
 .proj-back:hover { color: var(--green); }
 .proj-topbar-brand {

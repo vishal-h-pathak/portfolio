@@ -219,11 +219,14 @@
   font-size: 13px !important;
 }
 .sol-digest-excerpt a {
+  display: inline-block;
   font-family: var(--mono);
   font-size: 11px;
   letter-spacing: 0.06em;
   color: var(--ink-faint);
   white-space: nowrap;
+  padding: 6px;
+  margin: -6px;
 }
 .sol-digest-excerpt a:hover { color: var(--ink); }
 .sol-digest-ref {

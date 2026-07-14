@@ -17,7 +17,7 @@ export default function SolitonLayout({
     <>
       <ProjectTopbar num="B-01" />
 
-      <main className="sol-page">
+      <main id="main-content" className="sol-page">
         {children}
 
         <ProjectFooter

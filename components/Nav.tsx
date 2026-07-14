@@ -57,7 +57,7 @@ export function Nav() {
                 className={className || undefined}
                 {...(item.amber ? { "data-amber": "" } : {})}
               >
-                {item.label}
+                <span className="nav-link-text">{item.label}</span>
               </a>
             );
           })}

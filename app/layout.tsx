@@ -71,6 +71,9 @@ export default function RootLayout({
       className={`${sourceSerif.variable} ${jetbrainsMono.variable}`}
     >
       <body>
+        <a href="#main-content" className="skip-link">
+          Skip to content
+        </a>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}

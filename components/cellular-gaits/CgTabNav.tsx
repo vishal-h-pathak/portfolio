@@ -16,8 +16,18 @@ export function CgTabNav() {
 
   // The active tab can land off-screen on deep-link/navigation (e.g. jumping
   // straight to "Appendix", the last of 9 tabs) — pull it back into view.
+  // Only scroll when it's actually out of view: calling scrollIntoView()
+  // unconditionally (even as a no-op scroll) moves Chromium's keyboard-Tab
+  // starting point to the active tab, which silently reintroduces finding
+  // #43 (skip link / cg-back become unreachable by Tab) on every route.
   useEffect(() => {
-    activeRef.current?.scrollIntoView({ inline: "center", block: "nearest" });
+    const el = activeRef.current;
+    const list = el?.closest(".cg-tabnav-list");
+    if (!el || !list) return;
+    const elRect = el.getBoundingClientRect();
+    const listRect = list.getBoundingClientRect();
+    const inView = elRect.left >= listRect.left && elRect.right <= listRect.right;
+    if (!inView) el.scrollIntoView({ inline: "center", block: "nearest" });
   }, [pathname]);
 
   return (

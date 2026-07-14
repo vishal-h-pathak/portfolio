@@ -106,14 +106,23 @@ a { color: inherit; text-decoration: none; }
   color: var(--ink-dim);
 }
 .nav-links a {
+  /* Invisible padded hit area (WCAG 2.5.8): padding grows the tappable box,
+     the equal negative margin cancels it back out so layout/gap is untouched.
+     The underline lives on .nav-link-text so it doesn't move with the pad. */
+  display: inline-block;
   cursor: pointer;
+  padding: 7px 6px;
+  margin: -7px -6px;
+}
+.nav-link-text {
+  display: inline-block;
   padding-bottom: 3px;
   border-bottom: 1px solid transparent;
   transition: color 0.15s, border-color 0.15s;
 }
-.nav-links a:hover { color: var(--ink); }
-.nav-links a.active { color: var(--ink); border-bottom-color: var(--green); }
-.nav-links a.active.amber { border-bottom-color: var(--amber); }
+.nav-links a:hover .nav-link-text { color: var(--ink); }
+.nav-links a.active .nav-link-text { color: var(--ink); border-bottom-color: var(--green); }
+.nav-links a.active.amber .nav-link-text { border-bottom-color: var(--amber); }
 
 .nav-clock {
   font-family: var(--mono);
@@ -673,7 +682,13 @@ h2 {
   color: var(--ink-dim);
   flex-wrap: wrap;
 }
-.social-row a { transition: color 0.2s; cursor: pointer; }
+.social-row a {
+  display: inline-block;
+  transition: color 0.2s;
+  cursor: pointer;
+  padding: 6px 5px;
+  margin: -6px -5px;
+}
 .social-row a:hover { color: var(--green); }
 
 /* ===== RAIL (workshop side) ===== */
@@ -798,8 +813,11 @@ footer {
 }
 .footer-appendix .label { color: var(--ink-faint); }
 .footer-appendix a {
+  display: inline-block;
   color: var(--ink-dim);
   transition: color 0.2s;
+  padding: 4px 5px;
+  margin: -4px -5px;
 }
 .footer-appendix a:hover { color: var(--ink); }
 .footer-appendix .sep { color: var(--ink-faint); }
@@ -853,6 +871,30 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
 :focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 2px;
+}
+
+/* ===== SKIP LINK ===== */
+/* Off-screen until focused, first tab stop on every page (WCAG 2.4.1). */
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  transform: translateY(-120%);
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  padding: 12px 20px;
+  border: 1px solid var(--rule);
+  border-top: none;
+  transition: transform 0.15s ease;
+}
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
 }
 
 /* ===== NOT FOUND ===== */
@@ -983,9 +1025,12 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   text-transform: uppercase;
 }
 .cg-breadcrumb-up {
+  display: inline-block;
   color: var(--ink-faint);
   text-decoration: none;
   transition: color 0.15s;
+  padding: 5px 6px;
+  margin: -5px -6px;
 }
 .cg-breadcrumb-up:hover,
 .cg-breadcrumb-up:focus-visible { color: var(--amber); }
