@@ -448,6 +448,9 @@ h2 {
 .exp-meta .v { color: var(--ink); }
 @media (max-width: 700px) {
   .exp-entry { grid-template-columns: 1fr; gap: 6px; }
+  /* .tenure already renders the same range inline next to the title —
+     drop this column's copy so mobile doesn't print it twice. */
+  .exp-entry .when-range { display: none; }
 }
 
 /* ===== BENCH (workshop register — amber) ===== */

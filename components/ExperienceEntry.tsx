@@ -1,10 +1,12 @@
-import type { Role } from "@/content/experience";
+import { formatDateRange, type Role } from "@/content/experience";
 
 export function ExperienceEntry({ role }: { role: Role }) {
   return (
     <article className="exp-entry">
       <div className="when">
-        {role.start} — {role.end}
+        <span className="when-range">
+          {formatDateRange(role.start, role.end)}
+        </span>
         {role.current && (
           <div>
             <span className="now">CURRENT</span>
@@ -18,8 +20,7 @@ export function ExperienceEntry({ role }: { role: Role }) {
           <span className="org">{role.org}</span>
         </h3>
         <div className="tenure">
-          {role.start} – {role.end === "now" ? "present" : role.end} ·{" "}
-          {role.location}
+          {formatDateRange(role.start, role.end)} · {role.location}
         </div>
         {role.paragraphs.map((para) => (
           <p key={para}>{para}</p>
