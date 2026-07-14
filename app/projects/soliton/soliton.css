@@ -7,24 +7,8 @@
 */
 
 /* ── shell ─────────────────────────────────────────────────────────────── */
-
-.sol-topbar {
-  position: sticky; top: 0; z-index: 40;
-  display: flex; align-items: baseline; justify-content: space-between;
-  gap: 16px;
-  padding: 14px 40px;
-  background: rgba(11, 11, 12, 0.92);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--rule);
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  color: var(--ink-dim);
-}
-.sol-topbar a { transition: color 0.15s; }
-.sol-topbar a:hover { color: var(--ink); }
-.sol-topbar-brand .name { color: var(--ink); }
+/* Topbar + footer live in the shared app/projects/project-shell.css
+   (.proj-topbar/.proj-footer) — see layout.tsx. */
 
 .sol-page {
   max-width: 980px;
@@ -32,7 +16,6 @@
   padding: 48px 40px 80px;
 }
 @media (max-width: 720px) {
-  .sol-topbar { padding: 12px 20px; }
   .sol-page { padding: 32px 20px 64px; }
 }
 
@@ -88,6 +71,23 @@
 
 .sol-race { margin: 0; }
 .sol-race svg { width: 100%; height: auto; display: block; }
+@media (max-width: 720px) {
+  /* Text is sized in SVG user units, so shrinking the whole chart to fit a
+     phone-width container (viewBox 760x320 rendered at ~350px — a 0.46
+     scale) shrinks the axis ticks/end-labels/annotation along with it, to
+     ~5px effective size (W5/#11). Render near-native size instead and let
+     it scroll horizontally — same pattern as .cg-tabnav-list. */
+  .sol-race {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  .sol-race svg {
+    width: 760px;
+    max-width: none;
+    height: 320px;
+  }
+}
 .sol-race-tick {
   font-family: var(--mono);
   font-size: 9.5px;
@@ -461,15 +461,3 @@
   color: var(--ink-faint);
 }
 
-.sol-footer {
-  margin-top: 72px;
-  padding-top: 20px;
-  border-top: 1px solid var(--rule);
-  display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  color: var(--ink-faint);
-}
-.sol-footer a { color: var(--ink-dim); }
-.sol-footer a:hover { color: var(--ink); }
