@@ -1,11 +1,11 @@
 import { Margin } from "./Margin";
 import { Section } from "./Section";
+import { SectionHeader } from "./SectionHeader";
 
 export function Contact() {
   return (
     <Section
       id="contact"
-      rowStyle={{ paddingBottom: "80px" }}
       margin={
         <Margin
           blocks={[
@@ -15,12 +15,11 @@ export function Contact() {
         />
       }
     >
-      <div className="eyebrow dim">§ 5 &nbsp;·&nbsp; CONTACT</div>
-      <h2 style={{ marginBottom: "22px" }}>Mail the lab.</h2>
+      <SectionHeader number="§ 5" label="CONTACT" title="Mail the lab." />
       <a className="contact-mail" href="mailto:vishalp@thak.io">
         vishalp@thak.io
       </a>
-      <p style={{ margin: "18px 0 0", maxWidth: "66ch", fontSize: "15px" }}>
+      <p className="contact-note">
         Atlanta-based, remote-friendly. Open to neuromorphic / connectomics /
         mission-driven ML, or sales engineering at an AI company doing
         something I&rsquo;d actually use.

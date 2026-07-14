@@ -23,10 +23,10 @@
 
 import { useCallback, useRef, useState } from "react";
 
-const GREEN = "#6FE39A";
-const AMBER = "#E89B3D";
-const SUB = "#8C8B83";
-const INK = "#E8E6DF";
+const GREEN = "var(--green)";
+const AMBER = "var(--amber)";
+const SUB = "var(--ink-dim)";
+const INK = "var(--ink)";
 const RULE = "rgba(232,230,223,0.18)";
 
 const W = 460;

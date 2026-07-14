@@ -54,6 +54,38 @@
   }
 }
 
+/* ── plate kicker ──────────────────────────────────────────────────────── *
+   ONE rule for the "B-0N · NAME" identity kicker every project micro-site
+   opens with, and one color rule tied to the legend the landing page teaches
+   the visitor in its own rail: green = research/live, amber = bench/build.
+
+   It was violated one click later (W6/#27). Cellular Gaits is a BENCH project —
+   its tab nav and section heads are already amber — yet its identity eyebrow
+   rendered green, while Soliton, the other bench project, got a colorless
+   ink-faint kicker. The same element, two different colors, neither matching
+   the legend. Both are bench plates, so both are amber. */
+.plate-kicker {
+  font-family: var(--mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--amber);
+  margin: 0 0 16px;
+}
+
+/* The serif display title on a project plate — the same shared formula as the
+   landing h1, .cg-title and .sol-title. Used by the Meridian archive, which
+   had no h1 at all (W6/#12). */
+.proj-plate-title {
+  font-family: var(--serif);
+  font-size: var(--text-display);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  text-wrap: balance;
+  margin: 0;
+  color: var(--ink);
+}
+
 /* ── footer ────────────────────────────────────────────────────────────── */
 
 .proj-footer {

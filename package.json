@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node scripts/check-status-types.mjs",
+    "prebuild": "node scripts/check-status-types.mjs && node scripts/check-tokens.mjs",
     "build": "next build",
     "start": "next start",
     "gen:status": "node scripts/gen-status-types.mjs",

@@ -11,20 +11,19 @@
 
   Accent semantics carry over from the notebook (see MASTER.md):
     green = research / live      amber = bench / build / needs-human
-  Red exists only on this surface — the cockpit needs a "failed" tone
-  the notebook never does. It is defined here, NOT in globals.css, so
-  the marketing palette stays two-accent.
+
+  --red used to be declared here, on the claim that the marketing surface
+  never needed a failure tone. That was not true — the criticality playground
+  shipped its own near-duplicate red (--chaos) on a public page. There is now
+  ONE red, in app/tokens.css, and this surface just consumes it (W6/#26).
 */
 
 :root {
-  --red: #e0655b; /* darkest warm red that clears 4.5:1 on --bg */
-  --red-dim: rgba(224, 101, 91, 0.4);
-  /* Blue is the submit accent — a third action color the cockpit needs
-     for the approve(green) → tailor(amber) → submit(blue) progression.
-     Like --red above it lives ONLY on this dashboard surface, NOT in
-     globals.css, so the marketing palette stays two-accent. */
+  /* Blue is the submit accent — a third action color the cockpit needs for the
+     approve(green) → tailor(amber) → submit(blue) progression. This one really
+     does live only on the dashboard: no marketing surface has a submit action. */
   --blue: #5aa2e6; /* clears 4.5:1 on --bg; reads blue, not cyan/green */
-  --blue-dim: rgba(90, 162, 230, 0.4);
+  --blue-dim: color-mix(in srgb, var(--blue) 40%, transparent);
 }
 
 @theme inline {

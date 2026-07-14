@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Source_Serif_4, JetBrains_Mono } from "next/font/google";
+import { TOKEN } from "@/lib/tokens";
 import "./globals.css";
 
 const sourceSerif = Source_Serif_4({
@@ -35,7 +36,9 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0B0B0C",
+  // Browser chrome (address bar / PWA), not the cascade — var() cannot resolve
+  // here, so this is the one place layout needs the TS mirror of --bg.
+  themeColor: TOKEN.bg,
   colorScheme: "dark",
 };
 

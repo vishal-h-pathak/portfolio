@@ -49,11 +49,27 @@
   --green-dim: color-mix(in srgb, var(--green) 40%, transparent);
   --amber: #e89b3d;
   --amber-dim: color-mix(in srgb, var(--amber) 40%, transparent);
-  /* Two accents the marketing palette needs but never named. --chaos was a
-     second :root mid-globals; --signal-onset was a bare #F2683C x8 (the
-     looming-threat / avoid-drive hue — deliberately hotter than --amber). */
-  --chaos: #e36f6f;
+  /* --signal-onset was a bare #F2683C x8: the looming-threat / avoid-drive hue,
+     deliberately hotter than --amber. */
   --signal-onset: #f2683c;
+
+  /* ONE red. There were three: #E36F6F (--chaos, declared in a second :root
+     halfway down globals.css), #E0655B (the cockpit's "failed" tone, declared
+     in _internal.css) and #ef4444 (meridian) — two of which shipped on public
+     surfaces at once. The cockpit's value wins because it is the one that was
+     measured against --bg for 4.5:1. Red is a STATUS/DATA color, not a third
+     accent: the accent system is still exactly green (research/live) and amber
+     (bench/build).
+
+     Meridian keeps its own #ef4444 — that page is an archived exhibit that
+     reproduces the retired dashboard's own palette, and its contrast was tuned
+     against its own #0a0a0a ground in W2/#16. Re-theming it onto site tokens
+     would falsify the archive. */
+  --red: #e0655b;
+  --red-dim: color-mix(in srgb, var(--red) 40%, transparent);
+  /* Semantic alias — the criticality playground's "chaotic regime" reads in the
+     same red as a failure, because that is what it is. */
+  --chaos: var(--red);
 
   /* ── Tints ────────────────────────────────────────────────────────────── *
      Every wash over a surface is a color-mix of the token it tints, so

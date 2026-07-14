@@ -59,7 +59,7 @@ export default function CellularGaitsFramePage() {
   return (
     <>
       <section className="cg-hero">
-        <p className="cg-eyebrow">{CG_NUM} · CELLULAR GAITS</p>
+        <p className="plate-kicker">{CG_NUM} · CELLULAR GAITS</p>
         <h1 className="cg-title">Cellular Gaits</h1>
         <p className="cg-pitch">
           A real fly connectome, run as a spiking brain, drives a real fly

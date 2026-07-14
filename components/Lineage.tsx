@@ -5,6 +5,7 @@ import { LINEAGE, type LineageYear } from "@/content/lineage";
 import { useEscapeToClose } from "@/lib/useEscapeToClose";
 import { Margin } from "./Margin";
 import { Section } from "./Section";
+import { SectionHeader } from "./SectionHeader";
 
 export function Lineage() {
   const [openPin, setOpenPin] = useState<LineageYear | null>(null);
@@ -43,14 +44,12 @@ export function Lineage() {
         />
       }
     >
-      <div className="eyebrow dim">§ 2 &nbsp;·&nbsp; LINEAGE</div>
-      <h2>Same instinct, different substrates.</h2>
-      <p
-        className="dim"
-        style={{ margin: "6px 0 28px", fontSize: "14.5px" }}
-      >
-        Click a year for the long version.
-      </p>
+      <SectionHeader
+        number="§ 2"
+        label="LINEAGE"
+        title="Same instinct, different substrates."
+        lede="Click a year for the long version."
+      />
       <div className="lineage" id="lineage-grid">
         {LINEAGE.map((pin) => {
           const isActive = openPin === pin.year;

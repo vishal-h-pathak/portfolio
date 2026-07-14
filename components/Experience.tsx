@@ -2,6 +2,7 @@ import { EXPERIENCE } from "@/content/experience";
 import { ExperienceEntry } from "./ExperienceEntry";
 import { Margin } from "./Margin";
 import { Section } from "./Section";
+import { SectionHeader } from "./SectionHeader";
 
 export function Experience() {
   return (
@@ -19,16 +20,12 @@ export function Experience() {
         />
       }
     >
-      <div className="sec-head">
-        <div>
-          <div className="eyebrow dim">§ 3 &nbsp;·&nbsp; EXPERIENCE</div>
-          <h2>Where the time went.</h2>
-        </div>
-        <div className="status green">
-          <span className="pulse" aria-hidden="true" />
-          CURRENTLY AT GTRI
-        </div>
-      </div>
+      <SectionHeader
+        number="§ 3"
+        label="EXPERIENCE"
+        title="Where the time went."
+        status={{ tone: "green", label: "CURRENTLY AT GTRI", pulse: true }}
+      />
       {EXPERIENCE.map((role) => (
         <ExperienceEntry key={role.org} role={role} />
       ))}

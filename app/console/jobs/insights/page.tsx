@@ -13,10 +13,11 @@
  * histogram by source, daily inflow, application funnel, pattern
  * analysis (J-6), status snapshot.
  *
- * Chart palette: recharts paints SVG `fill` attributes, which can't
- * resolve var() — so the token hexes are mirrored here verbatim
- * (#6FE39A green / #E89B3D amber / ink grays / #E0655B red). If the
- * tokens in globals.css ever change, update CHART below.
+ * Chart palette: recharts paints SVG `fill` attributes, which DO resolve
+ * var() — so the palette comes from lib/tokens.ts (shared with the credits
+ * chart) and stays live against the cascade. This file used to re-type the
+ * whole palette as local hexes under an "if the tokens change, update CHART
+ * below" comment; that is exactly the drift W6/#26 removed.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -41,21 +42,7 @@ import {
   YAxis,
 } from "recharts";
 import type { Job } from "../../../lib/supabase";
-
-// ── Token-mirrored chart constants ───────────────────────────────────
-const CHART = {
-  green: "#6FE39A",
-  greenDim: "rgba(111, 227, 154, 0.45)",
-  amber: "#E89B3D",
-  amberDim: "rgba(232, 155, 61, 0.45)",
-  ink: "#E8E6DF",
-  inkDim: "#8C8B83",
-  inkFaint: "#7E7A6D",
-  rule: "rgba(232, 230, 223, 0.12)",
-  ruleSoft: "rgba(232, 230, 223, 0.06)",
-  red: "#E0655B",
-  raised: "#101012",
-};
+import { CHART, CHART_TICK, CHART_TOOLTIP } from "@/lib/tokens";
 
 // Sources cycle through the two accents + ink steps — same family the
 // rest of the register uses, no new hues.
@@ -67,7 +54,7 @@ const SOURCE_PALETTE = [
   CHART.amberDim,
   CHART.ink,
   CHART.inkFaint,
-  "rgba(232, 230, 223, 0.25)",
+  CHART.inkWash,
 ];
 
 const TIER_COLORS: Record<string, string> = {
@@ -77,18 +64,10 @@ const TIER_COLORS: Record<string, string> = {
   "3": CHART.inkDim,
   disqualify: CHART.red,
   skip: CHART.inkFaint,
-  unknown: "rgba(232, 230, 223, 0.25)",
+  unknown: CHART.inkWash,
 };
 
-const TOOLTIP_STYLE = {
-  background: CHART.raised,
-  border: `1px solid ${CHART.rule}`,
-  borderRadius: 0,
-  fontSize: 11,
-  fontFamily: "var(--mono)",
-} as const;
 
-const TICK = { fill: CHART.inkFaint, fontSize: 10 } as const;
 
 // How often we re-pull the jobs table while the page is open. Pauses
 // automatically when the tab is hidden.
@@ -517,9 +496,9 @@ function PatternAnalysisSection({ mounted }: { mounted: boolean }) {
         <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
           <BarChart data={chartData} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" stroke={CHART.ruleSoft} />
-            <XAxis type="number" domain={[0, 100]} tick={TICK} unit="%" />
-            <YAxis type="category" dataKey="name" width={220} tick={TICK} />
-            <Tooltip contentStyle={TOOLTIP_STYLE} />
+            <XAxis type="number" domain={[0, 100]} tick={CHART_TICK} unit="%" />
+            <YAxis type="category" dataKey="name" width={220} tick={CHART_TICK} />
+            <Tooltip contentStyle={CHART_TOOLTIP} />
             <Bar
               dataKey="response_rate"
               fill={CHART.green}
@@ -797,7 +776,7 @@ export default function InsightsPage() {
                       <Cell key={entry.source} fill={sourceColor(entry.source)} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={TOOLTIP_STYLE} />
+                  <Tooltip contentStyle={CHART_TOOLTIP} />
                 </PieChart>
               </ResponsiveContainer>
             </ChartFrame>
@@ -812,9 +791,9 @@ export default function InsightsPage() {
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <BarChart data={tierYield}>
                   <CartesianGrid strokeDasharray="3 3" stroke={CHART.ruleSoft} />
-                  <XAxis dataKey="source" tick={TICK} />
-                  <YAxis tick={TICK} />
-                  <Tooltip contentStyle={TOOLTIP_STYLE} />
+                  <XAxis dataKey="source" tick={CHART_TICK} />
+                  <YAxis tick={CHART_TICK} />
+                  <Tooltip contentStyle={CHART_TOOLTIP} />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   <Bar dataKey="1" stackId="t" fill={TIER_COLORS["1"]} name="Tier 1" />
                   <Bar dataKey="1.5" stackId="t" fill={TIER_COLORS["1.5"]} name="Tier 1.5" />
@@ -840,9 +819,9 @@ export default function InsightsPage() {
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <BarChart data={scoreHist}>
                   <CartesianGrid strokeDasharray="3 3" stroke={CHART.ruleSoft} />
-                  <XAxis dataKey="score" tick={TICK} />
-                  <YAxis tick={TICK} />
-                  <Tooltip contentStyle={TOOLTIP_STYLE} />
+                  <XAxis dataKey="score" tick={CHART_TICK} />
+                  <YAxis tick={CHART_TICK} />
+                  <Tooltip contentStyle={CHART_TOOLTIP} />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   {sources.map((src) => (
                     <Bar
@@ -867,9 +846,9 @@ export default function InsightsPage() {
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <LineChart data={daily}>
                   <CartesianGrid strokeDasharray="3 3" stroke={CHART.ruleSoft} />
-                  <XAxis dataKey="date" tick={TICK} />
-                  <YAxis tick={TICK} />
-                  <Tooltip contentStyle={TOOLTIP_STYLE} />
+                  <XAxis dataKey="date" tick={CHART_TICK} />
+                  <YAxis tick={CHART_TICK} />
+                  <Tooltip contentStyle={CHART_TOOLTIP} />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   <Line
                     type="monotone"
@@ -896,10 +875,10 @@ export default function InsightsPage() {
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <LineChart data={costs?.daily ?? []}>
                   <CartesianGrid strokeDasharray="3 3" stroke={CHART.ruleSoft} />
-                  <XAxis dataKey="date" tick={TICK} />
-                  <YAxis tick={TICK} tickFormatter={(v) => `$${v}`} />
+                  <XAxis dataKey="date" tick={CHART_TICK} />
+                  <YAxis tick={CHART_TICK} tickFormatter={(v) => `$${v}`} />
                   <Tooltip
-                    contentStyle={TOOLTIP_STYLE}
+                    contentStyle={CHART_TOOLTIP}
                     formatter={(v) => formatUsd(Number(v), 4)}
                   />
                   <Line
@@ -924,10 +903,10 @@ export default function InsightsPage() {
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <BarChart data={stageSpend}>
                   <CartesianGrid strokeDasharray="3 3" stroke={CHART.ruleSoft} />
-                  <XAxis dataKey="stage" tick={TICK} />
-                  <YAxis tick={TICK} tickFormatter={(v) => `$${v}`} />
+                  <XAxis dataKey="stage" tick={CHART_TICK} />
+                  <YAxis tick={CHART_TICK} tickFormatter={(v) => `$${v}`} />
                   <Tooltip
-                    contentStyle={TOOLTIP_STYLE}
+                    contentStyle={CHART_TOOLTIP}
                     formatter={(v) => formatUsd(Number(v), 4)}
                   />
                   <Bar dataKey="usd" fill={CHART.amber} name="Spend" />
@@ -947,9 +926,9 @@ export default function InsightsPage() {
             <ResponsiveContainer>
               <BarChart data={funnel} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke={CHART.ruleSoft} />
-                <XAxis type="number" tick={TICK} />
-                <YAxis type="category" dataKey="stage" width={140} tick={TICK} />
-                <Tooltip contentStyle={TOOLTIP_STYLE} />
+                <XAxis type="number" tick={CHART_TICK} />
+                <YAxis type="category" dataKey="stage" width={140} tick={CHART_TICK} />
+                <Tooltip contentStyle={CHART_TOOLTIP} />
                 <Bar dataKey="count" fill={CHART.green} name="Jobs at stage" />
               </BarChart>
             </ResponsiveContainer>

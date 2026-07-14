@@ -17,6 +17,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type * as THREE_NS from "three";
+import { TOKEN } from "@/lib/tokens";
 import type { FlySim, FlySimMetrics } from "@/lib/mujoco-fly";
 
 export type FlyStageMetrics = FlySimMetrics & { fps: number };
@@ -164,7 +165,8 @@ export function FlyStage({
         // ---- three.js scene ----
         const width = mount.clientWidth || 640;
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x0b0b0c);
+        // TOKEN, not var(): three.js cannot resolve a CSS custom property.
+        scene.background = new THREE.Color(TOKEN.bg);
 
         const camera = new THREE.PerspectiveCamera(45, width / height, 0.05, 5000);
         camera.up.set(0, 0, 1); // MuJoCo is Z-up
@@ -389,7 +391,7 @@ export function FlyStage({
       <div
         ref={mountRef}
         className="cg-flystage-canvas"
-        style={{ position: "relative", width: "100%", height, borderRadius: 10, overflow: "hidden", background: "#0b0b0c" }}
+        style={{ position: "relative", width: "100%", height, borderRadius: 10, overflow: "hidden", background: "var(--bg)" }}
         role="img"
         aria-label="Live MuJoCo simulation of the FlyGym Drosophila driven by the evolved controller"
       >

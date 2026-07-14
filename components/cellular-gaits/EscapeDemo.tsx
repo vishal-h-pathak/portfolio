@@ -25,6 +25,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { loadEscape, loomSignal, makeEscapeController, type EscapeController } from "@/lib/nca";
+import { TOKEN } from "@/lib/tokens";
 import type { FlyStageCtx, FlyStageMetrics } from "@/components/cellular-gaits/FlyStage";
 
 const FlyStage = dynamic(
@@ -32,11 +33,13 @@ const FlyStage = dynamic(
   { ssr: false },
 );
 
-const GREEN = "#6FE39A";
-const AMBER = "#E89B3D";
-const THREAT = "#F2683C";
-const INK = "#E8E6DF";
-const SUB = "#8C8B83";
+/* TOKEN, not var(): these reach a canvas 2D ctx (fillStyle/strokeStyle), which
+   cannot resolve a CSS custom property. A hex works in the JSX styles too. */
+const GREEN = TOKEN.green;
+const AMBER = TOKEN.amber;
+const THREAT = TOKEN.signalOnset;
+const INK = TOKEN.ink;
+const SUB = TOKEN.inkDim;
 
 // Fly-centred arena: world units → px, with the fly pinned at the centre. The
 // threat starts ~18 units out and streaks ~33 units through, so a tighter scale

@@ -419,11 +419,30 @@ section.nb { border-bottom: 1px solid var(--rule); }
 }
 
 /* ===== SECTION HEADS ===== */
+/* All five landing sections render through components/SectionHeader.tsx — the
+   eyebrow/heading/status/lede block used to be a shared .sec-head in two of
+   them and hand-rolled inline styles in the other two (W6/#22). */
 .sec-head {
   display: flex; justify-content: space-between; align-items: baseline;
   gap: 16px; flex-wrap: wrap;
   margin-bottom: 24px;
 }
+/* The one dim one-liner under a section heading. Replaces three different lede
+   margins (20/28/18px) and two sizes (14.5/15px), incl. the old .bench-intro. */
+.section-lede {
+  margin: 0 0 20px;
+  color: var(--ink-dim);
+  font-size: var(--text-lede);
+  max-width: 66ch;
+}
+/* Contact's closing note + its taller section footer — both were inline styles
+   on the component, which blocked token extraction. */
+.contact-note {
+  margin: 18px 0 0;
+  max-width: 66ch;
+  font-size: var(--text-lede);
+}
+#contact .row { padding-bottom: 80px; }
 .sec-head .status {
   font-family: var(--mono);
   font-size: var(--text-label);
@@ -504,12 +523,8 @@ section.nb { border-bottom: 1px solid var(--rule); }
 }
 
 /* ===== BENCH (workshop register — amber) ===== */
-.bench-intro {
-  margin: 0 0 20px;
-  color: var(--ink-dim);
-  font-size: var(--text-lede);
-  max-width: 66ch;
-}
+/* .bench-intro is gone — it was a second copy of the section-lede pattern; Bench
+   now renders the shared <SectionHeader lede> like every other section. */
 .project {
   border: 1px solid var(--rule);
   background: var(--bg-card);
@@ -1010,15 +1025,16 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   .cg-page { padding: 32px var(--gutter) 24px; }
 }
 
-.cg-eyebrow,
+/* The identity kicker moved to the shared .plate-kicker in project-shell.css
+   (W6/#27) — it used to render green on a bench project, breaking the site's
+   own green/amber legend. This is the per-section eyebrow only. */
 .cg-section-eyebrow {
   font-family: var(--mono);
   font-size: var(--text-label);
   letter-spacing: var(--tracking-widest);
-  color: var(--green);
+  color: var(--amber);
   margin: 0 0 16px;
 }
-.cg-section-eyebrow { color: var(--amber); }
 
 /* The shared display formula — same as the landing h1 and .sol-title. This page
    used to render its title at 64px, out-shouting the site's own thesis at 52px

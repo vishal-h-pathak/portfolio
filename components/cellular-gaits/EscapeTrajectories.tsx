@@ -19,10 +19,10 @@
  * one piece.
  */
 
-const GREEN = "#6FE39A";
-const THREAT = "#F2683C";
-const INK = "#E8E6DF";
-const SUB = "#8C8B83";
+const GREEN = "var(--green)";
+const THREAT = "var(--signal-onset)";
+const INK = "var(--ink)";
+const SUB = "var(--ink-dim)";
 const RULE = "rgba(232,230,223,0.18)";
 
 const PW = 232;

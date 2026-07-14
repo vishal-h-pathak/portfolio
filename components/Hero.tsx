@@ -1,6 +1,7 @@
 import { HHTrace } from "./HHTrace";
 import { Margin } from "./Margin";
 import { Section } from "./Section";
+import { SectionHeader } from "./SectionHeader";
 
 export function Hero() {
   return (
@@ -29,14 +30,22 @@ export function Hero() {
         />
       }
     >
-      <div className="eyebrow">§ 1 &nbsp;·&nbsp; THESIS</div>
-      <h1>
-        Electrical engineer in Atlanta, building{" "}
-        <span className="accent-a">agentic systems</span> with an LLM in the
-        loop. Ten years in <span className="accent-g">neuromorphic hardware</span>{" "}
-        before this — memristors on a PCB, spikes on Loihi, neurons in VHDL —
-        and it&rsquo;s still how I think about systems.
-      </h1>
+      <SectionHeader
+        number="§ 1"
+        label="THESIS"
+        accent="green"
+        as="h1"
+        title={
+          <>
+            Electrical engineer in Atlanta, building{" "}
+            <span className="accent-a">agentic systems</span> with an LLM in the
+            loop. Ten years in{" "}
+            <span className="accent-g">neuromorphic hardware</span>{" "}
+            before this — memristors on a PCB, spikes on Loihi, neurons in VHDL
+            — and it&rsquo;s still how I think about systems.
+          </>
+        }
+      />
       <div className="thesis-cols">
         <p>
           This site is part working notebook, part workbench —{" "}

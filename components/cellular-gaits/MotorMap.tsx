@@ -104,7 +104,7 @@ const legTip = (legKey: string) => {
   return { x: g.bx + g.dx * LEG_LEN, y: g.by + g.dy * LEG_LEN };
 };
 
-const ACCENT = "#6FE39A"; // runtime green, matches the system diagram
+const ACCENT = "var(--green)"; // runtime green, matches the system diagram
 
 export function MotorMap() {
   // active = what's being previewed (hover/focus); pinned = the committed pick

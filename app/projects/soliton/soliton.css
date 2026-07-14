@@ -35,13 +35,7 @@
 
 /* ── masthead ──────────────────────────────────────────────────────────── */
 
-.sol-kicker {
-  font-family: var(--mono);
-  font-size: var(--text-label);
-  letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-  color: var(--ink-faint);
-}
+/* .sol-kicker -> the shared .plate-kicker in project-shell.css (W6/#27). */
 /* The shared display formula (W6/#12) — the site's flagship live experiment was
    the quietest title on the site at 44px. */
 .sol-title {

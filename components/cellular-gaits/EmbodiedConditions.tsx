@@ -20,11 +20,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-const GREEN = "#6FE39A";
-const THREAT = "#F2683C";
-const INK = "#E8E6DF";
-const SUB = "#8C8B83";
-const FAINT = "#7E7A6D";
+const GREEN = "var(--green)";
+const THREAT = "var(--signal-onset)";
+const INK = "var(--ink)";
+const SUB = "var(--ink-dim)";
+const FAINT = "var(--ink-faint)";
 const RULE = "rgba(232,230,223,0.16)";
 
 const BASE = "/cellular-gaits/data-eb";
@@ -257,7 +257,7 @@ export function EmbodiedConditions({ conditions }: { conditions: ConditionMeta[]
                           return (
                             <span key={h} className="cg-eb-sig-cell">
                               <span className="cg-eb-sig-t">{h}</span>
-                              <span className="cg-eb-sig-v" style={{ color: v != null && v < 0 ? "#E89B3D" : GREEN }}>
+                              <span className="cg-eb-sig-v" style={{ color: v != null && v < 0 ? "var(--amber)" : GREEN }}>
                                 {fmtDeg(v)}
                               </span>
                             </span>

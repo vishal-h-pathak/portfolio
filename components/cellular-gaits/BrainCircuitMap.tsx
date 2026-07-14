@@ -33,10 +33,11 @@ import {
   type ReactNode,
 } from "react";
 
-const AMBER = "#E89B3D"; // the real circuit
-const GREEN = "#6FE39A"; // the Giant Fiber output
-const SUB = "#8C8B83";
-const FAINT = "#7E7A6D";
+const AMBER = "var(--amber)"; // the real circuit
+const GREEN = "var(--green)"; // the Giant Fiber output
+const SUB = "var(--ink-dim)";
+const FAINT = "var(--ink-faint)";
+const ONSET = "var(--signal-onset)"; // the looming cue entering at the eyes
 const RULE = "rgba(232,230,223,0.22)";
 
 const W = 680;
@@ -375,7 +376,7 @@ export function BrainCircuitMap({ circuit }: { circuit: CircuitData }) {
         {[{ x: 96, label: "left eye" }, { x: 584, label: "right eye" }].map((eye) => (
           <g key={eye.label}>
             <ellipse cx={eye.x} cy={56} rx={26} ry={18} fill="rgba(242,104,60,0.07)" stroke="rgba(242,104,60,0.5)" strokeWidth={1} />
-            <text x={eye.x} y={30} textAnchor="middle" fill="#F2683C" fontSize={9}>looming</text>
+            <text x={eye.x} y={30} textAnchor="middle" fill={ONSET} fontSize={9}>looming</text>
             <text x={eye.x} y={59} textAnchor="middle" fill={SUB} fontSize={8.5}>{eye.label}</text>
           </g>
         ))}

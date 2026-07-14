@@ -37,7 +37,9 @@ const source = SRC_DIRS.flatMap((d) => walk(d))
 
 const dead = [];
 for (const file of CSS) {
-  const css = readFileSync(file, "utf8");
+  // Strip comments first — otherwise a prose mention of a deleted class
+  // ("`.bench-intro` is gone, see …") reads as a live selector.
+  const css = readFileSync(file, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
   const classes = new Set();
   // class selectors only (skip attribute/pseudo tails)
   for (const m of css.matchAll(/\.(-?[_a-zA-Z][\w-]*)/g)) classes.add(m[1]);

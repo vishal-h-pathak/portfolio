@@ -839,7 +839,7 @@ function Wordmark() {
         <line x1="12" y1="2" x2="12" y2="22" stroke={C.emerald} strokeWidth="0.6" strokeOpacity="0.5" />
         <circle cx="12" cy="12" r="2" fill={C.emerald} style={{ filter: `drop-shadow(0 0 5px ${C.emerald})` }} />
       </svg>
-      <h1 style={{ margin: 0, fontFamily: 'var(--mono)', fontSize: 16, fontWeight: 500, letterSpacing: '0.28em', color: C.text1 }}>MERIDIAN</h1>
+      <div style={{ margin: 0, fontFamily: 'var(--mono)', fontSize: 16, fontWeight: 500, letterSpacing: '0.28em', color: C.text1 }}>MERIDIAN</div>
     </div>
   );
 }
@@ -1196,7 +1196,7 @@ function NarrativeScroll({ D }: any) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 20, borderBottom: `2px solid ${C.text1}` }}>
           <div>
             <div style={{ fontFamily: 'var(--mono)', fontSize: 9.5, color: C.text4, letterSpacing: '0.3em', marginBottom: 6 }}>VISHALPATHAK.COM · AUTONOMOUS SYSTEMS</div>
-            <h1 style={{ margin: 0, fontFamily: 'var(--mono)', fontSize: 34, letterSpacing: '0.28em', fontWeight: 500, color: C.text1 }}>MERIDIAN</h1>
+            <div style={{ margin: 0, fontFamily: 'var(--mono)', fontSize: 34, letterSpacing: '0.28em', fontWeight: 500, color: C.text1 }}>MERIDIAN</div>
             <div style={{ fontSize: 13, color: C.text3, marginTop: 4, letterSpacing: '0.04em' }}>Autonomous trading agent · decision log & performance report</div>
           </div>
           <div style={{ textAlign: 'right' }}>
@@ -1348,10 +1348,17 @@ function ArchiveBanner() {
       borderBottom: '1px solid rgba(232,155,61,0.28)',
     }}>
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '20px 32px' }}>
-        <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--amber)', letterSpacing: '0.24em', marginBottom: 10 }}>
-          ARCHIVED EXHIBIT · FROZEN JUL 2026
-        </div>
-        <p style={{ fontSize: 13.5, lineHeight: 1.65, color: C.text2, margin: 0, maxWidth: 860 }}>
+        {/* The page's real h1 (W6/#12). This page used to have NO h1 at all —
+            querySelector('h1') was null — because its "title" was a 16px
+            letter-spaced mono span inside the reproduced console chrome, so the
+            deepest page on the site sat outside the site's heading system.
+            The h1 belongs HERE, on the banner: the banner is the site speaking
+            about the exhibit, while everything below it is the artifact. The
+            exhibit's own mono MERIDIAN mastheads are demoted to divs — they are
+            part of what is being preserved, not headings of this document. */}
+        <p className="plate-kicker">B-01 · MERIDIAN — ARCHIVED EXHIBIT · FROZEN JUL 2026</p>
+        <h1 className="proj-plate-title">Meridian — archived exhibit</h1>
+        <p style={{ fontSize: 13.5, lineHeight: 1.65, color: C.text2, margin: '14px 0 0', maxWidth: 860 }}>
           This is the telemetry console of{' '}
           <span style={{ color: C.text1 }}>MERIDIAN</span>{' — '}SOLITON&rsquo;s
           predecessor. A ~22,000-line, five-specialist LLM options

@@ -35,7 +35,7 @@ export function HHTrace() {
            Q500,30 510,90 Q520,160 530,170 Q540,165 550,150
            L600,142 L660,140 L720,140"
         fill="none"
-        stroke="#6FE39A"
+        stroke="var(--green)"
         strokeWidth="1.6"
         strokeLinejoin="round"
         strokeLinecap="round"

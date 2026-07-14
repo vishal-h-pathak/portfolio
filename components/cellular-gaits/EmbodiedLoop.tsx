@@ -32,12 +32,12 @@ import {
   type ReactNode,
 } from "react";
 
-const AMBER = "#E89B3D"; // the real circuit / sense
-const GREEN = "#6FE39A"; // the live output / body
-const THREAT = "#F2683C";
-const INK = "#E8E6DF";
-const SUB = "#8C8B83";
-const FAINT = "#7E7A6D";
+const AMBER = "var(--amber)"; // the real circuit / sense
+const GREEN = "var(--green)"; // the live output / body
+const THREAT = "var(--signal-onset)";
+const INK = "var(--ink)";
+const SUB = "var(--ink-dim)";
+const FAINT = "var(--ink-faint)";
 const RULE = "rgba(232,230,223,0.22)";
 
 const W = 720;

@@ -35,12 +35,12 @@ const NATIVE = gainSweep.meta.native_gain; // 1.0
 const PEAK = gainSweep.meta.best_fit_native; // 86.61898…
 
 // Palette — matches the site tokens / CriticalityPlayground regime colors.
-const GREEN = "#6FE39A"; // distance
-const AMBER = "#E89B3D"; // λ
-const RED = "#E36F6F"; // chaos / collapse
-const INK = "#E8E6DF";
-const DIM = "#8C8B83";
-const FAINT = "#7E7A6D";
+const GREEN = "var(--green)"; // distance
+const AMBER = "var(--amber)"; // λ
+const RED = "var(--red)"; // chaos / collapse
+const INK = "var(--ink)";
+const DIM = "var(--ink-dim)";
+const FAINT = "var(--ink-faint)";
 const RULE = "rgba(232,230,223,0.13)";
 
 // SVG coordinate system; the <svg> fills the container at this aspect ratio.
@@ -186,13 +186,13 @@ export function GainSweepChart() {
         {/* λ series (amber) */}
         <polyline points={lamPts} fill="none" stroke={AMBER} strokeWidth={1.6} strokeLinejoin="round" />
         {SWEEP.map((r) => (
-          <circle key={`lc${r.gain}`} cx={xs(r.gain)} cy={yL(r.lambda)} r={3} fill="#0B0B0C" stroke={AMBER} strokeWidth={1.5} />
+          <circle key={`lc${r.gain}`} cx={xs(r.gain)} cy={yL(r.lambda)} r={3} fill="var(--bg)" stroke={AMBER} strokeWidth={1.5} />
         ))}
 
         {/* distance series (green) */}
         <polyline points={distPts} fill="none" stroke={GREEN} strokeWidth={2} strokeLinejoin="round" />
         {SWEEP.map((r) => (
-          <circle key={`dc${r.gain}`} cx={xs(r.gain)} cy={yD(r.distance_mm)} r={3} fill="#0B0B0C" stroke={GREEN} strokeWidth={1.5} />
+          <circle key={`dc${r.gain}`} cx={xs(r.gain)} cy={yD(r.distance_mm)} r={3} fill="var(--bg)" stroke={GREEN} strokeWidth={1.5} />
         ))}
 
         {/* peak callout — set to the left of the peak dot so it can't reach the
