@@ -1412,19 +1412,17 @@ export default function MeridianPage() {
       <header>
         <ArchiveBanner />
 
-        {/* Sticky view switcher */}
+        {/* View switcher — not sticky: the shared ProjectTopbar (rendered in
+            the layout, above this header) already pins to the viewport top,
+            and a second sticky bar at top:0 would overlap it once both are
+            pinned (same reasoning as .cg-tabnav's "not sticky" choice). Its
+            own "← BACK" link is gone too — the topbar is now the one exit. */}
         <nav aria-label="Exhibit views" style={{
-          position: 'sticky', top: 0, zIndex: 100,
           background: `${C.bg}ee`,
           backdropFilter: 'blur(12px)',
           borderBottom: `1px solid ${C.border}`,
           display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, padding: '10px 32px',
         }}>
-          <a href="/"
-             style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--ink-dim)', letterSpacing: '0.14em', textDecoration: 'none', marginRight: 8 }}>
-            ← BACK
-          </a>
-          <div style={{ width: 1, height: 20, background: C.border }} />
           <button style={switcherBtnStyle(view === 'v2')} onClick={() => setView('v2')}>
             ANALYST WORKSPACE
           </button>
