@@ -157,8 +157,7 @@ a { color: inherit; text-decoration: none; }
   .loading-screen .pulse-dot,
   .pulse,
   .now::before,
-  .pill.live::before,
-  .now-playing .k::before { animation: none !important; }
+  .pill.live::before { animation: none !important; }
 }
 
 /* ===== PAGE LAYOUT — notebook column + workshop rail ===== */
@@ -720,52 +719,6 @@ h2 {
 .rail-row .v.live { color: var(--green); }
 .rail-row .v.amber { color: var(--amber); }
 
-.now-playing {
-  padding: 14px 16px;
-  border: 1px solid var(--amber);
-  background: rgba(232, 155, 61, 0.06);
-  font-size: 11px;
-  line-height: 1.6;
-}
-.now-playing .k {
-  color: var(--amber);
-  letter-spacing: 0.18em;
-  margin-bottom: 6px;
-  display: flex; align-items: center; gap: 6px;
-}
-.now-playing .k::before {
-  content: ''; width: 6px; height: 6px; border-radius: 50%;
-  background: var(--green);
-  animation: pulse 2.2s ease-in-out infinite;
-}
-.now-playing .body { color: var(--ink); }
-.now-playing .meta {
-  color: var(--ink-dim); /* faint misses 4.5:1 on the amber-tinted card */
-  margin-top: 8px; font-size: 10px;
-  letter-spacing: 0.1em;
-}
-
-.ledger-item {
-  display: grid;
-  grid-template-columns: 56px 1fr;
-  gap: 12px;
-  padding: 7px 0;
-  border-bottom: 1px solid var(--rule-soft);
-  font-size: 11px;
-}
-.ledger-item .ts {
-  color: var(--ink-faint);
-  letter-spacing: 0.06em;
-}
-.ledger-item .msg {
-  color: var(--ink-dim);
-  line-height: 1.5;
-}
-.ledger-item .msg strong {
-  color: var(--ink);
-  font-weight: 500;
-}
-
 /* ===== KEYBOARD HINT ===== */
 .kbd-hint {
   position: fixed;
@@ -1230,13 +1183,6 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
 }
 @media (max-width: 700px) {
   .cg-explainer { grid-template-columns: 1fr; }
-}
-
-.cg-dag {
-  border: 1px solid var(--rule);
-  background: var(--bg-raised);
-  border-radius: 4px;
-  padding: 16px;
 }
 
 /* ── search & objective tab CSS lives below under .cg-opt-* (see "search & objective tab") ── */
@@ -2173,8 +2119,7 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   line-height: 1.62;
   max-width: 66ch;
 }
-.cg-sense-p code,
-.cg-sense-disclaimer code {
+.cg-sense-p code {
   font-family: var(--mono);
   font-size: 0.85em;
   color: var(--ink);
@@ -2184,58 +2129,12 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
 }
 .cg-sense-p strong { color: var(--ink); font-weight: 500; }
 
-.cg-sense-paths {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-.cg-sense-path {
-  margin: 0;
-  border: 1px solid var(--rule);
-  background: var(--bg-raised);
-  border-radius: 4px;
-  padding: 14px 16px 16px;
-}
-.cg-sense-path-cap {
-  font-size: 11.5px;
-  line-height: 1.5;
-  color: var(--ink-faint);
-  margin-bottom: 10px;
-}
-.cg-sense-path-tag {
-  display: inline-block;
-  font-family: var(--mono);
-  font-size: 9.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 3px 7px;
-  border-radius: 2px;
-  margin-right: 8px;
-  vertical-align: 1px;
-  border: 1px solid currentColor;
-}
-.cg-sense-path-tag[data-kind="now"] { color: var(--green); }
-.cg-sense-path-tag[data-kind="next"] { color: var(--ink-faint); border-style: dashed; }
-
 .cg-sense-test {
   border: 1px solid var(--rule);
   border-left: 2px solid var(--amber-dim);
   background: var(--bg-raised);
   border-radius: 4px;
   padding: 18px 20px;
-}
-.cg-sense-disclaimer {
-  margin: 0;
-  color: var(--ink-faint);
-  font-size: 12.5px;
-  line-height: 1.6;
-  font-style: italic;
-  max-width: 66ch;
-}
-.cg-sense-disclaimer em { font-style: normal; color: var(--ink-dim); }
-
-@media (max-width: 640px) {
-  .cg-sense-paths { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 720px) {
@@ -2669,32 +2568,10 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   max-width: 64ch;
 }
 
-.cg-writeup .cg-h2 {
-  font-family: var(--serif);
-  font-size: 22px;
-  font-style: italic;
-  letter-spacing: -0.005em;
-  margin: 28px 0 6px;
-  color: var(--ink);
-}
-.cg-writeup .cg-h2:first-of-type { margin-top: 4px; }
-.cg-writeup p {
-  font-family: var(--serif);
-  font-size: 17px;
-  line-height: 1.62;
-  margin: 0 0 14px;
-  max-width: 66ch;
-}
-
 /* ══ Behaviors group (C2-B) ══════════════════════════════════════════════ */
 
 /* ClosedLoopDiagram — open vs closed loop, before/after (house style; reuses
    .sysdiagram + .sysdiagram-pop for the popout). */
-.cg-loop-paths {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
 .cg-loop-fig { margin: 0; }
 .cg-loop-panel { padding: 14px; }
 .cg-loop-cap {
@@ -2845,29 +2722,9 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   border-radius: 3px;
 }
 
-/* Perturbation tab — the SensorChannels visual + the C2-C live-demo placeholder. */
+/* Perturbation tab — the SensorChannels visual + the C2-C live demo. */
 .cg-perturb { display: flex; flex-direction: column; gap: 28px; }
 .cg-perturb-vis { min-width: 0; }
-.cg-perturb-placeholder {
-  border: 1px dashed var(--rule);
-  border-left: 2px solid var(--amber-dim);
-  border-radius: 4px;
-  background: var(--bg-raised);
-  padding: 18px 20px;
-}
-.cg-perturb-todo {
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  color: var(--amber);
-  opacity: 0.78;
-  margin: 12px 0;
-  overflow-wrap: anywhere;
-}
-
-@media (max-width: 640px) {
-  .cg-loop-paths { grid-template-columns: 1fr; }
-}
 
 /* ── C2-C: live perturbation demo, recorded clips, heading-error visual ── */
 .cg-beh-status[data-status="live"] { color: var(--green); border-color: var(--green); }
@@ -3510,15 +3367,6 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   letter-spacing: 0.02em;
 }
 .cg-eb-cond-gf { font-family: var(--mono); font-size: 11.5px; font-weight: 500; }
-.cg-eb-cond-clip {
-  width: 100%;
-  aspect-ratio: 3 / 4;
-  object-fit: cover;
-  border: 1px solid var(--rule);
-  border-radius: 6px;
-  background: var(--bg);
-  display: block;
-}
 .cg-eb-cond-outcome {
   font-family: var(--mono);
   font-size: 11px;
@@ -3641,7 +3489,6 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
 
 @media (max-width: 720px) {
   .cg-eb-cond-grid { grid-template-columns: 1fr; }
-  .cg-eb-cond-clip { aspect-ratio: 4 / 3; }
 }
 
 /* ── the three escape-circuit cell types (embodied §2, rec #1) ── */
