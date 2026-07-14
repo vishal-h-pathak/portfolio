@@ -164,6 +164,9 @@ a { color: inherit; text-decoration: none; }
     border-top: 1px solid var(--rule);
     padding: 32px 24px 56px 24px;
   }
+  /* Stacked below Contact, an empty-state panel reads as a broken dashboard
+     closing the page — hide it here; it's still shown as ambient desktop chrome. */
+  .rail-block.is-empty { display: none; }
 }
 
 /* ===== NOTEBOOK SECTIONS ===== */
