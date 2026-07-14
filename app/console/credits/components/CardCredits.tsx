@@ -53,7 +53,7 @@ function ProgressRing({ pct, color }: { pct: number; color: string }) {
         x="28"
         y="32"
         textAnchor="middle"
-        className="fill-ink text-[11px] tabular-nums"
+        className="fill-ink text-label tabular-nums"
         style={{ fontFamily: "var(--mono)" }}
       >
         {Math.round(clamped * 100)}%
@@ -67,7 +67,7 @@ function CreditItem({ p, cardColor }: { p: CreditProgress; cardColor: string }) 
     <div className="flex items-center gap-3 border border-rule bg-bg p-3">
       {p.enrollOnce ? (
         <span
-          className="grid h-[52px] w-[52px] shrink-0 place-items-center border border-rule text-[9px] uppercase tracking-label text-ink-faint"
+          className="grid h-[52px] w-[52px] shrink-0 place-items-center border border-rule text-micro uppercase tracking-label text-ink-faint"
           aria-hidden="true"
         >
           comp
@@ -79,15 +79,15 @@ function CreditItem({ p, cardColor }: { p: CreditProgress; cardColor: string }) 
         />
       )}
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[12px] text-ink" title={p.credit.name}>
+        <div className="truncate text-ui text-ink" title={p.credit.name}>
           {p.credit.name}
         </div>
         {p.enrollOnce ? (
-          <div className="mt-0.5 text-[11px] text-ink-faint">
+          <div className="mt-0.5 text-label text-ink-faint">
             Membership · enroll once
           </div>
         ) : (
-          <div className="mt-0.5 text-[11px] tabular-nums text-ink-dim">
+          <div className="mt-0.5 text-label tabular-nums text-ink-dim">
             {dollarsCompact(p.capturedCents)} / {dollarsCompact(p.maxCents)} ·{" "}
             {p.windowLabel}
           </div>
@@ -125,11 +125,11 @@ export function CardCredits({
             className="h-2 w-2 rounded-full"
             style={{ background: card.colorHex }}
           />
-          <h3 className="font-mono text-[11px] uppercase tracking-kicker text-ink">
+          <h3 className="font-mono text-label uppercase tracking-kicker text-ink">
             {card.name}
           </h3>
         </div>
-        <span className="font-mono text-[10px] tabular-nums text-ink-faint">
+        <span className="font-mono text-meta tabular-nums text-ink-faint">
           {dollarsCompact(card.annualFeeCents)}/yr fee
         </span>
       </header>

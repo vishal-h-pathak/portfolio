@@ -113,14 +113,14 @@ export default function ReviewQueuePage() {
       <DashboardNav />
       <main className="mx-auto min-h-screen max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
         <header className="mb-6">
-          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+          <div className="flex items-center gap-2 font-mono text-meta uppercase tracking-kicker text-ink-faint">
             <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-green" />
             Job pipeline — submit lane
           </div>
           <h1 className="mt-3 font-serif text-2xl tracking-tight text-ink">
             Submit lane
           </h1>
-          <p className="mt-0.5 text-[11px] text-ink-faint tabular-nums">
+          <p className="mt-0.5 text-label text-ink-faint tabular-nums">
             {loading
               ? "loading…"
               : jobs.length === 0
@@ -210,7 +210,7 @@ function Section({
 }) {
   return (
     <section className="mb-8">
-      <h2 className="mb-2.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 border-b border-rule-soft pb-1.5 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+      <h2 className="mb-2.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 border-b border-rule-soft pb-1.5 font-mono text-meta uppercase tracking-kicker text-ink-faint">
         <span className="text-amber">{label}</span>
         <span className="tabular-nums">({count})</span>
         <span className="ml-auto normal-case tracking-normal text-ink-faint">
@@ -235,7 +235,7 @@ function VerificationSummary({ job }: { job: Job }) {
 
   if (filled === null && skipped === null && !notes) {
     return (
-      <p className="text-[11px] italic text-ink-faint">
+      <p className="text-label italic text-ink-faint">
         No verification summary yet — pre-fill to populate it.
       </p>
     );
@@ -244,7 +244,7 @@ function VerificationSummary({ job }: { job: Job }) {
   return (
     <div className="space-y-1">
       {(filled !== null || skipped !== null) && (
-        <div className="flex flex-wrap items-center gap-3 text-[11px] tabular-nums">
+        <div className="flex flex-wrap items-center gap-3 text-label tabular-nums">
           {filled !== null && (
             <span className="text-green">{filled} filled</span>
           )}
@@ -256,7 +256,7 @@ function VerificationSummary({ job }: { job: Job }) {
         </div>
       )}
       {notes && (
-        <p className="line-clamp-2 text-[11px] leading-relaxed text-ink-dim">
+        <p className="line-clamp-2 text-label leading-relaxed text-ink-dim">
           {notes}
         </p>
       )}
@@ -296,14 +296,14 @@ function SubmitLaneRow({
             c={job.submission_log?.confidence ?? job.confidence ?? null}
           />
           {relativeTime(job.status_updated_at) && (
-            <span className="text-[10px] text-ink-faint tabular-nums">
+            <span className="text-meta text-ink-faint tabular-nums">
               {relativeTime(job.status_updated_at)}
             </span>
           )}
         </div>
         <Link
           href={cockpitHref}
-          className="block truncate text-[13px] font-medium text-ink transition-colors duration-150 hover:text-amber"
+          className="block truncate text-note font-medium text-ink transition-colors duration-150 hover:text-amber"
         >
           {job.title}
         </Link>

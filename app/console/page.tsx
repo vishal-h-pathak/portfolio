@@ -43,7 +43,7 @@ export default function ConsoleHome() {
   return (
     <main className="internal-surface mx-auto min-h-screen max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
       <header className="mb-8">
-        <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+        <div className="flex items-center gap-2 font-mono text-meta uppercase tracking-kicker text-ink-faint">
           <span
             aria-hidden="true"
             className="h-1.5 w-1.5 rounded-full bg-green"
@@ -87,7 +87,7 @@ export default function ConsoleHome() {
         })}
       </ul>
 
-      <p className="mt-8 font-mono text-[11px] tracking-[0.1em] text-ink-faint">
+      <p className="mt-8 font-mono text-label tracking-[0.1em] text-ink-faint">
         Agent runbooks are reachable directly via their token URLs.
       </p>
     </main>

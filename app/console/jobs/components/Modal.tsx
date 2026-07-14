@@ -54,7 +54,7 @@ export function Modal({
 /** Mono section label used at the top of modals and panels. */
 export function ModalTitle({ children }: { children: ReactNode }) {
   return (
-    <div className="mb-3 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+    <div className="mb-3 font-mono text-meta uppercase tracking-kicker text-ink-faint">
       {children}
     </div>
   );

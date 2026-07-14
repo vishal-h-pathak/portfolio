@@ -275,11 +275,11 @@ function aggregateStageSpend(byStage: Record<string, number>): StageSpendRow[] {
 function PanelHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="mb-3">
-      <h3 className="font-mono text-[10px] uppercase tracking-kicker text-ink-dim">
+      <h3 className="font-mono text-meta uppercase tracking-kicker text-ink-dim">
         {title}
       </h3>
       {subtitle && (
-        <p className="mt-0.5 text-[11px] leading-relaxed text-ink-faint">
+        <p className="mt-0.5 text-label leading-relaxed text-ink-faint">
           {subtitle}
         </p>
       )}
@@ -347,7 +347,7 @@ function RefreshIndicator({
   }, []);
   const label = lastUpdated ? `updated ${relativeAgo(lastUpdated)}` : "loading…";
   return (
-    <div className="flex items-center gap-1 text-[11px] text-ink-faint">
+    <div className="flex items-center gap-1 text-label text-ink-faint">
       <span className="tabular-nums">{label}</span>
       <Btn
         variant="ghost"
@@ -384,11 +384,11 @@ function KpiTile({
       className="border border-rule bg-bg-raised px-4 py-3"
       style={accent ? { borderLeft: `2px solid ${accent}` } : undefined}
     >
-      <div className="text-[10px] uppercase tracking-kicker text-ink-faint">
+      <div className="text-meta uppercase tracking-kicker text-ink-faint">
         {label}
       </div>
       <div className="mt-0.5 text-2xl text-ink tabular-nums">{value}</div>
-      {hint && <div className="mt-0.5 text-[10px] text-ink-faint">{hint}</div>}
+      {hint && <div className="mt-0.5 text-meta text-ink-faint">{hint}</div>}
     </div>
   );
 }
@@ -496,7 +496,7 @@ function PatternAnalysisSection({ mounted }: { mounted: boolean }) {
           {flagged.map((p) => (
             <div
               key={p.group}
-              className={`flex items-center justify-between gap-3 border border-l-2 px-3 py-2 text-[11px] ${
+              className={`flex items-center justify-between gap-3 border border-l-2 px-3 py-2 text-label ${
                 p.direction === "above"
                   ? "border-green-dim text-green"
                   : "border-red-dim text-red"
@@ -685,7 +685,7 @@ export default function InsightsPage() {
       />
       <main className="mx-auto min-h-screen max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
         <header className="mb-6">
-          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+          <div className="flex items-center gap-2 font-mono text-meta uppercase tracking-kicker text-ink-faint">
             <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-green" />
             Job pipeline — insights
           </div>
@@ -969,7 +969,7 @@ export default function InsightsPage() {
           </div>
         </Panel>
 
-        <p className="mt-8 text-center text-[10px] uppercase tracking-kicker text-ink-faint">
+        <p className="mt-8 text-center text-meta uppercase tracking-kicker text-ink-faint">
           Live from Supabase · {jobs.length} rows · charts deferred for v2:
           dead-link rate
         </p>

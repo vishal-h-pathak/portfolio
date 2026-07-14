@@ -523,14 +523,14 @@ export default function BrowseView({
     <main className="mx-auto min-h-screen max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
       <header className="mb-6 flex items-baseline justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+          <div className="flex items-center gap-2 font-mono text-meta uppercase tracking-kicker text-ink-faint">
             <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-green" />
             Job pipeline — register
           </div>
           <h1 className="mt-3 font-serif text-2xl tracking-tight text-ink">
             Job register
           </h1>
-          <p className="mt-0.5 text-[11px] text-ink-faint tabular-nums">
+          <p className="mt-0.5 text-label text-ink-faint tabular-nums">
             {loading ? "loading…" : `${filtered.length} of ${jobs.length} rows`}
           </p>
         </div>
@@ -556,10 +556,10 @@ export default function BrowseView({
           className="mb-6 flex flex-wrap items-center justify-between gap-2 border border-blue-dim bg-bg-raised px-3.5 py-2.5"
         >
           <div className="min-w-0">
-            <span className="font-mono text-[10px] uppercase tracking-kicker text-blue">
+            <span className="font-mono text-meta uppercase tracking-kicker text-blue">
               Submit lane
             </span>
-            <span className="ml-2 text-[11px] text-ink-dim tabular-nums">
+            <span className="ml-2 text-label text-ink-dim tabular-nums">
               {submitEligible.length} tailored row
               {submitEligible.length === 1 ? "" : "s"} ready to enqueue
               {submitSkippedTotal > 0 && (
@@ -697,7 +697,7 @@ export default function BrowseView({
           aria-label="Bulk actions"
           className="sticky top-12 z-20 mb-6 flex flex-wrap items-center gap-2 border border-amber-dim bg-bg-raised px-3 py-2"
         >
-          <span className="font-mono text-[11px] uppercase tracking-label text-amber tabular-nums">
+          <span className="font-mono text-label uppercase tracking-label text-amber tabular-nums">
             {selectedJobs.length} selected
           </span>
           <Btn
@@ -836,7 +836,7 @@ export default function BrowseView({
             review and submit — nothing is sent automatically.
           </p>
           {submitSkippedTotal > 0 && (
-            <p className="mb-4 border border-amber-dim px-3 py-2 text-[11px] leading-relaxed text-amber">
+            <p className="mb-4 border border-amber-dim px-3 py-2 text-label leading-relaxed text-amber">
               {submitSkippedTotal} skipped:{" "}
               {[
                 submitSkipCounts["no direct link"] > 0 &&
@@ -880,7 +880,7 @@ function Field({
 }) {
   return (
     <label className={`flex flex-col gap-1 ${className ?? ""}`}>
-      <span className="font-mono text-[9px] uppercase tracking-kicker text-ink-faint">
+      <span className="font-mono text-micro uppercase tracking-kicker text-ink-faint">
         {label}
       </span>
       {children}
@@ -947,7 +947,7 @@ function SectionHeading({
   tone?: "attention";
 }) {
   return (
-    <h2 className="mb-2.5 flex items-baseline gap-2 border-b border-rule-soft pb-1.5 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+    <h2 className="mb-2.5 flex items-baseline gap-2 border-b border-rule-soft pb-1.5 font-mono text-meta uppercase tracking-kicker text-ink-faint">
       <span className={tone === "attention" && count > 0 ? "text-amber" : undefined}>
         {label}
       </span>
@@ -1051,10 +1051,10 @@ function BrowseCard({
               <DegreeGatePill gated={job.degree_gated} />
               <LocationBadge location={job.location} />
               {age && (
-                <span className="text-[10px] text-ink-faint tabular-nums">{age}</span>
+                <span className="text-meta text-ink-faint tabular-nums">{age}</span>
               )}
             </div>
-            <h3 className="truncate text-[13px] font-medium text-ink">{job.title}</h3>
+            <h3 className="truncate text-note font-medium text-ink">{job.title}</h3>
             <p className="truncate text-xs text-ink-dim">
               {job.company}
               {job.location ? ` · ${job.location}` : ""}
@@ -1063,12 +1063,12 @@ function BrowseCard({
         </div>
         <div className="shrink-0 text-right">
           <span className="text-lg text-ink tabular-nums">{score ?? "—"}</span>
-          <span className="text-[10px] text-ink-faint">/10</span>
+          <span className="text-meta text-ink-faint">/10</span>
         </div>
       </div>
 
       {job.reasoning && (
-        <p className="line-clamp-3 text-[11px] leading-relaxed text-ink-faint">
+        <p className="line-clamp-3 text-label leading-relaxed text-ink-faint">
           {job.reasoning}
         </p>
       )}
@@ -1089,7 +1089,7 @@ function BrowseCard({
               href={job.url}
               target="_blank"
               rel="noreferrer"
-              className="px-1 text-[11px] text-ink-faint transition-colors duration-150 hover:text-ink"
+              className="px-1 text-label text-ink-faint transition-colors duration-150 hover:text-ink"
             >
               posting ↗
             </a>
@@ -1145,7 +1145,7 @@ function ActionButtons({
       if (tailorQueued) {
         return (
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] italic text-green">tailor queued…</span>
+            <span className="text-label italic text-green">tailor queued…</span>
             <Btn
               variant="ghost"
               pending={statusPending}
@@ -1179,7 +1179,7 @@ function ActionButtons({
     case "preparing":
       return (
         <div className="flex items-center gap-1.5">
-          <span className="flex items-center gap-1.5 text-[11px] italic text-green">
+          <span className="flex items-center gap-1.5 text-label italic text-green">
             <span className="h-1.5 w-1.5 rounded-full bg-green motion-safe:animate-pulse" />
             agent tailoring…
           </span>
@@ -1235,7 +1235,7 @@ function ActionButtons({
 
     case "prefilling":
       return (
-        <span className="flex items-center gap-1.5 text-[11px] italic text-green">
+        <span className="flex items-center gap-1.5 text-label italic text-green">
           <span className="h-1.5 w-1.5 rounded-full bg-green motion-safe:animate-pulse" />
           staging for submit…
         </span>
@@ -1264,7 +1264,7 @@ function ActionButtons({
 
     case "applied":
       return (
-        <span className="text-[11px] text-green">
+        <span className="text-label text-green">
           applied {relativeTime(job.applied_at) ?? ""}
         </span>
       );
@@ -1273,7 +1273,7 @@ function ActionButtons({
       return (
         <div className="flex items-center gap-1.5">
           <span
-            className="max-w-[200px] truncate text-[11px] text-red"
+            className="max-w-[200px] truncate text-label text-red"
             title={job.failure_reason ?? undefined}
           >
             failed{job.failure_reason ? `: ${job.failure_reason}` : ""}

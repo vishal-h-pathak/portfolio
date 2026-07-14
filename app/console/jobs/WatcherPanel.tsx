@@ -116,10 +116,10 @@ export default function WatcherPanel() {
   return (
     <section className="mb-6 border border-rule bg-bg-raised p-3.5">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+        <h2 className="font-mono text-meta uppercase tracking-kicker text-ink-faint">
           Active watcher
         </h2>
-        <span className="font-mono text-[10px] uppercase tracking-btn text-ink-faint">
+        <span className="font-mono text-meta uppercase tracking-btn text-ink-faint">
           {active ? (
             <>
               claiming: <span className="text-green">{active}</span>
@@ -133,7 +133,7 @@ export default function WatcherPanel() {
       {loading && heartbeats.length === 0 ? (
         <SkeletonRows rows={2} rowClassName="h-9" />
       ) : heartbeats.length === 0 ? (
-        <p className="text-[11px] text-ink-faint">
+        <p className="text-label text-ink-faint">
           No watcher has checked in yet. Start a watcher on a machine
           (`jobpipe-submit --watch`) — once it heartbeats it appears here.
         </p>
@@ -157,18 +157,18 @@ export default function WatcherPanel() {
                       (stale ? "bg-ink-faint" : "bg-green animate-pulse")
                     }
                   />
-                  <span className="truncate font-mono text-[12px] text-ink">
+                  <span className="truncate font-mono text-ui text-ink">
                     {hb.watcher_id}
                   </span>
                   {isActive && <Pill tone="live">active</Pill>}
                   {stale && <Pill tone="attention">stale</Pill>}
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
-                  <span className="tabular-nums text-[11px] text-ink-faint">
+                  <span className="tabular-nums text-label text-ink-faint">
                     {seen}
                   </span>
                   {isActive ? (
-                    <span className="font-mono text-[10px] uppercase tracking-btn text-ink-faint">
+                    <span className="font-mono text-meta uppercase tracking-btn text-ink-faint">
                       claiming
                     </span>
                   ) : (

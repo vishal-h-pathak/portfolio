@@ -113,7 +113,7 @@ export default function DashboardNav({
       <div className="mx-auto flex h-12 max-w-6xl items-center gap-5 overflow-x-auto px-4 sm:px-8">
         <Link
           href="/console/jobs"
-          className="flex shrink-0 items-center gap-2 font-mono text-[11px] uppercase tracking-kicker text-ink transition-colors duration-150 hover:text-green"
+          className="flex shrink-0 items-center gap-2 font-mono text-label uppercase tracking-kicker text-ink transition-colors duration-150 hover:text-green"
         >
           <span
             aria-hidden="true"
@@ -134,7 +134,7 @@ export default function DashboardNav({
                   href={item.href}
                   aria-current={active ? "page" : undefined}
                   className={
-                    "inline-flex items-baseline gap-1.5 border-b py-1 font-mono text-[11px] uppercase tracking-label transition-colors duration-150 " +
+                    "inline-flex items-baseline gap-1.5 border-b py-1 font-mono text-label uppercase tracking-label transition-colors duration-150 " +
                     (active
                       ? "border-amber text-ink"
                       : "border-transparent text-ink-faint hover:text-ink")
@@ -143,7 +143,7 @@ export default function DashboardNav({
                   <span>{item.label}</span>
                   {showBadge && (
                     <span
-                      className="border border-amber-dim px-1.5 text-[10px] text-amber tabular-nums"
+                      className="border border-amber-dim px-1.5 text-meta text-amber tabular-nums"
                       aria-label={`${actionCount} action(s) needed`}
                     >
                       {actionCount}

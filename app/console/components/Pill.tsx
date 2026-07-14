@@ -38,7 +38,7 @@ export function Pill({
       title={title}
       className={[
         "inline-flex items-center gap-1.5 border px-2 py-0.5",
-        "font-mono text-[10px] uppercase tracking-[0.16em] whitespace-nowrap",
+        "font-mono text-meta uppercase tracking-[0.16em] whitespace-nowrap",
         TONE_CLASS[tone],
         dashed ? "border-dashed" : "",
         className ?? "",

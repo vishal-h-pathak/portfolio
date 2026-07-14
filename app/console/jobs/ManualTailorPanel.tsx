@@ -185,7 +185,7 @@ export default function ManualTailorPanel() {
       className="mb-6 border border-rule bg-bg-raised p-3.5"
     >
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+        <h2 className="font-mono text-meta uppercase tracking-kicker text-ink-faint">
           Paste a posting URL
         </h2>
         {runId && (
@@ -228,7 +228,7 @@ export default function ManualTailorPanel() {
         <p
           id="manual-tailor-error"
           role="alert"
-          className="mt-2 text-[11px] text-red"
+          className="mt-2 text-label text-red"
         >
           {submitError}
           {looksLikeUrl(trimmedUrl) && !submitting && (
@@ -246,7 +246,7 @@ export default function ManualTailorPanel() {
       {statusLabel && (
         <p
           aria-live="polite"
-          className="mt-3 flex items-center gap-2 text-[11px] text-green"
+          className="mt-3 flex items-center gap-2 text-label text-green"
         >
           <span
             aria-hidden="true"
@@ -272,10 +272,10 @@ export default function ManualTailorPanel() {
 
       {run && run.status === "failed" && (
         <div role="alert" className="mt-3 border border-red-dim px-3 py-2">
-          <div className="mb-1 text-[10px] uppercase tracking-kicker text-red">
+          <div className="mb-1 text-meta uppercase tracking-kicker text-red">
             Tailor failed
           </div>
-          <p className="whitespace-pre-wrap break-words text-[11px] leading-relaxed text-ink-dim">
+          <p className="whitespace-pre-wrap break-words text-label leading-relaxed text-ink-dim">
             {run.failure_reason ?? "Unknown error. Check the GHA log."}
           </p>
           <div className="mt-1.5 flex items-center gap-3">
@@ -283,7 +283,7 @@ export default function ManualTailorPanel() {
               type="button"
               onClick={() => void retry()}
               disabled={submitting || !looksLikeUrl(trimmedUrl)}
-              className="text-[11px] text-red underline underline-offset-2 transition-colors duration-150 hover:text-ink disabled:opacity-50"
+              className="text-label text-red underline underline-offset-2 transition-colors duration-150 hover:text-ink disabled:opacity-50"
             >
               {submitting ? "retrying…" : "retry this url"}
             </button>
@@ -292,7 +292,7 @@ export default function ManualTailorPanel() {
                 href={run.github_run_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[11px] text-ink-faint underline-offset-2 transition-colors duration-150 hover:text-ink hover:underline"
+                className="text-label text-ink-faint underline-offset-2 transition-colors duration-150 hover:text-ink hover:underline"
               >
                 view GHA run →
               </a>
@@ -314,7 +314,7 @@ function ResultCard({ result }: { result: ResultPayload }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div
-            className={`mb-1 text-[10px] uppercase tracking-kicker ${
+            className={`mb-1 text-meta uppercase tracking-kicker ${
               isLow ? "text-amber" : "text-green"
             }`}
           >
@@ -323,7 +323,7 @@ function ResultCard({ result }: { result: ResultPayload }) {
           <p className="truncate text-xs font-medium text-ink">
             {result.title ?? "(no title)"}
           </p>
-          <p className="truncate text-[11px] text-ink-dim">
+          <p className="truncate text-label text-ink-dim">
             {result.company ?? "(unknown company)"}
             {result.job_id && (
               <span className="ml-2 text-ink-faint tabular-nums">
