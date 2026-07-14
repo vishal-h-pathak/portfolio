@@ -44,9 +44,12 @@ function mulberry32(seed: number) {
 // 2. STYLE INJECTION — CSS custom properties + keyframe animations
 // ─────────────────────────────────────────────────────────────────────────────
 const GLOBAL_STYLES = `
-  :root {
-    --mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', ui-monospace, monospace;
-    --sans: Inter, system-ui, -apple-system, sans-serif;
+  /* Scoped to the exhibit root — must NOT clobber the site-wide :root
+     --mono/--sans (globals.css wires --mono to the next/font stack). The
+     exhibit keeps its own mono; --sans stays local to this component. */
+  .meridian-root {
+    --mono: var(--font-jetbrains), 'JetBrains Mono', ui-monospace, monospace;
+    --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   }
   @keyframes meridian-fade-in {
     from { opacity: 0; transform: translateY(6px); }
@@ -57,6 +60,26 @@ const GLOBAL_STYLES = `
   }
   .meridian-stream-row:hover {
     background: rgba(255,255,255,0.025) !important;
+  }
+  /* ── Responsive collapse (W2) ──
+     The exhibit was authored as a fixed ~992px canvas. Inline styles set the
+     desktop grids; these @media rules stack them under breakpoints. !important
+     is required to beat inline style (same pattern as the row-hover above). */
+  @media (max-width: 1100px) {
+    .mrd-quad { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  }
+  @media (max-width: 900px) {
+    .mrd-grid-2col { grid-template-columns: minmax(0, 1fr) !important; }
+    .mrd-sticky-col { position: static !important; top: auto !important; }
+  }
+  @media (max-width: 640px) {
+    .mrd-quad { grid-template-columns: minmax(0, 1fr) !important; }
+    .mrd-stream-row {
+      grid-template-columns: max-content max-content minmax(0, 1fr) max-content !important;
+      gap: 8px !important;
+    }
+    .mrd-stream-ts { display: none !important; }
+    .mrd-switcher-caption { display: none !important; }
   }
 `;
 
@@ -79,8 +102,8 @@ const C: Record<string, string> = {
   borderHi: 'rgba(255,255,255,0.12)',
   text1: '#f4f4f5',
   text2: '#a1a1aa',
-  text3: '#71717a',
-  text4: '#52525b',
+  text3: '#82828c', // W2/#16: was #71717a (4.10:1) — now 5.20:1 on #0a0a0a for AA
+  text4: '#7d7d87', // W2/#16: was #52525b (2.56:1) — now 4.86:1 on #0a0a0a for AA
   emerald: '#10b981',
   emeraldDim: 'rgba(16,185,129,0.18)',
   red: '#ef4444',
@@ -296,13 +319,16 @@ function AutoWidth({ children }: { children: (width: number) => React.ReactNode 
 
   useEffect(() => {
     if (!ref.current) return;
+    // W2/#01: clamp to the viewport so a chart can never re-inflate its own
+    // track past the screen (the old feedback loop that locked charts at 600px).
+    const cap = () => (typeof window !== 'undefined' ? window.innerWidth : Infinity);
     const ro = new ResizeObserver((entries) => {
       const w = entries[0]?.contentRect.width;
-      if (w && w > 0) setWidth(w);
+      if (w && w > 0) setWidth(Math.min(w, cap()));
     });
     ro.observe(ref.current);
     const initial = ref.current.getBoundingClientRect().width;
-    if (initial > 0) setWidth(initial);
+    if (initial > 0) setWidth(Math.min(initial, cap()));
     return () => ro.disconnect();
   }, []);
 
@@ -745,7 +771,7 @@ function Card({ title, meta, right, children, noPad }: any) {
     <div style={{ border: `1px solid ${C.border}`, borderRadius: 4, background: C.surface, overflow: 'hidden' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', borderBottom: `1px solid ${C.border}` }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 14 }}>
-          <span style={{ fontFamily: 'var(--mono)', fontSize: 10.5, color: C.text1, letterSpacing: '0.22em', fontWeight: 500 }}>{title}</span>
+          <h2 style={{ margin: 0, fontFamily: 'var(--mono)', fontSize: 10.5, color: C.text1, letterSpacing: '0.22em', fontWeight: 500 }}>{title}</h2>
           {meta && <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: C.text4, letterSpacing: '0.16em' }}>{meta}</span>}
         </div>
         {right}
@@ -813,7 +839,7 @@ function Wordmark() {
         <line x1="12" y1="2" x2="12" y2="22" stroke={C.emerald} strokeWidth="0.6" strokeOpacity="0.5" />
         <circle cx="12" cy="12" r="2" fill={C.emerald} style={{ filter: `drop-shadow(0 0 5px ${C.emerald})` }} />
       </svg>
-      <span style={{ fontFamily: 'var(--mono)', fontSize: 16, fontWeight: 500, letterSpacing: '0.28em', color: C.text1 }}>MERIDIAN</span>
+      <h1 style={{ margin: 0, fontFamily: 'var(--mono)', fontSize: 16, fontWeight: 500, letterSpacing: '0.28em', color: C.text1 }}>MERIDIAN</h1>
     </div>
   );
 }
@@ -824,25 +850,25 @@ function Wordmark() {
 
 function LiveTab({ D, selected, setSelected }: any) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 24 }}>
+    <div className="mrd-grid-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.5fr) minmax(0, 1fr)', gap: 24 }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         <Card title="PORTFOLIO VALUE" meta="14D">
           <AutoWidth>{(w: number) => <PortfolioCurve data={D.portfolioSeries} width={w} height={220} />}</AutoWidth>
         </Card>
 
         <Card title="DECISION STREAM" meta={`${D.decisions.length} EVENTS`} noPad>
-          <div style={{ maxHeight: 540, overflowY: 'auto' }}>
+          <div style={{ maxHeight: 540, overflowY: 'auto' }} tabIndex={0} role="region" aria-label="Decision stream, scrollable">
             {D.decisions.slice(0, 18).map((d: any) => (
               <div key={d.id} onClick={() => setSelected(d)}
-                   className="meridian-stream-row"
+                   className="meridian-stream-row mrd-stream-row"
                    style={{
-                     display: 'grid', gridTemplateColumns: '110px 58px 62px 1fr auto', gap: 14, alignItems: 'center',
+                     display: 'grid', gridTemplateColumns: '110px 58px 62px minmax(0, 1fr) auto', gap: 14, alignItems: 'center',
                      padding: '14px 18px', borderBottom: `1px solid ${C.border}`, cursor: 'pointer',
                      background: selected?.id === d.id ? 'linear-gradient(90deg, rgba(34,211,238,0.08), transparent)' : 'transparent',
                      borderLeft: selected?.id === d.id ? `2px solid ${C.cyan}` : '2px solid transparent',
                      transition: 'background 0.15s',
                    }}>
-                <span style={{ fontFamily: 'var(--mono)', fontSize: 10.5, color: C.text3, letterSpacing: '0.08em' }}>{d.ts_label}</span>
+                <span className="mrd-stream-ts" style={{ fontFamily: 'var(--mono)', fontSize: 10.5, color: C.text3, letterSpacing: '0.08em' }}>{d.ts_label}</span>
                 <ActionBadge action={d.action} />
                 <span style={{ fontFamily: 'var(--mono)', fontSize: 13, color: SYM_COLOR[d.symbol] || C.text1, fontWeight: 600, letterSpacing: '0.04em' }}>{d.symbol}</span>
                 <span style={{ fontSize: 12.5, color: C.text2, lineHeight: 1.45, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical' } as any}>{d.reasoning}</span>
@@ -856,7 +882,7 @@ function LiveTab({ D, selected, setSelected }: any) {
         </Card>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 20, position: 'sticky', top: 20 }}>
+      <div className="mrd-sticky-col" style={{ display: 'flex', flexDirection: 'column', gap: 20, position: 'sticky', top: 20 }}>
         <Card title="CONFLUENCE RADAR" meta={selected?.symbol}>
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <Radar scores={selected?.component_scores || {}} size={260} color={SYM_COLOR[selected?.symbol] || C.cyan} />
@@ -889,7 +915,7 @@ function IntelligenceTab({ D }: any) {
   const recentHigh = D.decisions.filter((d: any) => d.confidence === 'HIGH').slice(0, 4);
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 20 }}>
+      <div className="mrd-grid-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)', gap: 20 }}>
         <Card title="QUANT SIGNAL · MULTI-TICKER" meta={`${metric} · 30D`} right={
           <div style={{ display: 'flex', gap: 4 }}>
             {['RSI', 'Z-SCORE', 'PRICE'].map((m: string) => (
@@ -919,7 +945,7 @@ function IntelligenceTab({ D }: any) {
         </Card>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+      <div className="mrd-grid-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 20 }}>
         <Card title="THEME TRAJECTORY" meta="GEO ESCALATION · 30D">
           <AutoWidth>{(w: number) => (
             <AreaChart width={w} height={200} xLabels={D.geoSeries.map((d: any) => 'D' + d.day)}
@@ -952,7 +978,7 @@ function IntelligenceTab({ D }: any) {
       </div>
 
       <Card title="HIGH-CONVICTION DECISIONS" meta="MEDIUM+ CONFIDENCE · GRADE A/B">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
+        <div className="mrd-quad" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 14 }}>
           {recentHigh.map((d: any) => (
             <div key={d.id} style={{ border: `1px solid ${C.border}`, borderRadius: 3, padding: 14, background: C.surface, display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -975,7 +1001,7 @@ function IntelligenceTab({ D }: any) {
 function PerformanceTab({ D }: any) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+      <div className="mrd-grid-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 20 }}>
         <Card title="CONFIDENCE CALIBRATION" meta="PREDICTED vs REALIZED">
           <AutoWidth>{(w: number) => <CalibrationScatter data={D.calibration} width={w} height={300} />}</AutoWidth>
           <div style={{ marginTop: 10, fontFamily: 'var(--mono)', fontSize: 10, color: C.text4, letterSpacing: '0.1em', textAlign: 'center' }}>
@@ -1001,7 +1027,7 @@ function PerformanceTab({ D }: any) {
       </Card>
 
       <Card title="DETAIL LEDGER" meta={`${D.decisions.filter((d: any) => d.executed).length} EXECUTED`} noPad>
-        <div style={{ maxHeight: 320, overflowY: 'auto' }}>
+        <div style={{ maxHeight: 320, overflowX: 'auto', overflowY: 'auto' }} tabIndex={0} role="region" aria-label="Detail ledger, scrollable">
           <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--mono)', fontSize: 11 }}>
             <thead>
               <tr style={{ color: C.text4, letterSpacing: '0.14em', fontSize: 9.5, textAlign: 'left' }}>
@@ -1073,7 +1099,7 @@ function AnalystWorkspace({ D }: any) {
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 0, marginTop: 20, borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 0, marginTop: 20, borderBottom: `1px solid ${C.border}` }}>
           {[
             { k: 'live', l: 'LIVE STREAM', s: 'Decisions & portfolio' },
             { k: 'intel', l: 'INTELLIGENCE', s: 'Signals · brains · themes' },
@@ -1170,7 +1196,7 @@ function NarrativeScroll({ D }: any) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 20, borderBottom: `2px solid ${C.text1}` }}>
           <div>
             <div style={{ fontFamily: 'var(--mono)', fontSize: 9.5, color: C.text4, letterSpacing: '0.3em', marginBottom: 6 }}>VISHALPATHAK.COM · AUTONOMOUS SYSTEMS</div>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: 34, letterSpacing: '0.28em', fontWeight: 500 }}>MERIDIAN</div>
+            <h1 style={{ margin: 0, fontFamily: 'var(--mono)', fontSize: 34, letterSpacing: '0.28em', fontWeight: 500, color: C.text1 }}>MERIDIAN</h1>
             <div style={{ fontSize: 13, color: C.text3, marginTop: 4, letterSpacing: '0.04em' }}>Autonomous trading agent · decision log & performance report</div>
           </div>
           <div style={{ textAlign: 'right' }}>
@@ -1182,7 +1208,7 @@ function NarrativeScroll({ D }: any) {
         </div>
 
         {/* Above-fold summary */}
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 32, padding: '32px 0', borderBottom: `1px solid ${C.border}` }}>
+        <div className="mrd-grid-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)', gap: 32, padding: '32px 0', borderBottom: `1px solid ${C.border}` }}>
           <div>
             <SectionLabel num="01" title="FOURTEEN DAYS IN" />
             <h2 style={{ fontFamily: 'var(--mono)', fontSize: 28, fontWeight: 400, letterSpacing: '0.02em', lineHeight: 1.25, marginTop: 10, color: C.text1 }}>
@@ -1210,16 +1236,17 @@ function NarrativeScroll({ D }: any) {
 
         {/* Section 03 — Decision Dispatch */}
         <Section3 num="03" title="DECISION DISPATCH" sub={`${D.decisions.length} events · click any row to inspect`}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 32, alignItems: 'flex-start' }}>
-            <div style={{ border: `1px solid ${C.border}`, borderRadius: 2, background: C.surface, maxHeight: 420, overflowY: 'auto' }}>
+          <div className="mrd-grid-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.5fr) minmax(0, 1fr)', gap: 32, alignItems: 'flex-start' }}>
+            <div style={{ border: `1px solid ${C.border}`, borderRadius: 2, background: C.surface, maxHeight: 420, overflowY: 'auto' }} tabIndex={0} role="region" aria-label="Decision dispatch, scrollable">
               {D.decisions.slice(0, 14).map((d: any) => (
                 <div key={d.id} onClick={() => setSelected(d)}
+                     className="mrd-stream-row"
                      style={{
-                       display: 'grid', gridTemplateColumns: '90px 54px 56px 1fr auto', gap: 10, alignItems: 'center',
+                       display: 'grid', gridTemplateColumns: '90px 54px 56px minmax(0, 1fr) auto', gap: 10, alignItems: 'center',
                        padding: '11px 16px', borderBottom: `1px solid ${C.border}`, cursor: 'pointer',
                        background: selected?.id === d.id ? 'rgba(34,211,238,0.06)' : 'transparent',
                      }}>
-                  <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: C.text3, letterSpacing: '0.08em' }}>{d.ts_label}</span>
+                  <span className="mrd-stream-ts" style={{ fontFamily: 'var(--mono)', fontSize: 10, color: C.text3, letterSpacing: '0.08em' }}>{d.ts_label}</span>
                   <ActionBadge action={d.action} />
                   <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: SYM_COLOR[d.symbol], fontWeight: 600 }}>{d.symbol}</span>
                   <span style={{ fontSize: 12, color: C.text2, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{d.reasoning}</span>
@@ -1247,7 +1274,7 @@ function NarrativeScroll({ D }: any) {
 
         {/* Section 04 — Two Brains */}
         <Section3 num="04" title="TWO BRAINS, ONE AGENT" sub="Quant & narrative models, mediation outcomes">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+          <div className="mrd-grid-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 32 }}>
             <AutoWidth>{(w: number) => <BrainFlow flow={D.brainFlow} width={w} height={260} />}</AutoWidth>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <BrainRow label="Both agree" v={D.brainFlow.outcomes.both_bull + D.brainFlow.outcomes.both_bear} total={48} color={C.emerald} />
@@ -1270,9 +1297,9 @@ function NarrativeScroll({ D }: any) {
                          { key: 'iran', color: C.orange, data: D.geoSeries.map((d: any) => ({ v: d.iran })) },
                        ]} />
           )}</AutoWidth>
-          <div style={{ display: 'flex', gap: 24, marginTop: 18 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, marginTop: 18 }}>
             {D.shifts.map((s: any, i: number) => (
-              <div key={i} style={{ flex: 1, borderLeft: `2px solid ${s.delta > 0 ? C.red : C.emerald}`, padding: '4px 12px' }}>
+              <div key={i} style={{ flex: '1 1 140px', borderLeft: `2px solid ${s.delta > 0 ? C.red : C.emerald}`, padding: '4px 12px' }}>
                 <div style={{ fontFamily: 'var(--mono)', fontSize: 9.5, color: C.text4, letterSpacing: '0.14em' }}>{s.ts}</div>
                 <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: C.text1, marginTop: 3 }}><span style={{ color: C.text4 }}>{s.from}</span> → <span>{s.to}</span></div>
                 <div style={{ fontFamily: 'var(--mono)', fontSize: 9.5, color: s.delta > 0 ? C.red : C.emerald, marginTop: 3, letterSpacing: '0.1em' }}>{s.theme.toUpperCase()} {s.delta > 0 ? '+' : ''}{s.delta}</div>
@@ -1290,7 +1317,7 @@ function NarrativeScroll({ D }: any) {
 
         {/* Section 07 — Calibration */}
         <Section3 num="07" title="CALIBRATION" sub="Confidence vs realized return per executed decision">
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 32 }}>
+          <div className="mrd-grid-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)', gap: 32 }}>
             <AutoWidth>{(w: number) => <CalibrationScatter data={D.calibration} width={w} height={320} />}</AutoWidth>
             <div style={{ fontSize: 12.5, lineHeight: 1.7, color: C.text3 }}>
               <p>HIGH-confidence decisions cluster in the positive half (64% realize gains ≥ +1%). MEDIUM-confidence is noisier; the agent treats it as a sizing signal. LOW-confidence only fires when theme risk is elevated.</p>
@@ -1317,11 +1344,11 @@ function NarrativeScroll({ D }: any) {
 function ArchiveBanner() {
   return (
     <div style={{
-      background: 'rgba(245,158,11,0.07)',
-      borderBottom: `1px solid ${C.amber}33`,
+      background: 'rgba(232,155,61,0.07)',
+      borderBottom: '1px solid rgba(232,155,61,0.28)',
     }}>
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '20px 32px' }}>
-        <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: C.amber, letterSpacing: '0.24em', marginBottom: 10 }}>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--amber)', letterSpacing: '0.24em', marginBottom: 10 }}>
           ARCHIVED EXHIBIT · FROZEN JUL 2026
         </div>
         <p style={{ fontSize: 13.5, lineHeight: 1.65, color: C.text2, margin: 0, maxWidth: 860 }}>
@@ -1342,7 +1369,7 @@ function ArchiveBanner() {
           trading record. MERIDIAN&rsquo;s real record is the sentence above.
         </p>
         <p style={{ margin: '12px 0 0', display: 'flex', gap: 28, flexWrap: 'wrap' }}>
-          <a href="/projects/soliton" style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.14em', color: C.emerald, textDecoration: 'none', borderBottom: `1px solid ${C.emerald}55` }}>
+          <a href="/projects/soliton" style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.14em', color: 'var(--green)', textDecoration: 'none', borderBottom: '1px solid var(--green-dim)' }}>
             → SOLITON, THE REBUILD — LIVE
           </a>
           <a href="/projects/soliton/design" style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.14em', color: C.text2, textDecoration: 'none', borderBottom: `1px solid ${C.border}` }}>
@@ -1360,59 +1387,63 @@ export default function MeridianPage() {
   // The seeded demo feed, generated once — identical on every load.
   const D = useMemo(() => generateMeridianData(), []);
 
-  // View switcher bar style
+  // View switcher bar style. Wrapper chrome (W2/#24): warm site inks instead
+  // of the exhibit's cool zinc. No outline:'none' (W2/#17) — the site-wide
+  // :focus-visible ink ring now applies to these primary controls.
   const switcherBtnStyle = (active: boolean): React.CSSProperties => ({
     fontFamily: 'var(--mono)',
     fontSize: 10.5,
     letterSpacing: '0.2em',
     fontWeight: active ? 600 : 400,
-    color: active ? C.text1 : C.text3,
+    color: active ? 'var(--ink)' : 'var(--ink-dim)',
     background: active ? 'rgba(255,255,255,0.06)' : 'transparent',
     border: `1px solid ${active ? C.borderHi : C.border}`,
     padding: '7px 18px',
     borderRadius: 2,
     cursor: 'pointer',
     transition: 'all 0.15s',
-    outline: 'none',
   });
 
   return (
-    <div style={{ background: C.bg, minHeight: '100vh' }}>
+    <div className="meridian-root" style={{ background: C.bg, minHeight: '100vh' }}>
       <StyleInjector />
 
-      <ArchiveBanner />
+      {/* Page chrome — banner + switcher are the archive frame (banner landmark) */}
+      <header>
+        <ArchiveBanner />
 
-      {/* Sticky view switcher */}
-      <div style={{
-        position: 'sticky', top: 0, zIndex: 100,
-        background: `${C.bg}ee`,
-        backdropFilter: 'blur(12px)',
-        borderBottom: `1px solid ${C.border}`,
-        display: 'flex', alignItems: 'center', gap: 12, padding: '10px 32px',
-      }}>
-        <a href="/"
-           style={{ fontFamily: 'var(--mono)', fontSize: 10, color: C.text4, letterSpacing: '0.14em', textDecoration: 'none', marginRight: 8 }}>
-          ← BACK
-        </a>
-        <div style={{ width: 1, height: 20, background: C.border }} />
-        <button style={switcherBtnStyle(view === 'v2')} onClick={() => setView('v2')}>
-          ANALYST WORKSPACE
-        </button>
-        <button style={switcherBtnStyle(view === 'v3')} onClick={() => setView('v3')}>
-          NARRATIVE SCROLL
-        </button>
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontFamily: 'var(--mono)', fontSize: 9.5, color: C.text4, letterSpacing: '0.14em' }}>
-            ARCHIVE · SYNTHETIC DEMO FEED
-          </span>
-        </div>
-      </div>
+        {/* Sticky view switcher */}
+        <nav aria-label="Exhibit views" style={{
+          position: 'sticky', top: 0, zIndex: 100,
+          background: `${C.bg}ee`,
+          backdropFilter: 'blur(12px)',
+          borderBottom: `1px solid ${C.border}`,
+          display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, padding: '10px 32px',
+        }}>
+          <a href="/"
+             style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--ink-dim)', letterSpacing: '0.14em', textDecoration: 'none', marginRight: 8 }}>
+            ← BACK
+          </a>
+          <div style={{ width: 1, height: 20, background: C.border }} />
+          <button style={switcherBtnStyle(view === 'v2')} onClick={() => setView('v2')}>
+            ANALYST WORKSPACE
+          </button>
+          <button style={switcherBtnStyle(view === 'v3')} onClick={() => setView('v3')}>
+            NARRATIVE SCROLL
+          </button>
+          <div className="mrd-switcher-caption" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontFamily: 'var(--mono)', fontSize: 9.5, color: C.text4, letterSpacing: '0.14em' }}>
+              ARCHIVE · SYNTHETIC DEMO FEED
+            </span>
+          </div>
+        </nav>
+      </header>
 
       {/* View render */}
-      <div key={view} className="meridian-fade-in">
+      <main key={view} className="meridian-fade-in">
         {view === 'v2' && <AnalystWorkspace D={D} />}
         {view === 'v3' && <NarrativeScroll D={D} />}
-      </div>
+      </main>
     </div>
   );
 }
