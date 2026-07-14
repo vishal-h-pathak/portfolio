@@ -27,7 +27,7 @@ function KpiTile({
       className="border border-rule bg-bg-raised px-4 py-3"
       style={accent ? { borderLeft: `2px solid ${accent}` } : undefined}
     >
-      <div className="text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+      <div className="text-[10px] uppercase tracking-kicker text-ink-faint">
         {label}
       </div>
       <div className={`mt-1 text-2xl tabular-nums ${valueClass}`}>{value}</div>

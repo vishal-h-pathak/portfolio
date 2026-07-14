@@ -185,7 +185,7 @@ export default function ManualTailorPanel() {
       className="mb-6 border border-rule bg-bg-raised p-3.5"
     >
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+        <h2 className="font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
           Paste a posting URL
         </h2>
         {runId && (
@@ -272,7 +272,7 @@ export default function ManualTailorPanel() {
 
       {run && run.status === "failed" && (
         <div role="alert" className="mt-3 border border-red-dim px-3 py-2">
-          <div className="mb-1 text-[10px] uppercase tracking-[0.18em] text-red">
+          <div className="mb-1 text-[10px] uppercase tracking-kicker text-red">
             Tailor failed
           </div>
           <p className="whitespace-pre-wrap break-words text-[11px] leading-relaxed text-ink-dim">
@@ -314,7 +314,7 @@ function ResultCard({ result }: { result: ResultPayload }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div
-            className={`mb-1 text-[10px] uppercase tracking-[0.18em] ${
+            className={`mb-1 text-[10px] uppercase tracking-kicker ${
               isLow ? "text-amber" : "text-green"
             }`}
           >

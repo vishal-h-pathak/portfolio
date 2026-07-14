@@ -9,13 +9,16 @@
  *   failed     red   — something broke
  *   dim        ink   — quiet (new) or terminal (skipped/ignored/expired)
  *
- * This file is the single source of truth; the visual classes live in
- * components/JobBadges.tsx. No other file may key colors off a status.
+ * This file is the single source of truth for how a job status maps to
+ * a tone; the Tone type itself and its visual rendering (Pill) live in
+ * the shared components/Pill.tsx. No other file may key colors off a
+ * status.
  */
 
 import type { JobStatus } from "../../../lib/supabase";
+import type { Tone } from "../../components/Pill";
 
-export type Tone = "live" | "attention" | "failed" | "dim";
+export type { Tone };
 
 export function statusTone(status: JobStatus | null | undefined): Tone {
   switch (status ?? "new") {

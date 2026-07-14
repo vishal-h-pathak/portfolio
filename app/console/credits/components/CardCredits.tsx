@@ -9,6 +9,7 @@
  * badges so they don't distort the captured/remaining math.
  */
 
+import { Pill } from "../../components/Pill";
 import { dollarsCompact } from "../lib/format";
 import type { Card, CreditProgress } from "../lib/types";
 
@@ -66,7 +67,7 @@ function CreditItem({ p, cardColor }: { p: CreditProgress; cardColor: string }) 
     <div className="flex items-center gap-3 border border-rule bg-bg p-3">
       {p.enrollOnce ? (
         <span
-          className="grid h-[52px] w-[52px] shrink-0 place-items-center border border-rule text-[9px] uppercase tracking-[0.14em] text-ink-faint"
+          className="grid h-[52px] w-[52px] shrink-0 place-items-center border border-rule text-[9px] uppercase tracking-label text-ink-faint"
           aria-hidden="true"
         >
           comp
@@ -93,39 +94,17 @@ function CreditItem({ p, cardColor }: { p: CreditProgress; cardColor: string }) 
         )}
         <div className="mt-1.5">
           {p.enrollOnce ? (
-            <Badge tone="muted">enroll-once</Badge>
+            <Pill tone="dim">enroll-once</Pill>
           ) : p.atRisk ? (
-            <Badge tone="red">{p.daysUntilPeriodEnd}d left</Badge>
+            <Pill tone="failed">{p.daysUntilPeriodEnd}d left</Pill>
           ) : p.status === "captured" ? (
-            <Badge tone="green">captured</Badge>
+            <Pill tone="live">captured</Pill>
           ) : (
-            <Badge tone="muted">{p.daysUntilPeriodEnd}d left</Badge>
+            <Pill tone="dim">{p.daysUntilPeriodEnd}d left</Pill>
           )}
         </div>
       </div>
     </div>
-  );
-}
-
-function Badge({
-  tone,
-  children,
-}: {
-  tone: "green" | "red" | "muted";
-  children: React.ReactNode;
-}) {
-  const cls =
-    tone === "green"
-      ? "border-green-dim text-green"
-      : tone === "red"
-        ? "border-red-dim text-red"
-        : "border-rule text-ink-faint";
-  return (
-    <span
-      className={`inline-flex items-center border px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.12em] ${cls}`}
-    >
-      {children}
-    </span>
   );
 }
 
@@ -146,7 +125,7 @@ export function CardCredits({
             className="h-2 w-2 rounded-full"
             style={{ background: card.colorHex }}
           />
-          <h3 className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink">
+          <h3 className="font-mono text-[11px] uppercase tracking-kicker text-ink">
             {card.name}
           </h3>
         </div>

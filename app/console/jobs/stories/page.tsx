@@ -120,7 +120,7 @@ function StoryCard({
         {fields.map((f) => (
           <div key={f.label}>
             <dt
-              className={`text-[10px] uppercase tracking-[0.18em] ${
+              className={`text-[10px] uppercase tracking-kicker ${
                 f.accent ? "text-amber" : "text-ink-faint"
               }`}
             >
@@ -269,9 +269,13 @@ export default function StoriesPage() {
   return (
     <>
       <DashboardNav />
-      <main className="mx-auto min-h-screen max-w-5xl px-4 py-8 sm:px-8 sm:py-10">
+      <main className="mx-auto min-h-screen max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
         <header className="mb-6">
-          <h1 className="font-serif text-[26px] tracking-tight text-ink">
+          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-green" />
+            Job pipeline — interview prep
+          </div>
+          <h1 className="mt-3 font-serif text-2xl tracking-tight text-ink">
             STAR+R stories
           </h1>
           <p className="mt-1 max-w-2xl text-xs leading-relaxed text-ink-dim">

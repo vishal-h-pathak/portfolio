@@ -1,9 +1,12 @@
+import { btnClass } from "../components/btnClass";
+
 /**
  * /console/login — the console gate. Same chrome as the rest of the
  * console (dark, mono, hairlines); no nav since nothing behind the
  * gate should leak (ConsoleNav hides itself on this route). Server
  * component — the form posts to the login route and middleware handles
- * the redirect.
+ * the redirect. Uses btnClass directly (not the "use client" Btn
+ * component) so this stays a server component.
  */
 export default async function LoginPage({
   searchParams,
@@ -18,7 +21,7 @@ export default async function LoginPage({
         action="/api/console/login"
         className="flex w-full max-w-xs flex-col gap-3 border border-rule bg-bg-raised p-6"
       >
-        <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+        <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
           <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-green" />
           Console — restricted
         </div>
@@ -34,10 +37,7 @@ export default async function LoginPage({
           autoFocus
           className="border border-rule bg-bg px-3 py-2 font-mono text-xs text-ink placeholder:text-ink-faint focus:border-amber focus:outline-none"
         />
-        <button
-          type="submit"
-          className="border border-amber px-3 py-2 font-mono text-[11px] uppercase tracking-[0.14em] text-amber transition-colors duration-150 hover:bg-amber hover:text-bg active:duration-0"
-        >
+        <button type="submit" className={btnClass("primary", "md")}>
           sign in
         </button>
         {error ? (

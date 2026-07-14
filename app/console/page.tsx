@@ -41,57 +41,55 @@ const TOOLS = [
  */
 export default function ConsoleHome() {
   return (
-    <main className="internal-surface min-h-screen px-4 py-12 sm:px-8">
-      <div className="mx-auto max-w-3xl">
-        <header className="mb-8">
-          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-            <span
-              aria-hidden="true"
-              className="h-1.5 w-1.5 rounded-full bg-green"
-            />
-            Console — owner only
-          </div>
-          <h1 className="mt-3 font-serif text-2xl tracking-tight text-ink">
-            Private tooling
-          </h1>
-          <p className="mt-2 max-w-prose text-sm text-ink-dim">
-            The live machinery behind the public write-ups. Everything here
-            sits behind the auth gate.
-          </p>
-        </header>
-
-        <ul className="grid gap-3">
-          {TOOLS.map((tool) => {
-            const cardClassName =
-              "block border border-rule p-4 transition-colors duration-150 hover:border-amber";
-            const inner = (
-              <>
-                <div className="font-mono text-sm uppercase tracking-[0.14em] text-ink">
-                  {tool.name}
-                </div>
-                <p className="mt-1 text-sm text-ink-dim">{tool.blurb}</p>
-              </>
-            );
-            return (
-              <li key={tool.href}>
-                {tool.external ? (
-                  <a href={tool.href} className={cardClassName}>
-                    {inner}
-                  </a>
-                ) : (
-                  <Link href={tool.href} className={cardClassName}>
-                    {inner}
-                  </Link>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-
-        <p className="mt-8 font-mono text-[11px] tracking-[0.1em] text-ink-faint">
-          Agent runbooks are reachable directly via their token URLs.
+    <main className="internal-surface mx-auto min-h-screen max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
+      <header className="mb-8">
+        <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+          <span
+            aria-hidden="true"
+            className="h-1.5 w-1.5 rounded-full bg-green"
+          />
+          Console — owner only
+        </div>
+        <h1 className="mt-3 font-serif text-2xl tracking-tight text-ink">
+          Private tooling
+        </h1>
+        <p className="mt-2 max-w-prose text-sm text-ink-dim">
+          The live machinery behind the public write-ups. Everything here
+          sits behind the auth gate.
         </p>
-      </div>
+      </header>
+
+      <ul className="grid gap-3">
+        {TOOLS.map((tool) => {
+          const cardClassName =
+            "block border border-rule p-4 transition-colors duration-150 hover:border-amber";
+          const inner = (
+            <>
+              <div className="font-mono text-sm uppercase tracking-label text-ink">
+                {tool.name}
+              </div>
+              <p className="mt-1 text-sm text-ink-dim">{tool.blurb}</p>
+            </>
+          );
+          return (
+            <li key={tool.href}>
+              {tool.external ? (
+                <a href={tool.href} className={cardClassName}>
+                  {inner}
+                </a>
+              ) : (
+                <Link href={tool.href} className={cardClassName}>
+                  {inner}
+                </Link>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+
+      <p className="mt-8 font-mono text-[11px] tracking-[0.1em] text-ink-faint">
+        Agent runbooks are reachable directly via their token URLs.
+      </p>
     </main>
   );
 }

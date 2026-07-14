@@ -38,14 +38,14 @@ export default function CreditsPage() {
   return (
     <main className="mx-auto min-h-screen max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
       <header className="mb-6">
-        <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+        <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
           <span
             aria-hidden="true"
             className="h-1.5 w-1.5 rounded-full bg-green"
           />
           Statement credits
         </div>
-        <h1 className="mt-3 font-serif text-[26px] tracking-tight text-ink">
+        <h1 className="mt-3 font-serif text-2xl tracking-tight text-ink">
           Credits
         </h1>
         <p className="mt-1 max-w-prose text-xs text-ink-dim">
@@ -66,7 +66,7 @@ export default function CreditsPage() {
         <CategoryBar data={categories} />
       </div>
 
-      <p className="mt-8 text-center font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+      <p className="mt-8 text-center font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
         Vendored M1 snapshot · {dataset.credits.length} credits ·{" "}
         {dataset.cards.length} cards · live data + writes land in M5
       </p>

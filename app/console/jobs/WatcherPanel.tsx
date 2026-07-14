@@ -2,6 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Btn } from "./components/Button";
+import { Modal, ModalTitle } from "./components/Modal";
+import { Pill } from "../components/Pill";
+import { SkeletonRows } from "./components/Skeleton";
 import { useToast } from "./components/Toast";
 import { requestJSON } from "./lib/api";
 import { relativeTime } from "./lib/format";
@@ -52,6 +55,7 @@ export default function WatcherPanel() {
   const [data, setData] = useState<WatchersResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [switching, setSwitching] = useState<string | null>(null);
+  const [confirmStale, setConfirmStale] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -73,18 +77,8 @@ export default function WatcherPanel() {
     return () => window.clearInterval(t);
   }, [load]);
 
-  const setActive = useCallback(
-    async (watcherId: string, stale: boolean) => {
-      if (watcherId === data?.active_watcher_id) return;
-      if (
-        stale &&
-        !window.confirm(
-          `${watcherId} hasn't checked in recently — its watcher may not be ` +
-            `running. Make it the active machine anyway?`,
-        )
-      ) {
-        return;
-      }
+  const doSetActive = useCallback(
+    async (watcherId: string) => {
       setSwitching(watcherId);
       // Optimistic: reflect the new active immediately, converge on next poll.
       setData((d) => (d ? { ...d, active_watcher_id: watcherId } : d));
@@ -101,7 +95,19 @@ export default function WatcherPanel() {
         setSwitching(null);
       }
     },
-    [data?.active_watcher_id, load, push],
+    [load, push],
+  );
+
+  const setActive = useCallback(
+    (watcherId: string, stale: boolean) => {
+      if (watcherId === data?.active_watcher_id) return;
+      if (stale) {
+        setConfirmStale(watcherId);
+        return;
+      }
+      void doSetActive(watcherId);
+    },
+    [data?.active_watcher_id, doSetActive],
   );
 
   const heartbeats = data?.heartbeats ?? [];
@@ -110,10 +116,10 @@ export default function WatcherPanel() {
   return (
     <section className="mb-6 border border-rule bg-bg-raised p-3.5">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+        <h2 className="font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
           Active watcher
         </h2>
-        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-faint">
+        <span className="font-mono text-[10px] uppercase tracking-btn text-ink-faint">
           {active ? (
             <>
               claiming: <span className="text-green">{active}</span>
@@ -125,7 +131,7 @@ export default function WatcherPanel() {
       </div>
 
       {loading && heartbeats.length === 0 ? (
-        <p className="text-[11px] text-ink-faint">Loading machines…</p>
+        <SkeletonRows rows={2} rowClassName="h-9" />
       ) : heartbeats.length === 0 ? (
         <p className="text-[11px] text-ink-faint">
           No watcher has checked in yet. Start a watcher on a machine
@@ -154,23 +160,15 @@ export default function WatcherPanel() {
                   <span className="truncate font-mono text-[12px] text-ink">
                     {hb.watcher_id}
                   </span>
-                  {isActive && (
-                    <span className="shrink-0 border border-green px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-green">
-                      active
-                    </span>
-                  )}
-                  {stale && (
-                    <span className="shrink-0 font-mono text-[9px] uppercase tracking-[0.14em] text-amber">
-                      stale
-                    </span>
-                  )}
+                  {isActive && <Pill tone="live">active</Pill>}
+                  {stale && <Pill tone="attention">stale</Pill>}
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
                   <span className="tabular-nums text-[11px] text-ink-faint">
                     {seen}
                   </span>
                   {isActive ? (
-                    <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-faint">
+                    <span className="font-mono text-[10px] uppercase tracking-btn text-ink-faint">
                       claiming
                     </span>
                   ) : (
@@ -188,6 +186,35 @@ export default function WatcherPanel() {
             );
           })}
         </ul>
+      )}
+
+      {confirmStale && (
+        <Modal
+          label="Confirm switch to stale watcher"
+          onClose={() => setConfirmStale(null)}
+        >
+          <ModalTitle>Switch to stale watcher</ModalTitle>
+          <p className="mb-4 text-xs leading-relaxed text-ink-dim">
+            <span className="text-ink">{confirmStale}</span> hasn&apos;t
+            checked in recently — its watcher may not be running. Make it
+            the active machine anyway?
+          </p>
+          <div className="flex items-center justify-end gap-2">
+            <Btn variant="ghost" onClick={() => setConfirmStale(null)}>
+              cancel
+            </Btn>
+            <Btn
+              variant="approve"
+              onClick={() => {
+                const id = confirmStale;
+                setConfirmStale(null);
+                if (id) void doSetActive(id);
+              }}
+            >
+              make active
+            </Btn>
+          </div>
+        </Modal>
       )}
     </section>
   );

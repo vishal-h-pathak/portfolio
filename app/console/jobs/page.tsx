@@ -266,7 +266,7 @@ function ViewToggle({
           onClick={() => onChange(v)}
           aria-pressed={view === v}
           className={
-            "px-3 py-1 font-mono text-[10px] uppercase tracking-[0.14em] transition-colors duration-150 " +
+            "px-3 py-1 font-mono text-[10px] uppercase tracking-label transition-colors duration-150 " +
             (view === v
               ? "bg-bg-raised text-amber"
               : "text-ink-faint hover:text-ink")
@@ -450,7 +450,7 @@ function SwipeView({
         </div>
       )}
 
-      <div className="shrink-0 px-4 pb-3 text-center text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+      <div className="shrink-0 px-4 pb-3 text-center text-[10px] uppercase tracking-kicker text-ink-faint">
         {remaining > 0 && `${remaining} left`}
       </div>
     </main>
@@ -472,7 +472,7 @@ function BucketToggle({
           onClick={() => onChange(b)}
           aria-pressed={bucket === b}
           className={
-            "px-3 py-1 font-mono text-[10px] uppercase tracking-[0.14em] transition-colors duration-150 " +
+            "px-3 py-1 font-mono text-[10px] uppercase tracking-label transition-colors duration-150 " +
             (bucket === b
               ? b === "local"
                 ? "bg-bg-raised text-green"
@@ -585,7 +585,7 @@ function SwipeCard({
     >
       {!behind && drag && Math.abs(drag.x) > 20 && (
         <div
-          className={`absolute top-6 border px-3 py-1 font-mono text-xs uppercase tracking-[0.18em] ${
+          className={`absolute top-6 border px-3 py-1 font-mono text-xs uppercase tracking-kicker ${
             drag.x > 0
               ? "left-6 border-green text-green"
               : "right-6 border-red text-red"
@@ -628,7 +628,7 @@ function SwipeCard({
 
       {job.reasoning && (
         <div className="flex-1 overflow-y-auto pr-1">
-          <div className="mb-2 text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+          <div className="mb-2 text-[10px] uppercase tracking-kicker text-ink-faint">
             Why it matched
           </div>
           <p className="whitespace-pre-wrap text-xs leading-relaxed text-ink-dim">

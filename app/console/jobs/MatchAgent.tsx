@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Btn } from "./components/Button";
 import type { Job } from "../../lib/supabase";
 
 type Message = { role: "user" | "assistant"; content: string };
@@ -216,7 +217,7 @@ export default function MatchAgent({ job, onClose }: { job: Job; onClose: () => 
       >
         <header className="flex items-start justify-between gap-3 border-b border-rule p-4">
           <div className="min-w-0">
-            <div className="mb-0.5 text-[10px] uppercase tracking-[0.18em] text-green">
+            <div className="mb-0.5 text-[10px] uppercase tracking-kicker text-green">
               Match Agent
             </div>
             <h2 className="truncate text-[13px] font-medium text-ink">{job.title}</h2>
@@ -251,7 +252,7 @@ export default function MatchAgent({ job, onClose }: { job: Job; onClose: () => 
 
         {insight && (
           <div className="border-t border-rule bg-bg-card px-4 py-3">
-            <div className="mb-1 text-[10px] uppercase tracking-[0.18em] text-amber">
+            <div className="mb-1 text-[10px] uppercase tracking-kicker text-amber">
               Generalizable preference detected
             </div>
             <p className="mb-2 text-xs text-ink">
@@ -271,19 +272,12 @@ export default function MatchAgent({ job, onClose }: { job: Job; onClose: () => 
                 </span>
               ) : (
                 <>
-                  <button
-                    onClick={saveInsight}
-                    disabled={insightSaving}
-                    className="border border-amber px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-amber transition-colors duration-150 hover:bg-amber hover:text-bg active:duration-0 disabled:opacity-40"
-                  >
+                  <Btn variant="primary" onClick={saveInsight} disabled={insightSaving}>
                     {insightSaving ? "saving…" : "save to profile"}
-                  </button>
-                  <button
-                    onClick={() => setInsight(null)}
-                    className="border border-rule px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-ink-dim transition-colors duration-150 hover:border-amber hover:text-amber active:duration-0"
-                  >
+                  </Btn>
+                  <Btn variant="secondary" onClick={() => setInsight(null)}>
                     dismiss
-                  </button>
+                  </Btn>
                 </>
               )}
               {insightStatus === "error" && insightError && (
@@ -307,13 +301,9 @@ export default function MatchAgent({ job, onClose }: { job: Job; onClose: () => 
             className="flex-1 border border-rule bg-bg px-3 py-2 text-xs text-ink placeholder:text-ink-faint focus:border-amber focus:outline-none"
             disabled={streaming}
           />
-          <button
-            type="submit"
-            disabled={streaming || !input.trim()}
-            className="border border-rule px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] text-ink-dim transition-colors duration-150 hover:border-amber hover:text-amber active:duration-0 disabled:opacity-40"
-          >
+          <Btn type="submit" variant="secondary" disabled={streaming || !input.trim()}>
             send
-          </button>
+          </Btn>
         </form>
       </aside>
     </div>
