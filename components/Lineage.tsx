@@ -79,6 +79,7 @@ export function Lineage() {
           className={`lineage-detail${openPin !== null ? " open" : ""}`}
           role="region"
           aria-live="polite"
+          inert={openPin === null}
         >
           {open && (
             <>

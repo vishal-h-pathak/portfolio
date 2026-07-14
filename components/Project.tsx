@@ -44,7 +44,7 @@ export function Project({
           </span>
         </span>
       </button>
-      <div className="project-body">
+      <div className="project-body" inert={!isOpen}>
         <div className="project-body-inner">
           <div className="project-body-content">
             {project.paragraphs.map((p) => (
