@@ -76,7 +76,7 @@ export default async function SolitonPage() {
         </div>
 
         {(!live || fable.length === 0) && (
-          <aside className="sol-prelaunch">
+          <aside className="sol-prelaunch" aria-label="Pre-launch status">
             <strong>PRE-LAUNCH</strong> — as of {fmtDate(bundle.as_of)}
             {fable.length === 0 ? (
               <>
