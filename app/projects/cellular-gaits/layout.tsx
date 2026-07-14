@@ -1,8 +1,10 @@
 import "katex/dist/katex.min.css";
 import { CgTabNav } from "@/components/cellular-gaits/CgTabNav";
 import { CgBreadcrumb } from "@/components/cellular-gaits/CgBreadcrumb";
+import { bySlug } from "@/content/projects";
 
 const GITHUB_URL = "https://github.com/vishal-h-pathak/cellular-gaits";
+const CG_NUM = bySlug("cellular-gaits")!.num;
 
 /**
  * Shared shell for every Cellular Gaits sub-route: the bench topbar, the
@@ -24,7 +26,7 @@ export default function CellularGaitsLayout({
         <span className="cg-topbar-brand">
           <span className="cg-topbar-brand-name">VISHAL PATHAK</span>
           <span className="cg-topbar-sep" aria-hidden="true">·</span>
-          <span>BENCH · CG-01</span>
+          <span>BENCH · {CG_NUM}</span>
         </span>
       </header>
 
@@ -36,7 +38,7 @@ export default function CellularGaitsLayout({
 
         <footer className="cg-footer">
           <span className="cg-footer-meta">
-            CG-01 · BUILD: SOLO · CLAUDE · CPU · 3 EVENINGS
+            {CG_NUM} · BUILD: SOLO · CLAUDE · CPU · 3 EVENINGS
           </span>
           <span className="cg-footer-links">
             <a

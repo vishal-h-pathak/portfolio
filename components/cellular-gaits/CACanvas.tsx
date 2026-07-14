@@ -110,12 +110,18 @@ export function CACanvas({
       ctx.lineWidth = 1;
       ctx.strokeRect(subX + 0.5, subY + 0.5, subSize - 1, subSize - 1);
 
-      // Channel label (top-left of each subgrid)
-      ctx.fillStyle = "rgba(232, 230, 223, 0.85)";
+      // Channel label (top-left of each subgrid) — the label sits over
+      // whatever cell colors the sim happens to show, so back it with a dark
+      // chip; otherwise a light/near-white cell renders it illegible.
+      const label = CHANNEL_LABELS[ci] ?? `ch${ci}`;
       ctx.font =
         "9.5px ui-monospace, SFMono-Regular, Menlo, monospace";
       ctx.textBaseline = "top";
-      ctx.fillText(CHANNEL_LABELS[ci] ?? `ch${ci}`, subX + 4, subY + 4);
+      const labelW = ctx.measureText(label).width;
+      ctx.fillStyle = "rgba(11, 11, 12, 0.72)";
+      ctx.fillRect(subX + 2, subY + 2, labelW + 6, 13);
+      ctx.fillStyle = "rgba(232, 230, 223, 0.92)";
+      ctx.fillText(label, subX + 5, subY + 4);
     }
   }, [frame, grid, channels, motorCells, size]);
 
