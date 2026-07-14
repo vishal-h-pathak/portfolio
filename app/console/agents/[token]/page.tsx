@@ -1,6 +1,7 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
+import { useState } from "react";
+import { Pill } from "../../components/Pill";
 
 // ── Agent Definitions ─────────────────────────────────────────────────────
 // This is the source of truth for how each agent is configured to operate.
@@ -185,29 +186,33 @@ const AGENTS: AgentConfig[] = [
   },
 ];
 
-// ── Token Validation ──────────────────────────────────────────────────────
-
-const VALID_TOKEN = process.env.NEXT_PUBLIC_AGENT_STATUS_TOKEN || "jarvis-status-2026";
-
 // ── Components ────────────────────────────────────────────────────────────
 
-function StatusBadge({ scheduler }: { scheduler: string }) {
-  const colors: Record<string, string> = {
-    apscheduler: "bg-emerald-900 text-emerald-300 border-emerald-700",
-    manual: "bg-amber-900 text-amber-300 border-amber-700",
-    external: "bg-red-900 text-red-300 border-red-700",
-  };
-  const labels: Record<string, string> = {
-    apscheduler: "Self-scheduling",
-    manual: "Manual trigger",
-    external: "Needs cron/task",
-  };
+const SCHEDULER_TONE = {
+  apscheduler: "live",
+  manual: "attention",
+  external: "failed",
+} as const;
+
+const SCHEDULER_LABEL: Record<AgentConfig["scheduler"], string> = {
+  apscheduler: "Self-scheduling",
+  manual: "Manual trigger",
+  external: "Needs cron/task",
+};
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <span
-      className={`text-xs px-2 py-0.5 rounded border ${colors[scheduler] || "bg-gray-800 text-gray-400 border-gray-700"}`}
-    >
-      {labels[scheduler] || scheduler}
-    </span>
+    <div className="mb-1 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+      {children}
+    </div>
+  );
+}
+
+function CodeChip({ children }: { children: React.ReactNode }) {
+  return (
+    <code className="block border border-rule bg-bg px-2 py-1 text-xs leading-relaxed text-ink-dim">
+      {children}
+    </code>
   );
 }
 
@@ -215,64 +220,55 @@ function AgentCard({ agent }: { agent: AgentConfig }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="border border-neutral-800 rounded-lg bg-neutral-900/50 overflow-hidden">
+    <div className="border border-rule bg-bg-raised">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full text-left p-5 hover:bg-neutral-900/80 transition-colors"
+        aria-expanded={expanded}
+        className="w-full p-5 text-left transition-colors duration-150 hover:bg-bg-card"
       >
-        <div className="flex items-center justify-between mb-2">
+        <div className="mb-2 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <h3 className="text-neutral-100 font-medium text-lg">{agent.name}</h3>
-            <StatusBadge scheduler={agent.scheduler} />
+            <h3 className="text-lg font-medium text-ink">{agent.name}</h3>
+            <Pill tone={SCHEDULER_TONE[agent.scheduler]}>
+              {SCHEDULER_LABEL[agent.scheduler]}
+            </Pill>
           </div>
-          <span className="text-neutral-600 text-sm">{expanded ? "−" : "+"}</span>
+          <span className="text-sm text-ink-faint">{expanded ? "−" : "+"}</span>
         </div>
-        <p className="text-neutral-400 text-sm leading-relaxed">{agent.description}</p>
+        <p className="text-sm leading-relaxed text-ink-dim">{agent.description}</p>
       </button>
 
       {expanded && (
-        <div className="px-5 pb-5 border-t border-neutral-800 pt-4 space-y-5">
+        <div className="space-y-5 border-t border-rule px-5 pb-5 pt-4">
           {/* Quick reference */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <div className="font-mono text-[10px] uppercase tracking-widest text-neutral-500 mb-1">
-                Entry point
-              </div>
-              <code className="text-xs text-neutral-300 bg-neutral-800 px-2 py-1 rounded">
-                {agent.entryPoint}
-              </code>
+              <SectionLabel>Entry point</SectionLabel>
+              <CodeChip>{agent.entryPoint}</CodeChip>
             </div>
             <div>
-              <div className="font-mono text-[10px] uppercase tracking-widest text-neutral-500 mb-1">
-                Directory
-              </div>
-              <code className="text-xs text-neutral-300 bg-neutral-800 px-2 py-1 rounded">
-                {agent.dir}
-              </code>
+              <SectionLabel>Directory</SectionLabel>
+              <CodeChip>{agent.dir}</CodeChip>
             </div>
           </div>
 
           {/* Scheduler info */}
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-neutral-500 mb-2">
-              Scheduling
-            </div>
-            <p className="text-xs text-neutral-400 mb-3">{agent.schedulerNote}</p>
+            <SectionLabel>Scheduling</SectionLabel>
+            <p className="mb-3 text-xs text-ink-dim">{agent.schedulerNote}</p>
 
             <div className="space-y-1.5">
               {agent.jobs.map((job, i) => (
                 <div
                   key={i}
-                  className="flex items-start gap-3 text-xs bg-neutral-800/50 rounded px-3 py-2"
+                  className="flex flex-col gap-1 border border-rule-soft bg-bg px-3 py-2 text-xs sm:flex-row sm:items-start sm:gap-3"
                 >
-                  <span className="text-neutral-200 font-medium min-w-[140px] shrink-0">
+                  <span className="font-medium text-ink sm:min-w-[140px] sm:shrink-0">
                     {job.name}
                   </span>
-                  <span className="text-neutral-400 font-mono">{job.interval}</span>
+                  <span className="font-mono text-ink-dim">{job.interval}</span>
                   {job.note && (
-                    <span className="text-neutral-600 ml-auto shrink-0">
-                      {job.note}
-                    </span>
+                    <span className="text-ink-faint sm:ml-auto">{job.note}</span>
                   )}
                 </div>
               ))}
@@ -281,71 +277,62 @@ function AgentCard({ agent }: { agent: AgentConfig }) {
 
           {/* Dependencies */}
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-neutral-500 mb-2">
-              Dependencies
-            </div>
+            <SectionLabel>Dependencies</SectionLabel>
             <div className="flex flex-wrap gap-2">
               {agent.dependencies.map((dep, i) => (
                 <span
                   key={i}
-                  className={`text-xs px-2 py-1 rounded ${
-                    dep.required
-                      ? "bg-neutral-800 text-neutral-300 border border-neutral-700"
-                      : "bg-neutral-900 text-neutral-500 border border-neutral-800"
-                  }`}
+                  className={
+                    "border px-2 py-1 font-mono text-xs " +
+                    (dep.required
+                      ? "border-rule text-ink-dim"
+                      : "border-dashed border-rule text-ink-faint")
+                  }
                   title={dep.envVar ? `env: ${dep.envVar}` : undefined}
                 >
                   {dep.name}
                   {dep.envVar && (
-                    <span className="text-neutral-600 ml-1 font-mono text-[10px]">
+                    <span className="ml-1 text-[10px] text-ink-faint">
                       ({dep.envVar})
                     </span>
                   )}
-                  {!dep.required && (
-                    <span className="text-neutral-600 ml-1">optional</span>
-                  )}
+                  {!dep.required && <span className="ml-1 text-ink-faint">optional</span>}
                 </span>
               ))}
             </div>
           </div>
 
           {/* Operations */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {[
               { label: "Start", value: agent.howToStart },
               { label: "Stop", value: agent.howToStop },
               { label: "Check status", value: agent.howToCheck },
             ].map((op) => (
               <div key={op.label}>
-                <div className="font-mono text-[10px] uppercase tracking-widest text-neutral-500 mb-1">
-                  {op.label}
-                </div>
-                <code className="text-[11px] text-neutral-400 bg-neutral-800 px-2 py-1.5 rounded block leading-relaxed">
-                  {op.value}
-                </code>
+                <SectionLabel>{op.label}</SectionLabel>
+                <CodeChip>{op.value}</CodeChip>
               </div>
             ))}
           </div>
 
           {/* Process management */}
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-neutral-500 mb-1">
-              Process management
-            </div>
-            <p className="text-xs text-neutral-400">{agent.processManagement}</p>
+            <SectionLabel>Process management</SectionLabel>
+            <p className="text-xs text-ink-dim">{agent.processManagement}</p>
           </div>
 
           {/* Concerns */}
           {agent.concerns.length > 0 && (
             <div>
-              <div className="font-mono text-[10px] uppercase tracking-widest text-amber-500 mb-2">
+              <div className="mb-2 font-mono text-[10px] uppercase tracking-kicker text-amber">
                 Known issues / concerns
               </div>
               <div className="space-y-1.5">
                 {agent.concerns.map((c, i) => (
                   <p
                     key={i}
-                    className="text-xs text-amber-300/70 pl-3 relative before:content-['!'] before:absolute before:left-0 before:text-amber-500"
+                    className="relative pl-3 text-xs text-amber before:absolute before:left-0 before:content-['!']"
                   >
                     {c}
                   </p>
@@ -361,80 +348,55 @@ function AgentCard({ agent }: { agent: AgentConfig }) {
 
 // ── Page ──────────────────────────────────────────────────────────────────
 
-export default function AgentStatusPage({
-  params,
-}: {
-  params: Promise<{ token: string }>;
-}) {
-  const { token } = use(params);
-  const [authorized, setAuthorized] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    setAuthorized(token === VALID_TOKEN);
-  }, [token]);
-
-  if (authorized === null) {
-    return (
-      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
-        <div className="text-neutral-600 font-mono text-sm">Loading...</div>
-      </div>
-    );
-  }
-
-  if (!authorized) {
-    return (
-      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
-        <div className="text-neutral-600 font-mono text-sm">404</div>
-      </div>
-    );
-  }
-
+/**
+ * Agent runbooks — how each background agent is configured to operate.
+ * Middleware already gates the whole /console/** surface (DASHBOARD_PASSWORD),
+ * so this page carries no auth of its own; the [token] path segment is
+ * vanity-only (kept so existing bookmarked runbook links don't 404).
+ */
+export default function AgentStatusPage() {
   return (
-    <main className="min-h-screen bg-neutral-950 text-neutral-200">
-      <div className="mx-auto max-w-3xl px-6 py-16">
-        <div className="mb-8">
-          <p className="font-mono text-xs uppercase tracking-widest text-neutral-500 mb-2">
-            Agent Control Panel
-          </p>
-          <h1 className="text-xl font-medium text-neutral-100 mb-2">
-            Operational Status
-          </h1>
-          <p className="text-sm text-neutral-500">
-            How each agent is configured to run. Update the AGENTS array in
-            this file when you change an agent&apos;s setup.
-          </p>
+    <main className="mx-auto min-h-screen max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
+      <header className="mb-8">
+        <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+          <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-green" />
+          Agent runbooks
         </div>
+        <h1 className="mt-3 font-serif text-2xl tracking-tight text-ink">
+          Operational status
+        </h1>
+        <p className="mt-2 max-w-prose text-sm text-ink-dim">
+          How each agent is configured to run. Update the AGENTS array in
+          this file when you change an agent&apos;s setup.
+        </p>
+      </header>
 
-        {/* Quick status grid */}
-        <div className="grid grid-cols-3 gap-3 mb-8">
-          {AGENTS.map((agent) => (
-            <div
-              key={agent.id}
-              className="bg-neutral-900/50 border border-neutral-800 rounded-lg p-3"
-            >
-              <div className="font-mono text-xs text-neutral-400 mb-1">
-                {agent.name}
-              </div>
-              <StatusBadge scheduler={agent.scheduler} />
-              <div className="mt-2 text-[11px] text-neutral-500">
-                {agent.jobs.length} job{agent.jobs.length !== 1 ? "s" : ""} configured
-              </div>
+      {/* Quick status grid */}
+      <div className="mb-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {AGENTS.map((agent) => (
+          <div key={agent.id} className="border border-rule bg-bg-raised p-3">
+            <div className="mb-1 font-mono text-xs text-ink-dim">{agent.name}</div>
+            <Pill tone={SCHEDULER_TONE[agent.scheduler]}>
+              {SCHEDULER_LABEL[agent.scheduler]}
+            </Pill>
+            <div className="mt-2 text-[11px] text-ink-faint">
+              {agent.jobs.length} job{agent.jobs.length !== 1 ? "s" : ""} configured
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
+      </div>
 
-        {/* Agent cards */}
-        <div className="space-y-4">
-          {AGENTS.map((agent) => (
-            <AgentCard key={agent.id} agent={agent} />
-          ))}
-        </div>
+      {/* Agent cards */}
+      <div className="space-y-4">
+        {AGENTS.map((agent) => (
+          <AgentCard key={agent.id} agent={agent} />
+        ))}
+      </div>
 
-        <div className="mt-12 pt-6 border-t border-neutral-900 text-center">
-          <p className="font-mono text-[10px] text-neutral-700 uppercase tracking-widest">
-            This page is only accessible via direct URL
-          </p>
-        </div>
+      <div className="mt-12 border-t border-rule-soft pt-6 text-center">
+        <p className="font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+          This page is only accessible via the console auth gate
+        </p>
       </div>
     </main>
   );
