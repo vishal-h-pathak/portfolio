@@ -1390,6 +1390,11 @@ export default function MeridianPage() {
   // View switcher bar style. Wrapper chrome (W2/#24): warm site inks instead
   // of the exhibit's cool zinc. No outline:'none' (W2/#17) — the site-wide
   // :focus-visible ink ring now applies to these primary controls.
+  // W7 addendum: `transition: 'all'` was also transitioning the focus-ring's
+  // outline-width in from 0, so a real keyboard Tab (unlike element.focus())
+  // caught it mid-animation at 0px. Name the transitioned properties
+  // explicitly — matching the un-transitioned tab buttons below, whose ring
+  // snaps in immediately — so outline is never interpolated.
   const switcherBtnStyle = (active: boolean): React.CSSProperties => ({
     fontFamily: 'var(--mono)',
     fontSize: 10.5,
@@ -1401,7 +1406,7 @@ export default function MeridianPage() {
     padding: '7px 18px',
     borderRadius: 2,
     cursor: 'pointer',
-    transition: 'all 0.15s',
+    transition: 'background 0.15s, border-color 0.15s, color 0.15s',
   });
 
   return (
