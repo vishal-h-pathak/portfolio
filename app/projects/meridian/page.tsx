@@ -1440,7 +1440,7 @@ export default function MeridianPage() {
       </header>
 
       {/* View render */}
-      <main key={view} className="meridian-fade-in">
+      <main id="main-content" key={view} className="meridian-fade-in">
         {view === 'v2' && <AnalystWorkspace D={D} />}
         {view === 'v3' && <NarrativeScroll D={D} />}
       </main>

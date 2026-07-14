@@ -24,7 +24,7 @@ export default function SolitonLayout({
         </span>
       </header>
 
-      <main className="sol-page">
+      <main id="main-content" className="sol-page">
         {children}
 
         <footer className="sol-footer">

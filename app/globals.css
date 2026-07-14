@@ -834,6 +834,30 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   outline-offset: 2px;
 }
 
+/* ===== SKIP LINK ===== */
+/* Off-screen until focused, first tab stop on every page (WCAG 2.4.1). */
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  transform: translateY(-120%);
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  padding: 12px 20px;
+  border: 1px solid var(--rule);
+  border-top: none;
+  transition: transform 0.15s ease;
+}
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+}
+
 /* ===== NOT FOUND ===== */
 .nf {
   min-height: 100vh;
