@@ -30,6 +30,12 @@
   --amber: #E89B3D;
   --amber-dim: rgba(232, 155, 61, 0.4);
 
+  /* Nav height + intended breathing room below it — measured, not eyeballed.
+     Referenced by scroll-padding-top and the sticky rail so they can't drift
+     apart from the real nav again. */
+  --nav-h: 51px;
+  --nav-gap: 21px;
+
   color-scheme: dark;
 }
 
@@ -37,7 +43,7 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 72px;
+  scroll-padding-top: calc(var(--nav-h) + var(--nav-gap));
 }
 
 body {
@@ -118,13 +124,22 @@ a { color: inherit; text-decoration: none; }
 }
 
 @media (max-width: 900px) {
-  /* Nav wraps to two rows here (~106px); keep anchors clear of it. */
-  html { scroll-padding-top: 112px; }
+  /* Nav still wraps to two rows here — brand row + a single scrollable
+     links row (see .nav-links below) — just shorter than before (measured). */
+  :root { --nav-h: 72px; }
   .nav-inner { padding: 10px 16px; flex-wrap: wrap; gap: 8px; }
   .nav-links {
-    gap: 14px; font-size: 10px; flex-wrap: wrap;
+    gap: 14px; font-size: 10px;
     width: 100%; padding-top: 4px; border-top: 1px solid var(--rule-soft);
+    /* One scrollable row instead of wrapping — a wrapped 2nd row left
+       "§5 CONTACT" orphaned alone and pushed nav height to ~106px. */
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-links a { flex-shrink: 0; }
   .nav-clock { display: none; }
 }
 
@@ -147,9 +162,9 @@ a { color: inherit; text-decoration: none; }
 .notebook { border-right: 1px solid var(--rule); min-width: 0; }
 .rail {
   padding: 56px 32px 96px 32px;
-  position: sticky; top: 72px;
+  position: sticky; top: calc(var(--nav-h) + var(--nav-gap));
   align-self: start;
-  max-height: calc(100vh - 72px);
+  max-height: calc(100vh - var(--nav-h) - var(--nav-gap));
   overflow-y: auto;
   font-family: var(--mono);
 }
@@ -818,6 +833,19 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
     transition: none;
   }
   html { scroll-behavior: auto; }
+}
+
+/* No-JS fallback: the base rule above hides content until Section.tsx's
+   IntersectionObserver adds `.visible`. Without JS that observer never runs,
+   so app/layout.tsx renders a <noscript> style resetting this to visible.
+   Print/raster fallback: full-page screenshots and Cmd+P never scroll
+   sections into view, so force visible there too. */
+@media print {
+  section.nb .margin,
+  section.nb .row > div > * {
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 /* ===== FOCUS RINGS ===== */
