@@ -866,34 +866,8 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
 }
 
 /* ===== CELLULAR GAITS PROJECT PAGE ===== */
-.cg-topbar {
-  position: sticky; top: 0; z-index: 50;
-  background: rgba(11, 11, 12, 0.92);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--rule);
-  display: flex; align-items: center; gap: 16px;
-  padding: 12px 40px;
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.16em;
-}
-.cg-back {
-  color: var(--ink-dim);
-  transition: color 0.15s;
-}
-.cg-back:hover { color: var(--green); }
-.cg-topbar-brand {
-  margin-left: auto;
-  color: var(--ink-faint);
-  display: inline-flex; align-items: center; gap: 10px;
-}
-.cg-topbar-brand-name { color: var(--ink); }
-.cg-topbar-sep { color: var(--ink-faint); }
-@media (max-width: 700px) {
-  .cg-topbar { padding: 10px 16px; font-size: 10px; }
-  .cg-topbar-brand { gap: 6px; }
-}
+/* Topbar + footer live in the shared app/projects/project-shell.css
+   (.proj-topbar/.proj-footer) — see layout.tsx. */
 
 /* Concept tab nav: real links to real routes, active tab from pathname.
    Scrolls horizontally on narrow screens so it never overflows the page.
@@ -2626,31 +2600,6 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   line-height: 1.62;
   margin: 0 0 14px;
   max-width: 66ch;
-}
-
-.cg-footer {
-  margin-top: 64px;
-  padding-top: 22px;
-  border-top: 1px solid var(--rule);
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px;
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--ink-faint);
-  letter-spacing: 0.16em;
-}
-.cg-footer-links {
-  display: inline-flex; align-items: center; gap: 10px;
-}
-.cg-footer-links a {
-  color: var(--ink-dim);
-  transition: color 0.15s;
-}
-.cg-footer-links a:hover { color: var(--green); }
-@media (max-width: 700px) {
-  .cg-footer { flex-direction: column; gap: 6px; }
 }
 
 /* ══ Behaviors group (C2-B) ══════════════════════════════════════════════ */

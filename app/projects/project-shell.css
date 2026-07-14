@@ -1,0 +1,77 @@
+/*
+  Shared shell for every project micro-site (Soliton, Cellular Gaits,
+  Meridian archive) — one topbar + one footer, imported by each segment's
+  layout.tsx. Reconciles the drifted .sol-topbar/.cg-topbar and
+  .sol-footer/.cg-footer forks (padding, z-index, align-items, breakpoint)
+  into one component + one token set (W5/#23, W5/#28). Colors come
+  exclusively from the :root tokens in globals.css.
+*/
+
+/* ── topbar ────────────────────────────────────────────────────────────── */
+
+.proj-topbar {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+  padding: 12px 40px;
+  background: rgba(11, 11, 12, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--ink-dim);
+}
+.proj-back {
+  white-space: nowrap;
+  color: var(--ink-dim);
+  transition: color 0.15s;
+}
+.proj-back:hover { color: var(--green); }
+.proj-topbar-brand {
+  margin-left: auto;
+  color: var(--ink-faint);
+  display: inline-flex; align-items: center; gap: 10px;
+  min-width: 0;
+}
+.proj-topbar-brand-name { color: var(--ink); }
+.proj-topbar-sep { color: var(--ink-faint); }
+
+@media (max-width: 700px) {
+  .proj-topbar { padding: 10px 16px; font-size: 10px; }
+  .proj-topbar-brand { gap: 6px; }
+}
+/* Brand truncates before it wraps: drop the full name under 480px, keep
+   "BENCH · B-0N" (W5/#23 — the two-line wrap on soliton at 390). */
+@media (max-width: 480px) {
+  .proj-topbar-brand-name,
+  .proj-topbar-sep {
+    display: none;
+  }
+}
+
+/* ── footer ────────────────────────────────────────────────────────────── */
+
+.proj-footer {
+  margin-top: 64px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rule);
+  display: flex; justify-content: space-between; flex-wrap: wrap;
+  gap: 8px 16px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--ink-faint);
+}
+.proj-footer-links {
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.proj-footer-links a {
+  color: var(--ink-dim);
+  transition: color 0.15s;
+}
+.proj-footer-links a:hover { color: var(--green); }
+@media (max-width: 700px) {
+  .proj-footer { flex-direction: column; gap: 6px; }
+}
