@@ -51,6 +51,14 @@
 
   --font-mono: var(--mono);
   --font-serif: var(--serif);
+
+  /* Letter-spacing scale — the three values every console tab actually
+     uses (kicker/eyebrow rows, nav/section labels, dense buttons). Every
+     other arbitrary tracking-[…] value on this surface should be one of
+     these three; introducing a fourth is a smell. */
+  --tracking-kicker: 0.18em;
+  --tracking-label: 0.14em;
+  --tracking-btn: 0.12em;
 }
 
 /*

@@ -145,7 +145,7 @@ function CopyButton({ text }: { text: string }) {
         }
       }}
       className={
-        "shrink-0 border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors duration-150 active:duration-0 " +
+        "shrink-0 border px-2 py-0.5 font-mono text-[10px] uppercase tracking-btn transition-colors duration-150 active:duration-0 " +
         (copied
           ? "border-green-dim text-green"
           : "border-rule text-ink-dim hover:border-amber hover:text-amber")
@@ -158,7 +158,7 @@ function CopyButton({ text }: { text: string }) {
 
 function DraftLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+    <div className="text-[10px] uppercase tracking-kicker text-ink-faint">
       {children}
     </div>
   );
@@ -289,7 +289,7 @@ function PrefillScreenshot({ storagePath }: { storagePath: string }) {
 
   return (
     <section className="mb-8">
-      <h2 className="mb-2.5 border-b border-rule-soft pb-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+      <h2 className="mb-2.5 border-b border-rule-soft pb-1.5 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
         Pre-fill screenshot
       </h2>
       <div className="border border-rule bg-bg-raised p-3">
@@ -515,7 +515,7 @@ export default function ReviewDetailPage() {
     return (
       <>
         <DashboardNav />
-        <main className="mx-auto min-h-screen max-w-5xl px-4 py-8 sm:px-8 sm:py-10">
+        <main className="mx-auto min-h-screen max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
           <Skeleton className="mb-6 h-3 w-28" />
           <Skeleton className="mb-2 h-8 w-2/3" />
           <Skeleton className="mb-8 h-4 w-1/3" />
@@ -529,7 +529,7 @@ export default function ReviewDetailPage() {
     return (
       <>
         <DashboardNav />
-        <main className="mx-auto min-h-screen max-w-3xl px-6 py-10">
+        <main className="mx-auto min-h-screen max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
           <Link
             href="/console/jobs/review"
             className="text-xs text-ink-faint transition-colors duration-150 hover:text-ink"
@@ -555,7 +555,7 @@ export default function ReviewDetailPage() {
   return (
     <>
       <DashboardNav />
-      <main className="mx-auto min-h-screen max-w-5xl px-4 py-8 pb-32 sm:px-8 sm:py-10">
+      <main className="mx-auto min-h-screen max-w-6xl px-4 py-8 pb-32 sm:px-8 sm:py-10">
         {/* Back-link STAYS here permanently — breadcrumb context matters
             when users deep-link straight into a specific cockpit. */}
         <Link
@@ -569,7 +569,7 @@ export default function ReviewDetailPage() {
         <header className="mb-6 mt-4">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
-              <h1 className="font-serif text-[26px] leading-tight tracking-tight text-ink">
+              <h1 className="font-serif text-2xl leading-tight tracking-tight text-ink">
                 {job.title}
               </h1>
               <p className="mt-1 text-xs text-ink-dim">
@@ -643,7 +643,7 @@ export default function ReviewDetailPage() {
 
         {/* ── Materials ──────────────────────────────────────────── */}
         <section className="mb-8 space-y-3">
-          <h2 className="border-b border-rule-soft pb-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+          <h2 className="border-b border-rule-soft pb-1.5 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
             Materials
           </h2>
 
@@ -741,7 +741,7 @@ export default function ReviewDetailPage() {
           const markIsPrimary = status === "awaiting_human_submit";
           return (
             <section className="fixed inset-x-0 bottom-0 z-20 border-t border-rule bg-[rgba(11,11,12,0.92)] backdrop-blur-[8px]">
-              <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-2 px-4 py-3 sm:px-8">
+              <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-4 py-3 sm:px-8">
                 <Btn
                   size="md"
                   variant={prefillIsPrimary ? "primary" : "secondary"}

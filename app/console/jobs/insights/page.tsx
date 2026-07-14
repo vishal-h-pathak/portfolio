@@ -20,6 +20,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Btn } from "../components/Button";
 import DashboardNav from "../components/DashboardNav";
 import { Skeleton, SkeletonRows } from "../components/Skeleton";
 import { STATUS_LABEL } from "../lib/lifecycle";
@@ -274,7 +275,7 @@ function aggregateStageSpend(byStage: Record<string, number>): StageSpendRow[] {
 function PanelHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="mb-3">
-      <h3 className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-dim">
+      <h3 className="font-mono text-[10px] uppercase tracking-kicker text-ink-dim">
         {title}
       </h3>
       {subtitle && (
@@ -348,10 +349,11 @@ function RefreshIndicator({
   return (
     <div className="flex items-center gap-1 text-[11px] text-ink-faint">
       <span className="tabular-nums">{label}</span>
-      <button
+      <Btn
+        variant="ghost"
+        className="ml-1"
         onClick={onRefresh}
         disabled={refreshing}
-        className="ml-1 border border-rule px-2 py-1 text-ink-dim transition-colors duration-150 hover:border-amber hover:text-amber disabled:opacity-50"
         title="Refresh now"
         aria-label="Refresh"
         aria-busy={refreshing || undefined}
@@ -361,7 +363,7 @@ function RefreshIndicator({
         ) : (
           "↻"
         )}
-      </button>
+      </Btn>
     </div>
   );
 }
@@ -382,7 +384,7 @@ function KpiTile({
       className="border border-rule bg-bg-raised px-4 py-3"
       style={accent ? { borderLeft: `2px solid ${accent}` } : undefined}
     >
-      <div className="text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+      <div className="text-[10px] uppercase tracking-kicker text-ink-faint">
         {label}
       </div>
       <div className="mt-0.5 text-2xl text-ink tabular-nums">{value}</div>
@@ -683,7 +685,11 @@ export default function InsightsPage() {
       />
       <main className="mx-auto min-h-screen max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
         <header className="mb-6">
-          <h1 className="font-serif text-[26px] tracking-tight text-ink">
+          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-green" />
+            Job pipeline — insights
+          </div>
+          <h1 className="mt-3 font-serif text-2xl tracking-tight text-ink">
             Hunter insights
           </h1>
           <p className="mt-1 text-xs text-ink-dim">
@@ -963,7 +969,7 @@ export default function InsightsPage() {
           </div>
         </Panel>
 
-        <p className="mt-8 text-center text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+        <p className="mt-8 text-center text-[10px] uppercase tracking-kicker text-ink-faint">
           Live from Supabase · {jobs.length} rows · charts deferred for v2:
           dead-link rate
         </p>

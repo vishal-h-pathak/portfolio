@@ -26,7 +26,7 @@ export function AtRiskBanner({ items }: { items: CreditProgress[] }) {
           <span className="text-red tabular-nums">{dollarsCompact(totalGap)}</span>{" "}
           on the line
         </p>
-        <span className="shrink-0 font-mono text-[10px] uppercase tracking-[0.18em] text-red">
+        <span className="shrink-0 font-mono text-[10px] uppercase tracking-kicker text-red">
           window closing
         </span>
       </div>

@@ -523,20 +523,22 @@ export default function BrowseView({
     <main className="mx-auto min-h-screen max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
       <header className="mb-6 flex items-baseline justify-between gap-4">
         <div>
-          <h1 className="font-serif text-[26px] tracking-tight text-ink">
+          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-green" />
+            Job pipeline — register
+          </div>
+          <h1 className="mt-3 font-serif text-2xl tracking-tight text-ink">
             Job register
           </h1>
           <p className="mt-0.5 text-[11px] text-ink-faint tabular-nums">
             {loading ? "loading…" : `${filtered.length} of ${jobs.length} rows`}
           </p>
         </div>
-        <button
-          onClick={() => setShowHelp(true)}
-          className="hidden border border-rule px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-faint transition-colors duration-150 hover:border-amber hover:text-amber sm:block"
-          aria-label="Keyboard shortcuts"
-        >
-          ? keys
-        </button>
+        <span className="hidden sm:block">
+          <Btn variant="ghost" onClick={() => setShowHelp(true)} aria-label="Keyboard shortcuts">
+            ? keys
+          </Btn>
+        </span>
       </header>
 
       <ManualTailorPanel />
@@ -554,7 +556,7 @@ export default function BrowseView({
           className="mb-6 flex flex-wrap items-center justify-between gap-2 border border-blue-dim bg-bg-raised px-3.5 py-2.5"
         >
           <div className="min-w-0">
-            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-blue">
+            <span className="font-mono text-[10px] uppercase tracking-kicker text-blue">
               Submit lane
             </span>
             <span className="ml-2 text-[11px] text-ink-dim tabular-nums">
@@ -695,7 +697,7 @@ export default function BrowseView({
           aria-label="Bulk actions"
           className="sticky top-12 z-20 mb-6 flex flex-wrap items-center gap-2 border border-amber-dim bg-bg-raised px-3 py-2"
         >
-          <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-amber tabular-nums">
+          <span className="font-mono text-[11px] uppercase tracking-label text-amber tabular-nums">
             {selectedJobs.length} selected
           </span>
           <Btn
@@ -878,7 +880,7 @@ function Field({
 }) {
   return (
     <label className={`flex flex-col gap-1 ${className ?? ""}`}>
-      <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-ink-faint">
+      <span className="font-mono text-[9px] uppercase tracking-kicker text-ink-faint">
         {label}
       </span>
       {children}
@@ -945,7 +947,7 @@ function SectionHeading({
   tone?: "attention";
 }) {
   return (
-    <h2 className="mb-2.5 flex items-baseline gap-2 border-b border-rule-soft pb-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+    <h2 className="mb-2.5 flex items-baseline gap-2 border-b border-rule-soft pb-1.5 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
       <span className={tone === "attention" && count > 0 ? "text-amber" : undefined}>
         {label}
       </span>

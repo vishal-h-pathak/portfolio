@@ -321,7 +321,7 @@ export default function RunsPanel() {
   return (
     <section className="mb-6 border border-rule bg-bg-raised p-3.5">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+        <h2 className="font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
           Pipeline runs
         </h2>
         <div className="flex items-center gap-1.5">
@@ -382,7 +382,7 @@ export default function RunsPanel() {
               <li key={r.id} className="py-1.5">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-2">
-                    <span className="w-14 shrink-0 font-mono text-[10px] uppercase tracking-[0.12em] text-ink-dim">
+                    <span className="w-14 shrink-0 font-mono text-[10px] uppercase tracking-btn text-ink-dim">
                       {r.kind}
                     </span>
                     <RunStatusBadge status={r.status} />
@@ -470,7 +470,7 @@ export default function RunsPanel() {
                   <div className="ml-16 mr-2 mt-2 space-y-2">
                     {r.failure_reason && (
                       <div className="border border-red-dim px-3 py-2">
-                        <div className="mb-1 text-[10px] uppercase tracking-[0.18em] text-red">
+                        <div className="mb-1 text-[10px] uppercase tracking-kicker text-red">
                           Failure reason
                         </div>
                         <p className="whitespace-pre-wrap break-words text-[11px] leading-relaxed text-ink-dim">
@@ -480,7 +480,7 @@ export default function RunsPanel() {
                     )}
                     {r.log_excerpt && (
                       <div className="border border-rule bg-bg px-3 py-2">
-                        <div className="mb-1 text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+                        <div className="mb-1 text-[10px] uppercase tracking-kicker text-ink-faint">
                           Log excerpt
                         </div>
                         <pre className="max-h-48 overflow-y-auto whitespace-pre-wrap break-words text-[11px] leading-relaxed text-ink-dim">
@@ -495,7 +495,7 @@ export default function RunsPanel() {
           })}
         </ul>
         <div className="mt-2 flex items-center justify-between border-t border-rule-soft pt-2">
-          <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
+          <span className="font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
             visible spend
           </span>
           <span className="tabular-nums text-[11px] text-ink">

@@ -79,7 +79,7 @@ export function CategoryBar({ data }: { data: Row[] }) {
 
   return (
     <section className="border border-rule bg-bg-raised p-4">
-      <h3 className="mb-1 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-dim">
+      <h3 className="mb-1 font-mono text-[10px] uppercase tracking-kicker text-ink-dim">
         Captured by category
       </h3>
       <p className="mb-3 text-[11px] text-ink-faint">
