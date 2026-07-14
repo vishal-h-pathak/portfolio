@@ -52,7 +52,7 @@ body {
 }
 
 a { color: inherit; text-decoration: none; }
-.page button { font: inherit; color: inherit; background: none; border: none; padding: 0; cursor: pointer; text-align: left; }
+.page button { font: inherit; color: inherit; background: none; cursor: pointer; text-align: left; }
 
 ::selection { background: var(--ink); color: var(--bg); }
 
@@ -464,19 +464,25 @@ h2 {
 .project-head {
   width: 100%;
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr) auto;
+  /* Right column is a fixed width (not auto) so the title column is the same
+     width on every row — an auto column resizes per-row to that row's own
+     pill/date text length, which put a different title-column width (and a
+     different truncation point) on every card. */
+  grid-template-columns: 48px minmax(0, 1fr) 290px;
   gap: 16px;
   padding: 16px 20px;
   align-items: center;
+  border: none;
 }
 .project .num {
   font-family: var(--mono);
   font-size: 11px;
   letter-spacing: 0.16em;
   color: var(--ink-faint);
+  white-space: nowrap;
 }
 .project .ttl {
-  display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+  display: flex; flex-direction: column; gap: 4px;
   min-width: 0;
 }
 .project .ttl .name {
@@ -485,6 +491,11 @@ h2 {
   font-style: italic;
   color: var(--ink);
   transition: color 0.2s;
+  display: block;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .project:hover .ttl .name { color: var(--amber); }
 .project .ttl .one-liner {
@@ -492,8 +503,13 @@ h2 {
   font-size: 11px;
   color: var(--ink-dim);
   letter-spacing: 0.12em;
+  display: block;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.project .right { display: flex; align-items: center; gap: 12px; }
+.project .right { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
 .pill {
   font-family: var(--mono);
   font-size: 10px;
@@ -529,11 +545,16 @@ h2 {
 .project.open .chev { transform: rotate(90deg); color: var(--amber); }
 
 .project-body {
-  max-height: 0; overflow: hidden;
-  transition: max-height 0.4s ease;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s ease;
 }
-.project.open .project-body { max-height: 700px; }
+.project.open .project-body { grid-template-rows: 1fr; }
 .project-body-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+.project-body-content {
   padding: 16px 24px 22px 84px;
   border-top: 1px solid var(--rule-soft);
 }
@@ -561,7 +582,22 @@ h2 {
   color: var(--ink);
   letter-spacing: 0.06em;
 }
-.project-meta .build .v { color: var(--amber); }
+.project-build {
+  margin-top: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule-soft);
+  font-family: var(--mono);
+}
+.project-build .k {
+  font-size: 10px; letter-spacing: 0.18em;
+  color: var(--ink-faint);
+  margin-bottom: 4px;
+}
+.project-build .v {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--amber);
+}
 .project-actions {
   margin-top: 16px;
   display: flex; gap: 10px; flex-wrap: wrap;
@@ -581,10 +617,14 @@ h2 {
 .btn.primary { border-color: var(--amber); color: var(--amber); }
 .btn.primary:hover { background: var(--amber); color: var(--bg); }
 
-@media (max-width: 700px) {
-  .project-head { grid-template-columns: 28px 1fr; padding: 14px 16px; }
-  .project-head .right { grid-column: 1 / -1; padding-top: 6px; }
-  .project-body-inner { padding: 14px 16px 18px; }
+/* Below this width the notebook column still reserves 160px for margin
+   notes (the .row breakpoint is 700px), so the 3-column head has too little
+   room left for the title even with a fixed-width right column — stack
+   title-over-status instead of cramming three columns in. */
+@media (max-width: 900px) {
+  .project-head { grid-template-columns: max-content minmax(0, 1fr); padding: 14px 16px; }
+  .project-head .right { grid-column: 1 / -1; padding-top: 6px; justify-content: flex-end; }
+  .project-body-content { padding: 14px 16px 18px; }
 }
 
 /* ===== CONTACT ===== */

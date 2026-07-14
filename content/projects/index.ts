@@ -16,8 +16,9 @@ import { thisSite } from "./this-site";
 
 export * from "./schema";
 
-// Canonical order — matches the original single-file registry exactly
-// (soliton inherits meridian's B-01 slot).
+// Array order is the display order and must match ascending `num` plates
+// (enforced below) — soliton inherits meridian's B-01 slot, "This site"
+// stays the closing B-06 entry.
 const RAW: Project[] = [soliton, papercuts, jobPipeline, cellularGaits, fleetControlSystem, thisSite];
 
 // Build-time integrity guard. Plain TS (no zod in the client bundle): runs at
@@ -29,7 +30,7 @@ function assertRegistry(projects: Project[]): Project[] {
   const seenSlugs = new Set<string>();
   const seenNums = new Set<string>();
 
-  for (const p of projects) {
+  projects.forEach((p, i) => {
     if (!NUM_RE.test(p.num)) {
       throw new Error(
         `[content/projects] malformed num "${p.num}" on "${p.slug}" — expected /^B-\\d{2}$/`,
@@ -46,9 +47,15 @@ function assertRegistry(projects: Project[]): Project[] {
     if (seenNums.has(p.num)) {
       throw new Error(`[content/projects] duplicate num "${p.num}"`);
     }
+    const expectedNum = `B-${String(i + 1).padStart(2, "0")}`;
+    if (p.num !== expectedNum) {
+      throw new Error(
+        `[content/projects] out-of-order num "${p.num}" on "${p.slug}" at position ${i} — expected "${expectedNum}" (array order must match ascending num)`,
+      );
+    }
     seenSlugs.add(p.slug);
     seenNums.add(p.num);
-  }
+  });
 
   return projects;
 }

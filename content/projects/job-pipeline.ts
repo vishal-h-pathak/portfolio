@@ -23,7 +23,6 @@ export const jobPipeline: Project = {
   ],
   meta: [
     { key: "STACK", value: "Python · LLM · scrapers" },
-    { key: "STATUS", value: "WIP · v0 dogfood" },
     { key: "BUILD", value: "Solo · Claude · ongoing", build: true },
   ],
   actions: [

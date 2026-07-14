@@ -1,7 +1,7 @@
 import type { Project } from "./schema";
 
 export const fleetControlSystem: Project = {
-  num: "B-06",
+  num: "B-05",
   slug: "fleet-control-system",
   tier: "project",
   domain: "tooling",
@@ -26,7 +26,6 @@ export const fleetControlSystem: Project = {
   ],
   meta: [
     { key: "STACK", value: "Node · Supabase (RLS · edge fns) · Tailscale · Next" },
-    { key: "STATUS", value: "P0 live · dashboard WIP" },
     { key: "BUILD", value: "Solo · Claude · ongoing", build: true },
   ],
   actions: [

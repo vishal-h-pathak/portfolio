@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { PROJECTS } from "@/content/projects";
+import { useEscapeToClose } from "@/lib/useEscapeToClose";
 import { Margin } from "./Margin";
 import { Project } from "./Project";
 import { Section } from "./Section";
@@ -15,16 +16,7 @@ export function Bench({ updatedMap }: BenchProps) {
   const [openProjects, setOpenProjects] = useState<Set<string>>(new Set());
 
   // Esc collapses all open project cards.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement | null)?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA") return;
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.key === "Escape" && openProjects.size > 0) setOpenProjects(new Set());
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [openProjects]);
+  useEscapeToClose(openProjects.size > 0, () => setOpenProjects(new Set()));
 
   const toggle = (num: string) => {
     setOpenProjects((prev) => {
@@ -57,7 +49,7 @@ export function Bench({ updatedMap }: BenchProps) {
           <div className="eyebrow amber">§ 4 &nbsp;·&nbsp; BENCH</div>
           <h2>Bench</h2>
         </div>
-        <div className="status amber">5 projects</div>
+        <div className="status amber">{PROJECTS.length} projects</div>
       </div>
       <p className="bench-intro">
         Personal projects, built independently of GTRI.

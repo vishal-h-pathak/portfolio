@@ -21,12 +21,12 @@ export function ExperienceEntry({ role }: { role: Role }) {
           {role.start} – {role.end === "now" ? "present" : role.end} ·{" "}
           {role.location}
         </div>
-        {role.paragraphs.map((para, i) => (
-          <p key={i}>{para}</p>
+        {role.paragraphs.map((para) => (
+          <p key={para}>{para}</p>
         ))}
         <div className="exp-meta">
-          {role.meta.map((m, i) => (
-            <div key={i}>
+          {role.meta.map((m) => (
+            <div key={m.key}>
               <div className="k">{m.key}</div>
               <div className="v">{m.value}</div>
             </div>

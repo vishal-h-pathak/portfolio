@@ -16,11 +16,11 @@ export function Project({
   isOpen,
   onToggle,
 }: ProjectProps) {
+  const infoMeta = project.meta.filter((m) => !m.build);
+  const buildMeta = project.meta.find((m) => m.build);
+
   return (
-    <article
-      className={`project${isOpen ? " open" : ""}`}
-      data-proj={project.title.toLowerCase().replace(/\s+/g, "")}
-    >
+    <article className={`project${isOpen ? " open" : ""}`}>
       <button
         type="button"
         className="project-head"
@@ -33,6 +33,9 @@ export function Project({
           <span className="one-liner">{project.oneLiner}</span>
         </span>
         <span className="right">
+          <span className={`pill ${project.status}`}>
+            {project.statusLabel}
+          </span>
           {updatedLabel ? (
             <span className="updated">{updatedLabel}</span>
           ) : null}
@@ -43,26 +46,34 @@ export function Project({
       </button>
       <div className="project-body">
         <div className="project-body-inner">
-          {project.paragraphs.map((p, i) => (
-            <p key={i} className={p.dim ? "dim" : undefined}>
-              {p.text}
-            </p>
-          ))}
-          <div className="project-meta">
-            {project.meta.map((m, i) => (
-              <div key={i} className={m.build ? "build" : undefined}>
-                <div className="k">{m.key}</div>
-                <div className="v">{m.value}</div>
-              </div>
+          <div className="project-body-content">
+            {project.paragraphs.map((p) => (
+              <p key={p.text} className={p.dim ? "dim" : undefined}>
+                {p.text}
+              </p>
             ))}
-          </div>
-          {project.actions.length > 0 && (
-            <div className="project-actions">
-              {project.actions.map((a, i) => (
-                <ActionBtn key={i} action={a} />
+            <div className="project-meta">
+              {infoMeta.map((m) => (
+                <div key={m.key}>
+                  <div className="k">{m.key}</div>
+                  <div className="v">{m.value}</div>
+                </div>
               ))}
             </div>
-          )}
+            {buildMeta && (
+              <div className="project-build">
+                <div className="k">{buildMeta.key}</div>
+                <div className="v">{buildMeta.value}</div>
+              </div>
+            )}
+            {project.actions.length > 0 && (
+              <div className="project-actions">
+                {project.actions.map((a) => (
+                  <ActionBtn key={a.href} action={a} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </article>

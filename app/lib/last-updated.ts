@@ -35,13 +35,11 @@ export async function getLastUpdated(repo: string): Promise<Date | null> {
   }
 }
 
-// Relative + plain, no clock: `updated 3d ago`, `updated 2w ago`, else
-// `updated Mon YYYY`. Pure so it can be unit-tested / called server-side.
-export function formatUpdatedLabel(date: Date, now: Date = new Date()): string {
-  const days = Math.floor((now.getTime() - date.getTime()) / 86_400_000);
-  if (days < 1) return "updated today";
-  if (days < 7) return `updated ${days}d ago`;
-  if (days < 28) return `updated ${Math.floor(days / 7)}w ago`;
+// Always `updated Mon YYYY` — same grammar as formatUpdatedFallback below, so
+// the bench list reads as one ledger regardless of which projects' GitHub
+// fetches resolve (a relative "3d ago" here next to an absolute fallback
+// elsewhere in the same list was the bug: two grammars for one field).
+export function formatUpdatedLabel(date: Date): string {
   return `updated ${monthYear(date)}`;
 }
 
