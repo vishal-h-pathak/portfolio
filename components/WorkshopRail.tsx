@@ -18,7 +18,7 @@ export async function WorkshopRail() {
 
   return (
     <aside className="rail" aria-label="Workshop status">
-      <div className="rail-block">
+      <div className={`rail-block${hasFleet ? "" : " is-empty"}`}>
         <h3>// fleet</h3>
         {hasFleet ? (
           <>
@@ -46,7 +46,7 @@ export async function WorkshopRail() {
           </div>
         )}
       </div>
-      <div className="rail-block">
+      <div className={`rail-block${hasData ? "" : " is-empty"}`}>
         <h3>
           // model spend <span className="small">7d</span>
         </h3>

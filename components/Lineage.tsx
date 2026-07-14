@@ -33,7 +33,7 @@ export function Lineage() {
       margin={
         <Margin
           blocks={[
-            { label: "§ 2", body: "LINEAGE" },
+            { label: "§ 2", body: "LINEAGE", hideOnMobile: true },
             {
               label: "NOTE",
               body: "The arc is neuromorphic hardware, then embedded ML, then agents. Same instinct — let the substrate do the work — on different stacks.",

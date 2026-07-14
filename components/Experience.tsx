@@ -10,7 +10,7 @@ export function Experience() {
       margin={
         <Margin
           blocks={[
-            { label: "§ 3", body: "EXPERIENCE" },
+            { label: "§ 3", body: "EXPERIENCE", hideOnMobile: true },
             {
               label: "NOTE",
               body: "Professional experience, most recent first.",

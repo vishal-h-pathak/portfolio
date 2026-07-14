@@ -11,6 +11,13 @@ export type Role = {
   meta: RoleMeta[];
 };
 
+// Single source of truth for date-range formatting so the two on-page
+// renderings (marginalia and inline tenure line) can't drift in dash or
+// "now" wording.
+export function formatDateRange(start: string, end: string): string {
+  return `${start} – ${end === "now" ? "present" : end}`;
+}
+
 export const EXPERIENCE: Role[] = [
   {
     start: "2018",
@@ -38,14 +45,14 @@ export const EXPERIENCE: Role[] = [
     end: "2018",
     title: "Hardware Engineer",
     org: "Rain Neuromorphics",
-    location: "employee #5 · age 19",
+    location: "Gainesville, FL",
     paragraphs: [
       "Joined as employee #5 at 19. Hand-assembled physical analog neuron circuits — memristive devices wired as LIF neurons on PCBs — and brought up the test rigs that drove them. The first time I held a working spike on a scope. Still the cleanest lesson I’ve had in how much physics a circuit will quietly do for you if you let it.",
     ],
     meta: [
       { key: "WORK", value: "Memristive LIF neurons · PCB bring-up" },
       { key: "STACK", value: "Memristive HW · KiCad · scope-driven debug" },
-      { key: "TAG", value: "first job · age 19" },
+      { key: "TAG", value: "employee #5 · age 19" },
     ],
   },
 ];
