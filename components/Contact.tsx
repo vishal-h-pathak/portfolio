@@ -9,7 +9,7 @@ export function Contact() {
       margin={
         <Margin
           blocks={[
-            { label: "§ 5", body: "CONTACT" },
+            { label: "§ 5", body: "CONTACT", hideOnMobile: true },
             { label: "REPLY", body: "within 48h" },
           ]}
         />

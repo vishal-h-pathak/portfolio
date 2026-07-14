@@ -4,6 +4,9 @@ type MarginBlock = {
   label?: string;
   body: ReactNode;
   dim?: boolean;
+  // True when this block just repeats the section's own eyebrow (e.g. "§ 4 · BENCH")
+  // — redundant once the margin column collapses into the main flow on mobile.
+  hideOnMobile?: boolean;
 };
 
 type MarginProps = {
@@ -18,7 +21,16 @@ export function Margin({ blocks }: MarginProps) {
   return (
     <aside className="margin">
       {blocks.map((block, i) => (
-        <div key={i} className={block.dim ? "block dim" : "block"}>
+        <div
+          key={i}
+          className={[
+            "block",
+            block.dim && "dim",
+            block.hideOnMobile && "mobile-hide",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
           {block.label && <span className="label">{block.label}</span>}
           {block.body}
         </div>

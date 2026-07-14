@@ -34,7 +34,7 @@ export function Bench({ updatedMap }: BenchProps) {
       margin={
         <Margin
           blocks={[
-            { label: "§ 4", body: "BENCH" },
+            { label: "§ 4", body: "BENCH", hideOnMobile: true },
             {
               label: "WHAT",
               body: "Tools I build end-to-end, solo, with agentic workflows.",

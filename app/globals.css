@@ -192,6 +192,9 @@ section.nb { border-bottom: 1px solid var(--rule); }
   .row { grid-template-columns: 1fr; gap: 18px; padding: 40px 20px; }
   .margin { display: flex; flex-wrap: wrap; gap: 16px; }
   .margin .block { margin-bottom: 0; flex: 0 1 auto; }
+  /* The identity block ("§ N · NAME") just repeats the section's own eyebrow
+     once the margin column collapses into the main flow — drop the repeat. */
+  .margin .block.mobile-hide { display: none; }
 }
 
 /* ===== TYPE ===== */
