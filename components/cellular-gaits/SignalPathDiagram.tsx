@@ -31,8 +31,8 @@ import {
   type ReactNode,
 } from "react";
 
-const GREEN = "#6FE39A";
-const SUB = "#8C8B83";
+const GREEN = "var(--green)";
+const SUB = "var(--ink-dim)";
 
 // One panel coordinate system; the <svg> scales to fill its container. Block
 // fractions (x/W, y/H) map linearly onto the container for popout positioning.

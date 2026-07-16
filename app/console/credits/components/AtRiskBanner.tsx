@@ -26,7 +26,7 @@ export function AtRiskBanner({ items }: { items: CreditProgress[] }) {
           <span className="text-red tabular-nums">{dollarsCompact(totalGap)}</span>{" "}
           on the line
         </p>
-        <span className="shrink-0 font-mono text-[10px] uppercase tracking-kicker text-red">
+        <span className="shrink-0 font-mono text-meta uppercase tracking-kicker text-red">
           window closing
         </span>
       </div>
@@ -34,7 +34,7 @@ export function AtRiskBanner({ items }: { items: CreditProgress[] }) {
         {items.map((p) => (
           <li
             key={p.credit.creditId}
-            className="flex items-baseline justify-between gap-3 text-[12px]"
+            className="flex items-baseline justify-between gap-3 text-ui"
           >
             <span className="truncate text-ink-dim">{p.credit.name}</span>
             <span className="shrink-0 tabular-nums text-ink-faint">

@@ -1,0 +1,190 @@
+/*
+  ═══════════════════════════════════════════════════════════════════════════
+  THE TOKEN LAYER — REFACTOR_PLAN Step 3.
+  The single source of truth for every color, size, tracking, gutter and
+  container width on the site. Imported first by app/globals.css, so every
+  other stylesheet (globals, project-shell, soliton, _internal) can consume
+  these and nothing else.
+
+  Rules of the road:
+    - No raw hex outside this file. Tints are color-mix() of a token, never
+      a hand-recomputed rgba().
+    - No new font-size / letter-spacing values: pick a step off the ramps
+      below. Introducing a 4th tracking step or an 11th text step is a smell.
+    - lib/tokens.ts mirrors the palette for the contexts that cannot read a
+      CSS variable (canvas 2D, Satori OG images). scripts/check-tokens.mjs
+      fails the build if the two drift apart.
+  ═══════════════════════════════════════════════════════════════════════════
+*/
+
+:root {
+  /* ── Type families — wired to next/font variables defined in app/layout.tsx */
+  --serif: var(--font-source-serif), Georgia, serif;
+  --mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* ── Surfaces ─────────────────────────────────────────────────────────── */
+  --bg: #0b0b0c;
+  --bg-raised: #101012;
+  --bg-card: #14130f;
+  /* The pure-black field the connectome cloud blooms against (it needs to go
+     darker than --bg so the additive glow reads). Was a bare #050507 x3. */
+  --bg-deep: #050507;
+
+  /* ── Ink ──────────────────────────────────────────────────────────────── */
+  --ink: #e8e6df;
+  --ink-dim: #8c8b83;
+  /* Invariant: clears WCAG AA (4.5:1) on EVERY surface above, not just --bg.
+     Was #7E7A6D, which held that promise only against --bg (4.58:1) and
+     quietly broke it on --bg-raised (4.43) and --bg-card (4.33) — the two
+     surfaces every card and panel actually uses. Now 4.94 / 4.77 / 4.67
+     on --bg / --bg-raised / --bg-card. See W6/#15. */
+  --ink-faint: #828071;
+
+  /* ── Rules ────────────────────────────────────────────────────────────── */
+  --rule: color-mix(in srgb, var(--ink) 12%, transparent);
+  --rule-soft: color-mix(in srgb, var(--ink) 6%, transparent);
+
+  /* ── Accents — green = research/live, amber = bench/build ─────────────── */
+  --green: #6fe39a;
+  --green-dim: color-mix(in srgb, var(--green) 40%, transparent);
+  --amber: #e89b3d;
+  --amber-dim: color-mix(in srgb, var(--amber) 40%, transparent);
+  /* --signal-onset was a bare #F2683C x8: the looming-threat / avoid-drive hue,
+     deliberately hotter than --amber. */
+  --signal-onset: #f2683c;
+
+  /* ONE red. There were three: #E36F6F (--chaos, declared in a second :root
+     halfway down globals.css), #E0655B (the cockpit's "failed" tone, declared
+     in _internal.css) and #ef4444 (meridian) — two of which shipped on public
+     surfaces at once. The cockpit's value wins because it is the one that was
+     measured against --bg for 4.5:1. Red is a STATUS/DATA color, not a third
+     accent: the accent system is still exactly green (research/live) and amber
+     (bench/build).
+
+     Meridian keeps its own #ef4444 — that page is an archived exhibit that
+     reproduces the retired dashboard's own palette, and its contrast was tuned
+     against its own #0a0a0a ground in W2/#16. Re-theming it onto site tokens
+     would falsify the archive. */
+  --red: #e0655b;
+  --red-dim: color-mix(in srgb, var(--red) 40%, transparent);
+  /* Semantic alias — the criticality playground's "chaotic regime" reads in the
+     same red as a failure, because that is what it is. */
+  --chaos: var(--red);
+
+  /* ── Tints ────────────────────────────────────────────────────────────── *
+     Every wash over a surface is a color-mix of the token it tints, so
+     retheming an accent carries its tints with it. The alphas below are the
+     ones the codebase actually used (as hand-recomputed rgba literals). */
+  --ink-wash: color-mix(in srgb, var(--ink) 3%, transparent);
+  --ink-wash-soft: color-mix(in srgb, var(--ink) 1.5%, transparent);
+  --green-wash: color-mix(in srgb, var(--green) 6%, transparent);
+  --green-wash-strong: color-mix(in srgb, var(--green) 12%, transparent);
+  --amber-wash: color-mix(in srgb, var(--amber) 4%, transparent);
+  /* Code/inline-literal chip background — was rgba(232,230,223,0.06) x7. */
+  --code-bg: color-mix(in srgb, var(--ink) 6%, transparent);
+
+  /* ── Sticky-bar scrim ─────────────────────────────────────────────────── *
+     One recipe for every bar that pins to the top (.nav, .cg-tabnav,
+     .proj-topbar) — was copy-pasted three times. */
+  --scrim: color-mix(in srgb, var(--bg) 92%, transparent);
+  --scrim-blur: blur(8px);
+
+  /* ── Type ramp ────────────────────────────────────────────────────────── *
+     Role-named, not t-shirt-named, on purpose: the register runs two voices
+     (dense mono microcopy, serif prose) and the step you want is decided by
+     the ROLE of the text, not by an abstract size. It also means the console
+     can mirror these into @theme without colliding with (and silently
+     re-sizing) Tailwind's own text-xs/text-sm/... defaults, which 90+ console
+     elements already rely on.
+
+       micro  9px   sub-labels inside dense readouts
+       meta   10px  keys, timestamps, captions, pill text
+       label  11px  THE mono label voice — nav, eyebrows, section keys
+       ui     12px  buttons, tabs, interactive microcopy
+       note   13px  short explanatory lines
+       cap    14px  captions and secondary prose
+       lede   15px  section ledes, card prose
+       prose  17px  body copy
+
+     Displays are fluid; all three page titles share ONE formula (W6/#12) so a
+     sub-project page can't out-shout the site's own thesis. */
+  --text-micro: 9px;
+  --text-meta: 10px;
+  --text-label: 11px;
+  --text-ui: 12px;
+  --text-note: 13px;
+  --text-cap: 14px;
+  --text-lede: 15px;
+  --text-body: 16px;
+  --text-prose: 17px;
+  --text-lead: 19px;      /* project-page pitch, oversized glyphs */
+  --text-title-sm: 20px;  /* inline card titles (lineage pins) */
+  --text-title: 22px;     /* bench card names, the contact address */
+  --text-metric: 26px;    /* the one big live readout number */
+
+  --text-h3: clamp(20px, 0.8vw + 14px, 24px);
+  --text-h2: clamp(24px, 1.4vw + 16px, 30px);
+  --text-display: clamp(34px, 3vw + 20px, 56px);
+
+  --leading-display: 1.08;
+  --leading-prose: 1.62;
+
+  /* ── Tracking ramp ────────────────────────────────────────────────────── *
+     Mono runs wide, serif runs tight. Named by role; the five "label voice"
+     steps below are the ones to reach for — the sub-0.1em steps exist for
+     running mono text where wide tracking would hurt legibility. */
+  --tracking-display: -0.02em;
+  --tracking-h2: -0.012em;
+  --tracking-serif: -0.01em;
+
+  --tracking-code: 0.02em;   /* running mono: code, captions, verbatim */
+  --tracking-cap: 0.04em;    /* mono captions and readouts */
+  --tracking-data: 0.06em;   /* tabular values, dense rows */
+  --tracking-meta: 0.08em;   /* breadcrumbs, small keys */
+  --tracking-key: 0.1em;     /* metadata keys */
+  --tracking-btn: 0.12em;    /* dense buttons */
+  --tracking-label: 0.14em;  /* section labels, nav-adjacent */
+  --tracking-nav: 0.16em;    /* nav links, status chips, pills */
+  --tracking-kicker: 0.18em; /* kickers, k-labels */
+  --tracking-wide: 0.2em;    /* project-page kickers + section heads, nav clock */
+  --tracking-widest: 0.22em; /* eyebrows — the widest voice on the site */
+
+  /* ── Gutter ───────────────────────────────────────────────────────────── *
+     ONE horizontal padding for every full-width bar, so the nav, the section
+     rows, the rail and the footer share a left edge at every viewport. Was
+     four-plus magic paddings that agreed at no width (W6/#19). Redefined,
+     not overridden per-component: consumers only ever say var(--gutter). */
+  --gutter: 20px;
+
+  /* ── Containers ───────────────────────────────────────────────────────── *
+     --w-page  chrome that spans the full site (nav, .page grid, footer)
+     --w-prose the reading column every project micro-site centers on. One
+               measure, so navigating landing → soliton → cellular-gaits stops
+               moving the text column sideways (W6/#25). Landing stays
+               left-anchored inside --w-page by design — that asymmetry is a
+               choice; 920-vs-980-vs-1080 was not. */
+  --w-page: 1480px;
+  --w-prose: 920px;
+
+  /* ── Breakpoints ──────────────────────────────────────────────────────── *
+     CSS can't interpolate a custom property into a media query, so these are
+     documented constants, not live tokens. THE ONLY FOUR. Every @media in the
+     codebase uses one of them — the old 720/760/640 near-duplicates are gone
+     (they left the CG shell in desktop mode while half its modules had already
+     collapsed — W6/#29).
+
+       --bp-rail   1180px  workshop rail drops below the notebook column
+       --bp-nav     900px  nav wraps to two rows; bench cards restack
+       --bp-stack   800px  two-column module content stacks
+       --bp-mobile  700px  the phone layout: single column, --gutter shrinks
+
+     Three content-driven exceptions survive, each justified where it is used:
+     560px (3-up clip grids), 480px (topbar brand truncation, sensor overlay),
+     460px (fitness-anatomy row wrap). Do not add a fifth global breakpoint. */
+}
+
+@media (min-width: 701px) {
+  :root {
+    --gutter: 40px;
+  }
+}

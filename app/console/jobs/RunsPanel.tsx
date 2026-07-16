@@ -321,7 +321,7 @@ export default function RunsPanel() {
   return (
     <section className="mb-6 border border-rule bg-bg-raised p-3.5">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+        <h2 className="font-mono text-meta uppercase tracking-kicker text-ink-faint">
           Pipeline runs
         </h2>
         <div className="flex items-center gap-1.5">
@@ -357,7 +357,7 @@ export default function RunsPanel() {
       {!loaded ? (
         <SkeletonRows rows={3} rowClassName="h-7" />
       ) : visibleRuns.length === 0 ? (
-        <p className="text-[11px] text-ink-faint">
+        <p className="text-label text-ink-faint">
           {runs.length === 0
             ? "No runs yet — run hunt to start."
             : "All runs cleared from this view."}
@@ -382,20 +382,20 @@ export default function RunsPanel() {
               <li key={r.id} className="py-1.5">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-2">
-                    <span className="w-14 shrink-0 font-mono text-[10px] uppercase tracking-btn text-ink-dim">
+                    <span className="w-14 shrink-0 font-mono text-meta uppercase tracking-btn text-ink-dim">
                       {r.kind}
                     </span>
                     <RunStatusBadge status={r.status} />
                     {r.failure_reason && !expanded && (
                       <span
-                        className="truncate text-[10px] text-red"
+                        className="truncate text-meta text-red"
                         title={r.failure_reason}
                       >
                         {r.failure_reason}
                       </span>
                     )}
                   </div>
-                  <div className="flex shrink-0 items-center gap-2 text-[11px] text-ink-faint">
+                  <div className="flex shrink-0 items-center gap-2 text-label text-ink-faint">
                     {(() => {
                       const cost = costOf(r);
                       if (cost === null) {
@@ -470,20 +470,20 @@ export default function RunsPanel() {
                   <div className="ml-16 mr-2 mt-2 space-y-2">
                     {r.failure_reason && (
                       <div className="border border-red-dim px-3 py-2">
-                        <div className="mb-1 text-[10px] uppercase tracking-kicker text-red">
+                        <div className="mb-1 text-meta uppercase tracking-kicker text-red">
                           Failure reason
                         </div>
-                        <p className="whitespace-pre-wrap break-words text-[11px] leading-relaxed text-ink-dim">
+                        <p className="whitespace-pre-wrap break-words text-label leading-relaxed text-ink-dim">
                           {r.failure_reason}
                         </p>
                       </div>
                     )}
                     {r.log_excerpt && (
                       <div className="border border-rule bg-bg px-3 py-2">
-                        <div className="mb-1 text-[10px] uppercase tracking-kicker text-ink-faint">
+                        <div className="mb-1 text-meta uppercase tracking-kicker text-ink-faint">
                           Log excerpt
                         </div>
-                        <pre className="max-h-48 overflow-y-auto whitespace-pre-wrap break-words text-[11px] leading-relaxed text-ink-dim">
+                        <pre className="max-h-48 overflow-y-auto whitespace-pre-wrap break-words text-label leading-relaxed text-ink-dim">
                           {r.log_excerpt}
                         </pre>
                       </div>
@@ -495,10 +495,10 @@ export default function RunsPanel() {
           })}
         </ul>
         <div className="mt-2 flex items-center justify-between border-t border-rule-soft pt-2">
-          <span className="font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+          <span className="font-mono text-meta uppercase tracking-kicker text-ink-faint">
             visible spend
           </span>
-          <span className="tabular-nums text-[11px] text-ink">
+          <span className="tabular-nums text-label text-ink">
             {formatUsd(visibleSpend, 4)}
           </span>
         </div>

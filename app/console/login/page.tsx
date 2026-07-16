@@ -21,7 +21,7 @@ export default async function LoginPage({
         action="/api/console/login"
         className="flex w-full max-w-xs flex-col gap-3 border border-rule bg-bg-raised p-6"
       >
-        <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+        <div className="flex items-center gap-2 font-mono text-meta uppercase tracking-kicker text-ink-faint">
           <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-green" />
           Console — restricted
         </div>

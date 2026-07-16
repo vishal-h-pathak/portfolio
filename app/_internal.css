@@ -11,20 +11,19 @@
 
   Accent semantics carry over from the notebook (see MASTER.md):
     green = research / live      amber = bench / build / needs-human
-  Red exists only on this surface — the cockpit needs a "failed" tone
-  the notebook never does. It is defined here, NOT in globals.css, so
-  the marketing palette stays two-accent.
+
+  --red used to be declared here, on the claim that the marketing surface
+  never needed a failure tone. That was not true — the criticality playground
+  shipped its own near-duplicate red (--chaos) on a public page. There is now
+  ONE red, in app/tokens.css, and this surface just consumes it (W6/#26).
 */
 
 :root {
-  --red: #e0655b; /* darkest warm red that clears 4.5:1 on --bg */
-  --red-dim: rgba(224, 101, 91, 0.4);
-  /* Blue is the submit accent — a third action color the cockpit needs
-     for the approve(green) → tailor(amber) → submit(blue) progression.
-     Like --red above it lives ONLY on this dashboard surface, NOT in
-     globals.css, so the marketing palette stays two-accent. */
+  /* Blue is the submit accent — a third action color the cockpit needs for the
+     approve(green) → tailor(amber) → submit(blue) progression. This one really
+     does live only on the dashboard: no marketing surface has a submit action. */
   --blue: #5aa2e6; /* clears 4.5:1 on --bg; reads blue, not cyan/green */
-  --blue-dim: rgba(90, 162, 230, 0.4);
+  --blue-dim: color-mix(in srgb, var(--blue) 40%, transparent);
 }
 
 @theme inline {
@@ -52,13 +51,25 @@
   --font-mono: var(--mono);
   --font-serif: var(--serif);
 
-  /* Letter-spacing scale — the three values every console tab actually
-     uses (kicker/eyebrow rows, nav/section labels, dense buttons). Every
-     other arbitrary tracking-[…] value on this surface should be one of
-     these three; introducing a fourth is a smell. */
-  --tracking-kicker: 0.18em;
-  --tracking-label: 0.14em;
-  --tracking-btn: 0.12em;
+  /* Type ramp — the register's dense end of the site-wide scale in
+     app/tokens.css, so `text-[10px]` / `text-[11px]` (129 arbitrary values
+     across the console) become text-meta / text-label and re-size with the
+     rest of the site (W6/#12).
+
+     These are ADDITIVE on purpose: Tailwind's own text-xs/sm/base/lg/xl/2xl
+     stay untouched, because 90+ console elements already lean on them.
+     Redefining --text-* wholesale would silently re-size every one of them. */
+  --text-micro: var(--text-micro);
+  --text-meta: var(--text-meta);
+  --text-label: var(--text-label);
+  --text-ui: var(--text-ui);
+  --text-note: var(--text-note);
+
+  /* Letter-spacing — the three steps the console actually uses, now pulled
+     from the same ramp as the marketing surface instead of being re-typed. */
+  --tracking-kicker: var(--tracking-kicker);
+  --tracking-label: var(--tracking-label);
+  --tracking-btn: var(--tracking-btn);
 }
 
 /*
@@ -76,26 +87,15 @@
 }
 
 /*
-  globals.css (marketing) styles bare h1–h3 and anchors WITHOUT a
-  cascade layer; unlayered author styles outrank every layered Tailwind
-  utility, so dashboard classes like text-[10px] or hover:text-ink were
-  silently losing. revert-layer rolls those marketing declarations back
-  inside the register only, letting utilities (and Tailwind's preflight
-  defaults beneath them) take over.
+  The revert-layer whitelist that used to live here is GONE (W6/#30).
+
+  It existed because globals.css was unlayered, so its bare h1–h3 / a rules
+  outranked every layered Tailwind utility and dashboard classes like
+  text-[10px] silently lost. globals.css now wraps those rules in
+  @layer base, and Tailwind's `utilities` layer sorts after it, so console
+  utilities win by structure instead of by a hand-extended escape hatch that
+  had to grow every time globals touched a new element.
 */
-.internal-surface :is(h1, h2, h3, h4) {
-  font-family: revert-layer;
-  font-size: revert-layer;
-  font-weight: revert-layer;
-  letter-spacing: revert-layer;
-  line-height: revert-layer;
-  margin: revert-layer;
-  text-wrap: revert-layer;
-}
-.internal-surface a {
-  color: revert-layer;
-  text-decoration: revert-layer;
-}
 
 /* Single focus language for the whole register. */
 .internal-surface :focus-visible {

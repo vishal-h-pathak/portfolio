@@ -35,7 +35,7 @@ import * as THREE from "three";
 
 // ── palette (matches the site tokens used across the escape pages) ──
 const DETECTOR_REST = new THREE.Color(0.11, 0.34, 0.38); // dim teal — the lobula detectors at rest
-const DETECTOR_HOT = new THREE.Color(0.91, 0.61, 0.24); // #E89B3D amber — the real circuit, firing
+const DETECTOR_HOT = new THREE.Color(0.91, 0.61, 0.24); // --amber — the real circuit, firing
 const GF_REST = new THREE.Color(0.3, 0.18, 0.44); // dim violet — the Giant Fiber at rest
 const GF_HOT = new THREE.Color(0.98, 0.82, 0.42); // warm gold — DNp01 firing (blooms toward white)
 const GF_WHITE = new THREE.Color(1.0, 0.97, 0.86);
@@ -430,7 +430,7 @@ export function ConnectomeCloud({
       )}
       <div className="cg-cc-legend" aria-hidden="true">
         <span className="cg-cc-key">
-          <span className="cg-cc-dot" style={{ background: "#E89B3D" }} /> LC4 / LPLC2 — detectors
+          <span className="cg-cc-dot" style={{ background: "var(--amber)" }} /> LC4 / LPLC2 — detectors
         </span>
         <span className="cg-cc-key">
           <span className="cg-cc-dot" style={{ background: "#F8D26B" }} /> DNp01 — Giant Fiber

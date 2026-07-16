@@ -12,10 +12,10 @@
  * three.js / WASM on this content route.
  */
 
-const GREEN = "#6FE39A";
+const GREEN = "var(--green)";
 const TEAL = "#5BD6C6";
-const SUB = "#8C8B83";
-const INK = "#E8E6DF";
+const SUB = "var(--ink-dim)";
+const INK = "var(--ink)";
 
 const W = 600;
 const H = 300;

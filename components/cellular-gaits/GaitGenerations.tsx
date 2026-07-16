@@ -14,9 +14,9 @@
  * Server component — no client JS (autoplaying muted-loop <video> needs none).
  */
 
-const GREEN = "#6FE39A";
-const AMBER = "#E89B3D";
-const SUB = "#8C8B83";
+const GREEN = "var(--green)";
+const AMBER = "var(--amber)";
+const SUB = "var(--ink-dim)";
 
 type Slot = {
   n: string;

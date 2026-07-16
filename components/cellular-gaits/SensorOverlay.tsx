@@ -14,7 +14,7 @@
  * callback (reads sim.footContacts() / sim.actuatorLengths() each control step).
  */
 
-const GREEN = "#6FE39A";
+const GREEN = "var(--green)";
 
 // Foot-contact dot positions in a compact hexapod map, leg order
 // [lf, lm, lh, rf, rm, rh] to match sim.footContacts().

@@ -217,10 +217,10 @@ export default function MatchAgent({ job, onClose }: { job: Job; onClose: () => 
       >
         <header className="flex items-start justify-between gap-3 border-b border-rule p-4">
           <div className="min-w-0">
-            <div className="mb-0.5 text-[10px] uppercase tracking-kicker text-green">
+            <div className="mb-0.5 text-meta uppercase tracking-kicker text-green">
               Match Agent
             </div>
-            <h2 className="truncate text-[13px] font-medium text-ink">{job.title}</h2>
+            <h2 className="truncate text-note font-medium text-ink">{job.title}</h2>
             <p className="truncate text-xs text-ink-faint">
               {job.company}
               {job.location ? ` · ${job.location}` : ""}
@@ -252,7 +252,7 @@ export default function MatchAgent({ job, onClose }: { job: Job; onClose: () => 
 
         {insight && (
           <div className="border-t border-rule bg-bg-card px-4 py-3">
-            <div className="mb-1 text-[10px] uppercase tracking-kicker text-amber">
+            <div className="mb-1 text-meta uppercase tracking-kicker text-amber">
               Generalizable preference detected
             </div>
             <p className="mb-2 text-xs text-ink">
@@ -261,7 +261,7 @@ export default function MatchAgent({ job, onClose }: { job: Job; onClose: () => 
               <span className="text-amber">”</span>
             </p>
             {insight.reasoning && (
-              <p className="mb-2 text-[11px] italic text-ink-dim">
+              <p className="mb-2 text-label italic text-ink-dim">
                 {insight.reasoning}
               </p>
             )}

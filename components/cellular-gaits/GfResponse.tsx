@@ -33,10 +33,10 @@ import {
   YAxis,
 } from "recharts";
 
-const GREEN = "#6FE39A"; // the live response
-const AMBER = "#E89B3D"; // the channel readout
-const SUB = "#8C8B83";
-const FAINT = "#7E7A6D";
+const GREEN = "var(--green)"; // the live response
+const AMBER = "var(--amber)"; // the channel readout
+const SUB = "var(--ink-dim)";
+const FAINT = "var(--ink-faint)";
 const RULE = "rgba(232,230,223,0.13)";
 
 export type GfResponseData = {
@@ -165,7 +165,7 @@ export function GfResponse({ data }: { data: GfResponseData }) {
             <Tooltip
               cursor={{ stroke: RULE }}
               contentStyle={{
-                background: "#101012",
+                background: "var(--bg-raised)",
                 border: "1px solid rgba(232,230,223,0.18)",
                 borderRadius: 6,
                 fontFamily: "var(--mono)",
@@ -183,7 +183,7 @@ export function GfResponse({ data }: { data: GfResponseData }) {
               strokeWidth={silenced ? 1 : 2.2}
               strokeOpacity={silenced ? 0.25 : 1}
               strokeDasharray={silenced ? "4 4" : undefined}
-              dot={silenced ? false : { r: 3, fill: "#0B0B0C", stroke: GREEN, strokeWidth: 1.5 }}
+              dot={silenced ? false : { r: 3, fill: "var(--bg)", stroke: GREEN, strokeWidth: 1.5 }}
               isAnimationActive={false}
             />
             {/* the silenced variant — only drawn when toggled on */}
@@ -193,7 +193,7 @@ export function GfResponse({ data }: { data: GfResponseData }) {
                 dataKey="silenced"
                 stroke={SUB}
                 strokeWidth={2.2}
-                dot={{ r: 3, fill: "#0B0B0C", stroke: SUB, strokeWidth: 1.5 }}
+                dot={{ r: 3, fill: "var(--bg)", stroke: SUB, strokeWidth: 1.5 }}
                 isAnimationActive={false}
               />
             )}

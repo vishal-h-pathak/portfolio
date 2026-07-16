@@ -23,9 +23,9 @@ import { useState } from "react";
 const W = 780;
 const H = 500;
 
-const GREEN = "#6FE39A";
-const SUB = "#8C8B83";
-const INK = "#E8E6DF";
+const GREEN = "var(--green)";
+const SUB = "var(--ink-dim)";
+const INK = "var(--ink)";
 
 type Leg = {
   id: string;
@@ -236,7 +236,7 @@ export function PlantSchematic() {
           const x = nodeX(i);
           return (
             <g key={i}>
-              <circle cx={x} cy={CHAIN_Y} r={6} fill="rgba(111,227,154,0.12)" stroke={GREEN} strokeWidth={1.4} />
+              <circle cx={x} cy={CHAIN_Y} r={6} fill="color-mix(in srgb, var(--green) 12%, transparent)" stroke={GREEN} strokeWidth={1.4} />
               <text x={x} y={CHAIN_Y - 14} textAnchor="middle" fill={INK} fontSize={10.5}>
                 {d.axis}
               </text>

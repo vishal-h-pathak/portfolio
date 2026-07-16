@@ -266,7 +266,7 @@ function ViewToggle({
           onClick={() => onChange(v)}
           aria-pressed={view === v}
           className={
-            "px-3 py-1 font-mono text-[10px] uppercase tracking-label transition-colors duration-150 " +
+            "px-3 py-1 font-mono text-meta uppercase tracking-label transition-colors duration-150 " +
             (view === v
               ? "bg-bg-raised text-amber"
               : "text-ink-faint hover:text-ink")
@@ -394,7 +394,7 @@ function SwipeView({
         >
           ← tiers
         </button>
-        <span className="text-[11px] text-ink-faint tabular-nums">
+        <span className="text-label text-ink-faint tabular-nums">
           {current ? `${index + 1} / ${queue.length}` : `${queue.length} done`}
         </span>
       </header>
@@ -450,7 +450,7 @@ function SwipeView({
         </div>
       )}
 
-      <div className="shrink-0 px-4 pb-3 text-center text-[10px] uppercase tracking-kicker text-ink-faint">
+      <div className="shrink-0 px-4 pb-3 text-center text-meta uppercase tracking-kicker text-ink-faint">
         {remaining > 0 && `${remaining} left`}
       </div>
     </main>
@@ -472,7 +472,7 @@ function BucketToggle({
           onClick={() => onChange(b)}
           aria-pressed={bucket === b}
           className={
-            "px-3 py-1 font-mono text-[10px] uppercase tracking-label transition-colors duration-150 " +
+            "px-3 py-1 font-mono text-meta uppercase tracking-label transition-colors duration-150 " +
             (bucket === b
               ? b === "local"
                 ? "bg-bg-raised text-green"
@@ -503,7 +503,7 @@ function TierButton({
       className="flex w-full items-center justify-between border border-rule bg-bg-raised px-4 py-3.5 text-left text-xs text-ink transition-colors duration-150 hover:border-amber disabled:opacity-40"
     >
       <span>{label}</span>
-      <span className="text-[11px] text-ink-faint tabular-nums">{count}</span>
+      <span className="text-label text-ink-faint tabular-nums">{count}</span>
     </button>
   );
 }
@@ -602,7 +602,7 @@ function SwipeCard({
           <LocationBadge location={job.location} />
         </div>
         <div className="text-right">
-          <div className="text-[10px] uppercase tracking-[0.16em] text-ink-faint">
+          <div className="text-meta uppercase tracking-[0.16em] text-ink-faint">
             Score
           </div>
           <div className="text-xl text-ink tabular-nums">
@@ -620,7 +620,7 @@ function SwipeCard({
           {job.location ? ` · ${job.location}` : ""}
         </p>
         {relativeTime(job.created_at) && (
-          <p className="mt-1 text-[11px] text-ink-faint tabular-nums">
+          <p className="mt-1 text-label text-ink-faint tabular-nums">
             found {relativeTime(job.created_at)}
           </p>
         )}
@@ -628,7 +628,7 @@ function SwipeCard({
 
       {job.reasoning && (
         <div className="flex-1 overflow-y-auto pr-1">
-          <div className="mb-2 text-[10px] uppercase tracking-kicker text-ink-faint">
+          <div className="mb-2 text-meta uppercase tracking-kicker text-ink-faint">
             Why it matched
           </div>
           <p className="whitespace-pre-wrap text-xs leading-relaxed text-ink-dim">

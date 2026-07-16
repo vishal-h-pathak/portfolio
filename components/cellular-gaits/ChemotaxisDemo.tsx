@@ -29,16 +29,20 @@ import {
   type ChemoController,
 } from "@/lib/nca";
 import type { FlyStageCtx, FlyStageMetrics } from "@/components/cellular-gaits/FlyStage";
+import { TOKEN } from "@/lib/tokens";
 
 const FlyStage = dynamic(
   () => import("@/components/cellular-gaits/FlyStage").then((m) => m.FlyStage),
   { ssr: false },
 );
 
-const GREEN = "#6FE39A";
-const AMBER = "#E89B3D";
-const INK = "#E8E6DF";
-const SUB = "#8C8B83";
+// These reach the 2D canvas (ctx.fillStyle / strokeStyle), which cannot resolve
+// a CSS variable — so they take the hex form from the TS token mirror. GREEN and
+// AMBER are also used in inline styles, where the hex works fine too.
+const GREEN = TOKEN.green;
+const AMBER = TOKEN.amber;
+const INK = TOKEN.ink;
+const SUB = TOKEN.inkDim;
 
 // Fly-centred arena: world units → px, with the fly pinned at the centre.
 const PX_PER_UNIT = 7;

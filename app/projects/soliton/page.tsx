@@ -34,7 +34,7 @@ export default async function SolitonPage() {
     <>
       {/* ── masthead ──────────────────────────────────────────────────── */}
       <section>
-        <p className="sol-kicker">B-01 · Soliton — a live paper-trading experiment</p>
+        <p className="plate-kicker">B-01 · Soliton — a live paper-trading experiment</p>
         <h1 className="sol-title">
           Can the most advanced available model trade?
         </h1>

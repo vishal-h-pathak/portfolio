@@ -31,8 +31,8 @@ import { ConnectomeCloud, type Brain, type Positions } from "./ConnectomeCloud";
 import type { ConditionMeta } from "./EmbodiedConditions";
 
 const BASE = "/cellular-gaits/data-eb";
-const GREEN = "#6FE39A";
-const SUB = "#8C8B83";
+const GREEN = "var(--green)";
+const SUB = "var(--ink-dim)";
 
 type Trace = {
   condition: string;

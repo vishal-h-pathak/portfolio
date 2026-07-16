@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { TOKEN } from "@/lib/tokens";
 
 export const runtime = "nodejs";
 export const contentType = "image/png";
@@ -7,6 +8,9 @@ export const alt =
   "Vishal Pathak — Notebook & Bench. Hodgkin–Huxley action potential trace.";
 
 // Static export of the hero: the spike trace on dark bg, with name + tagline.
+//
+// Satori has no CSS cascade — var(--token) does not resolve here — so this file
+// reads the TS mirror of the palette (lib/tokens.ts) rather than CSS variables.
 export default function OpengraphImage() {
   return new ImageResponse(
     (
@@ -14,8 +18,8 @@ export default function OpengraphImage() {
         style={{
           width: "100%",
           height: "100%",
-          background: "#0B0B0C",
-          color: "#E8E6DF",
+          background: TOKEN.bg,
+          color: TOKEN.ink,
           display: "flex",
           flexDirection: "column",
           padding: 64,
@@ -27,7 +31,7 @@ export default function OpengraphImage() {
           style={{
             fontSize: 18,
             letterSpacing: "0.22em",
-            color: "#6FE39A",
+            color: TOKEN.green,
             textTransform: "uppercase",
             fontFamily: "ui-monospace, monospace",
           }}
@@ -40,7 +44,7 @@ export default function OpengraphImage() {
           style={{
             marginTop: 56,
             border: "1px solid rgba(232,230,223,0.12)",
-            background: "#101012",
+            background: TOKEN.bgRaised,
             padding: "44px 56px 24px",
             display: "flex",
             flexDirection: "column",
@@ -72,7 +76,7 @@ export default function OpengraphImage() {
                  Q500,30 510,90 Q520,160 530,170 Q540,165 550,150
                  L600,142 L660,140 L720,140"
               fill="none"
-              stroke="#6FE39A"
+              stroke={TOKEN.green}
               strokeWidth="2.6"
               strokeLinejoin="round"
               strokeLinecap="round"
@@ -83,7 +87,7 @@ export default function OpengraphImage() {
               marginTop: 18,
               fontFamily: "ui-monospace, monospace",
               fontSize: 16,
-              color: "#8C8B83",
+              color: TOKEN.inkDim,
               letterSpacing: "0.14em",
             }}
           >
@@ -98,7 +102,7 @@ export default function OpengraphImage() {
             marginTop: "auto",
             fontSize: 28,
             lineHeight: 1.25,
-            color: "#E8E6DF",
+            color: TOKEN.ink,
             display: "flex",
             flexDirection: "column",
             gap: 4,
@@ -106,7 +110,7 @@ export default function OpengraphImage() {
         >
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             <span>Electrical engineer in Atlanta.</span>
-            <span style={{ color: "#6FE39A" }}>Neuromorphic hardware</span>
+            <span style={{ color: TOKEN.green }}>Neuromorphic hardware</span>
             <span>for ten years —</span>
           </div>
           <div
@@ -114,11 +118,11 @@ export default function OpengraphImage() {
               display: "flex",
               flexWrap: "wrap",
               gap: 8,
-              color: "#8C8B83",
+              color: TOKEN.inkDim,
             }}
           >
             <span>and lately a lot of</span>
-            <span style={{ color: "#E89B3D" }}>agentic systems</span>
+            <span style={{ color: TOKEN.amber }}>agentic systems</span>
             <span>, off-hours, with an LLM in the loop.</span>
           </div>
         </div>

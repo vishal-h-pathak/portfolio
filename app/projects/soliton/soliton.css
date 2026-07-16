@@ -10,20 +10,22 @@
 /* Topbar + footer live in the shared app/projects/project-shell.css
    (.proj-topbar/.proj-footer) — see layout.tsx. */
 
+/* One measure for every project micro-site — was 980 here vs 920 on cellular
+   gaits, so the reading column jumped sideways each hop (W6/#25). */
 .sol-page {
-  max-width: 980px;
+  max-width: var(--w-prose);
   margin: 0 auto;
-  padding: 48px 40px 80px;
+  padding: 48px var(--gutter) 80px;
 }
-@media (max-width: 720px) {
-  .sol-page { padding: 32px 20px 64px; }
+@media (max-width: 700px) {
+  .sol-page { padding: 32px var(--gutter) 64px; }
 }
 
 .sol-section { margin-top: 56px; }
 .sol-section-head {
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.2em;
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
   color: var(--ink-faint);
   border-bottom: 1px solid var(--rule);
@@ -33,18 +35,14 @@
 
 /* ── masthead ──────────────────────────────────────────────────────────── */
 
-.sol-kicker {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-}
+/* .sol-kicker -> the shared .plate-kicker in project-shell.css (W6/#27). */
+/* The shared display formula (W6/#12) — the site's flagship live experiment was
+   the quietest title on the site at 44px. */
 .sol-title {
   font-family: var(--serif);
-  font-size: clamp(30px, 5vw, 44px);
-  line-height: 1.12;
-  letter-spacing: -0.01em;
+  font-size: var(--text-display);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
   margin: 12px 0 0;
   color: var(--ink);
 }
@@ -61,7 +59,7 @@
   border-left: 3px solid var(--amber);
   padding: 12px 16px;
   font-family: var(--mono);
-  font-size: 12.5px;
+  font-size: var(--text-note);
   line-height: 1.6;
   color: var(--ink-dim);
 }
@@ -71,7 +69,7 @@
 
 .sol-race { margin: 0; }
 .sol-race svg { width: 100%; height: auto; display: block; }
-@media (max-width: 720px) {
+@media (max-width: 700px) {
   /* Text is sized in SVG user units, so shrinking the whole chart to fit a
      phone-width container (viewBox 760x320 rendered at ~350px — a 0.46
      scale) shrinks the axis ticks/end-labels/annotation along with it, to
@@ -92,19 +90,19 @@
   font-family: var(--mono);
   font-size: 9.5px;
   fill: var(--ink-faint);
-  letter-spacing: 0.06em;
+  letter-spacing: var(--tracking-data);
 }
 .sol-race-endlabel {
   font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.04em;
+  font-size: var(--text-meta);
+  letter-spacing: var(--tracking-cap);
 }
 .sol-race-endlabel-hi { font-weight: 600; }
 .sol-race-note {
   font-family: var(--mono);
   font-size: 10.5px;
   fill: var(--ink-dim);
-  letter-spacing: 0.04em;
+  letter-spacing: var(--tracking-cap);
 }
 
 .sol-legend {
@@ -112,7 +110,7 @@
   display: grid;
   gap: 8px;
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: var(--text-ui);
   line-height: 1.5;
 }
 .sol-legend-row {
@@ -132,8 +130,8 @@
 .sol-log-day { margin-bottom: 28px; }
 .sol-log-date {
   font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.14em;
+  font-size: var(--text-ui);
+  letter-spacing: var(--tracking-label);
   color: var(--ink);
   margin-bottom: 12px;
 }
@@ -150,21 +148,21 @@
 .sol-entry-head {
   display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-meta);
 }
 .sol-entry-track { font-weight: 600; }
-.sol-entry-kind { color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.14em; }
-.sol-entry-time { margin-left: auto; color: var(--ink-faint); font-size: 10px; }
+.sol-entry-kind { color: var(--ink-faint); text-transform: uppercase; letter-spacing: var(--tracking-label); }
+.sol-entry-time { margin-left: auto; color: var(--ink-faint); font-size: var(--text-meta); }
 
-.sol-entry-body { margin: 6px 0 0; font-size: 15px; color: var(--ink-dim); }
+.sol-entry-body { margin: 6px 0 0; font-size: var(--text-lede); color: var(--ink-dim); }
 .sol-entry-body p { margin: 0 0 4px; }
 .sol-entry-body strong { color: var(--ink); font-weight: 600; }
-.sol-entry-result { font-family: var(--mono); font-size: 12.5px; }
+.sol-entry-result { font-family: var(--mono); font-size: var(--text-note); }
 
 .sol-verbatim {
   font-family: var(--mono);
-  font-size: 12.5px;
+  font-size: var(--text-note);
   color: var(--ink-dim);
   overflow-wrap: anywhere;
 }
@@ -178,11 +176,11 @@
 }
 .sol-order {
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: var(--text-ui);
   color: var(--ink-dim);
 }
 .sol-transition { color: var(--amber); }
-.sol-dials-line { font-family: var(--mono); font-size: 12px; }
+.sol-dials-line { font-family: var(--mono); font-size: var(--text-ui); }
 
 /* ── daily digest ──────────────────────────────────────────────────────── */
 
@@ -194,7 +192,7 @@
   margin: 0 0 28px;
   max-width: 72ch;
 }
-.sol-digest-intro p { margin: 0 0 10px; font-size: 14.5px; color: var(--ink-dim); }
+.sol-digest-intro p { margin: 0 0 10px; font-size: var(--text-lede); color: var(--ink-dim); }
 .sol-digest-intro p:last-child { margin-bottom: 0; }
 .sol-digest-intro strong { color: var(--ink); }
 
@@ -206,37 +204,38 @@
 }
 .sol-digest-date {
   font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.14em;
+  font-size: var(--text-ui);
+  letter-spacing: var(--tracking-label);
   color: var(--ink);
   margin-bottom: 8px;
 }
 .sol-digest-body { max-width: 72ch; }
-.sol-digest-body p { margin: 0 0 8px; font-size: 15px; color: var(--ink-dim); }
+.sol-digest-body p { margin: 0 0 8px; font-size: var(--text-lede); color: var(--ink-dim); }
 .sol-digest-body strong { color: var(--ink); font-weight: 600; }
-.sol-digest-excerpt {
+/* Scoped past `.sol-digest-body p` rather than shouting over it (W6/#30). */
+.sol-digest-body p.sol-digest-excerpt {
   padding-left: 18px;
-  font-size: 13px !important;
+  font-size: var(--text-note);
 }
 .sol-digest-excerpt a {
   display: inline-block;
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.06em;
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-data);
   color: var(--ink-faint);
   white-space: nowrap;
   padding: 6px;
   margin: -6px;
 }
 .sol-digest-excerpt a:hover { color: var(--ink); }
-.sol-digest-ref {
-  font-size: 13.5px !important;
-  color: var(--ink-faint) !important;
+.sol-digest-body p.sol-digest-ref {
+  font-size: var(--text-cap);
+  color: var(--ink-faint);
 }
 .sol-flag {
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.06em;
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-data);
   color: var(--green);
 }
 .sol-flag-forced { color: var(--amber); }
@@ -259,13 +258,13 @@
 .sol-panel-head { margin-bottom: 4px; }
 .sol-panel-id {
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.2em;
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-wide);
   font-weight: 600;
 }
 .sol-panel-name {
   font-family: var(--serif);
-  font-size: 16.5px;
+  font-size: var(--text-prose);
   line-height: 1.35;
   margin: 6px 0 0;
   color: var(--ink);
@@ -274,7 +273,7 @@
 .sol-evidence {
   margin: 8px 0 0;
   font-family: var(--mono);
-  font-size: 11.5px;
+  font-size: var(--text-ui);
   line-height: 1.5;
   color: var(--amber);
   overflow-wrap: anywhere;
@@ -282,8 +281,8 @@
 .sol-panel-status {
   margin-top: 8px;
   font-family: var(--mono);
-  font-size: 11.5px;
-  letter-spacing: 0.06em;
+  font-size: var(--text-ui);
+  letter-spacing: var(--tracking-data);
 }
 .sol-status-armed { color: var(--green); text-transform: uppercase; }
 .sol-status-halted { color: var(--amber); text-transform: uppercase; }
@@ -298,13 +297,13 @@
 .sol-kv {
   display: flex; justify-content: space-between; align-items: baseline;
   gap: 12px;
-  font-size: 14px;
+  font-size: var(--text-cap);
   margin-bottom: 4px;
 }
 .sol-k {
   font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--ink-faint);
 }
@@ -316,7 +315,7 @@
 .sol-dials { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 6px; }
 .sol-dial {
   display: inline-flex; align-items: center; gap: 6px;
-  font-family: var(--mono); font-size: 11.5px; color: var(--ink-faint);
+  font-family: var(--mono); font-size: var(--text-ui); color: var(--ink-faint);
 }
 .sol-dial-lamp {
   width: 7px; height: 7px; border-radius: 50%;
@@ -327,10 +326,10 @@
 
 .sol-positions, .sol-trades, .sol-alarms {
   list-style: none; margin: 6px 0 0; padding: 0;
-  font-family: var(--mono); font-size: 12px; line-height: 1.7;
+  font-family: var(--mono); font-size: var(--text-ui); line-height: 1.7;
   color: var(--ink-dim);
 }
-.sol-alarms .sol-verbatim { font-size: 11.5px; }
+.sol-alarms .sol-verbatim { font-size: var(--text-ui); }
 
 /* ── methodology ───────────────────────────────────────────────────────── */
 
@@ -340,13 +339,13 @@
 }
 .sol-method h3 {
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.18em;
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-kicker);
   text-transform: uppercase;
   color: var(--ink);
   margin: 0 0 8px;
 }
-.sol-method p { margin: 0 0 10px; font-size: 14.5px; color: var(--ink-dim); }
+.sol-method p { margin: 0 0 10px; font-size: var(--text-lede); color: var(--ink-dim); }
 .sol-method a { color: var(--ink); border-bottom: 1px solid var(--rule); }
 .sol-method a:hover { border-bottom-color: var(--ink); }
 
@@ -357,7 +356,7 @@
   padding: 16px 20px;
   margin: 0 0 28px;
 }
-.sol-verdicts p { margin: 0 0 8px; font-size: 15px; color: var(--ink-dim); }
+.sol-verdicts p { margin: 0 0 8px; font-size: var(--text-lede); color: var(--ink-dim); }
 .sol-verdicts p:last-child { margin-bottom: 0; }
 .sol-verdicts strong { color: var(--ink); }
 
@@ -366,7 +365,7 @@
 .sol-story p {
   max-width: 68ch;
   margin: 0 0 16px;
-  font-size: 15.5px;
+  font-size: var(--text-body);
   line-height: 1.7;
   color: var(--ink-dim);
 }
@@ -386,8 +385,8 @@
   cursor: pointer;
   padding: 10px 16px;
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--ink-faint);
   list-style: none;
@@ -404,7 +403,7 @@
 .sol-detail-body { padding: 14px 16px 6px; }
 .sol-detail-body p {
   margin: 0 0 12px;
-  font-size: 14px;
+  font-size: var(--text-cap);
   line-height: 1.65;
   color: var(--ink-dim);
 }
@@ -414,15 +413,15 @@
   margin: 0 0 14px;
   border-collapse: collapse;
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: var(--text-ui);
   line-height: 1.5;
 }
 .sol-table th {
   text-align: left;
   font-weight: 400;
-  letter-spacing: 0.1em;
+  letter-spacing: var(--tracking-key);
   text-transform: uppercase;
-  font-size: 10px;
+  font-size: var(--text-meta);
   color: var(--ink-faint);
   border-bottom: 1px solid var(--rule);
   padding: 4px 12px 6px 0;
@@ -439,8 +438,8 @@
 .sol-design-cta {
   margin-top: 24px;
   font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.1em;
+  font-size: var(--text-ui);
+  letter-spacing: var(--tracking-key);
 }
 .sol-design-cta a {
   color: var(--green);
@@ -459,8 +458,8 @@
 .sol-asof {
   margin-top: 14px;
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-meta);
   color: var(--ink-faint);
 }
 

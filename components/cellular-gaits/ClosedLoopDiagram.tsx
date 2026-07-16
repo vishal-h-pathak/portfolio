@@ -20,8 +20,8 @@
  * Pure SVG, horizontal labels only — NO three.js / WASM on this content route.
  */
 
-const GREEN = "#6FE39A";
-const SUB = "#8C8B83";
+const GREEN = "var(--green)";
+const SUB = "var(--ink-dim)";
 const DIM = "#B9B7AE";
 
 const W = 520;

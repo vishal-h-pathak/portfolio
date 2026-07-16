@@ -202,7 +202,7 @@ const SCHEDULER_LABEL: Record<AgentConfig["scheduler"], string> = {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mb-1 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+    <div className="mb-1 font-mono text-meta uppercase tracking-kicker text-ink-faint">
       {children}
     </div>
   );
@@ -292,7 +292,7 @@ function AgentCard({ agent }: { agent: AgentConfig }) {
                 >
                   {dep.name}
                   {dep.envVar && (
-                    <span className="ml-1 text-[10px] text-ink-faint">
+                    <span className="ml-1 text-meta text-ink-faint">
                       ({dep.envVar})
                     </span>
                   )}
@@ -325,7 +325,7 @@ function AgentCard({ agent }: { agent: AgentConfig }) {
           {/* Concerns */}
           {agent.concerns.length > 0 && (
             <div>
-              <div className="mb-2 font-mono text-[10px] uppercase tracking-kicker text-amber">
+              <div className="mb-2 font-mono text-meta uppercase tracking-kicker text-amber">
                 Known issues / concerns
               </div>
               <div className="space-y-1.5">
@@ -358,7 +358,7 @@ export default function AgentStatusPage() {
   return (
     <main className="mx-auto min-h-screen max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
       <header className="mb-8">
-        <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+        <div className="flex items-center gap-2 font-mono text-meta uppercase tracking-kicker text-ink-faint">
           <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-green" />
           Agent runbooks
         </div>
@@ -379,7 +379,7 @@ export default function AgentStatusPage() {
             <Pill tone={SCHEDULER_TONE[agent.scheduler]}>
               {SCHEDULER_LABEL[agent.scheduler]}
             </Pill>
-            <div className="mt-2 text-[11px] text-ink-faint">
+            <div className="mt-2 text-label text-ink-faint">
               {agent.jobs.length} job{agent.jobs.length !== 1 ? "s" : ""} configured
             </div>
           </div>
@@ -394,7 +394,7 @@ export default function AgentStatusPage() {
       </div>
 
       <div className="mt-12 border-t border-rule-soft pt-6 text-center">
-        <p className="font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+        <p className="font-mono text-meta uppercase tracking-kicker text-ink-faint">
           This page is only accessible via the console auth gate
         </p>
       </div>

@@ -14,10 +14,10 @@
  * `var(--mono)`), so it sits next to the recorded approach clips as one piece.
  */
 
-const GREEN = "#6FE39A";
-const AMBER = "#E89B3D";
-const INK = "#E8E6DF";
-const SUB = "#8C8B83";
+const GREEN = "var(--green)";
+const AMBER = "var(--amber)";
+const INK = "var(--ink)";
+const SUB = "var(--ink-dim)";
 const RULE = "rgba(232,230,223,0.18)";
 
 const VW = 440;

@@ -60,7 +60,7 @@ const PALETTE: Record<
   Kind,
   { stroke: string; fill: string; title: string; dash?: string }
 > = {
-  today: { stroke: "#6FE39A", fill: "rgba(111,227,154,0.10)", title: "#6FE39A" },
+  today: { stroke: "var(--green)", fill: "rgba(111,227,154,0.10)", title: "var(--green)" },
   fixed: {
     stroke: "rgba(232,230,223,0.32)",
     fill: "rgba(232,230,223,0.04)",
@@ -68,7 +68,8 @@ const PALETTE: Record<
   },
 };
 
-const SUB = "#8C8B83";
+const GREEN = "var(--green)";
+const SUB = "var(--ink-dim)";
 const RAIL = "rgba(232,230,223,0.28)";
 
 // Four rungs down the left, each ~84 tall. Top → bottom = increasingly
@@ -435,7 +436,7 @@ export function ControllerLadder() {
             markerHeight="7"
             orient="auto-start-reverse"
           >
-            <path d="M0 0L10 5L0 10z" fill="#6FE39A" />
+            <path d="M0 0L10 5L0 10z" fill={GREEN} />
           </marker>
           <marker
             id="ladder-gray"
@@ -454,7 +455,7 @@ export function ControllerLadder() {
         <text
           x={RUNG_X}
           y={22}
-          fill="#6FE39A"
+          fill={GREEN}
           fontSize={11}
           letterSpacing="0.16em"
         >
@@ -504,9 +505,9 @@ export function ControllerLadder() {
             the merged signal leaves the rail for the slot. Removes any ambiguity
             about whether the connectors actually land on the rail. */}
         {CONNECTORS.map((c) => (
-          <circle key={`j-${c.id}`} cx={RAIL_X} cy={midY(c.id)} r={2.8} fill="#6FE39A" />
+          <circle key={`j-${c.id}`} cx={RAIL_X} cy={midY(c.id)} r={2.8} fill={GREEN} />
         ))}
-        <circle cx={RAIL_X} cy={FEED_Y} r={2.8} fill="#6FE39A" />
+        <circle cx={RAIL_X} cy={FEED_Y} r={2.8} fill={GREEN} />
 
         {/* Live path: rail → slot → body (green = the built chain, down to the brain rung) */}
         <line
@@ -514,7 +515,7 @@ export function ControllerLadder() {
           y1={FEED_Y}
           x2={blockById("slot").x}
           y2={FEED_Y}
-          stroke="#6FE39A"
+          stroke={GREEN}
           strokeWidth={1.5}
           markerEnd="url(#ladder-green)"
         />
@@ -523,7 +524,7 @@ export function ControllerLadder() {
           y1={FEED_Y}
           x2={blockById("body").x}
           y2={FEED_Y}
-          stroke="#6FE39A"
+          stroke={GREEN}
           strokeWidth={1.5}
           markerEnd="url(#ladder-green)"
         />
@@ -533,7 +534,7 @@ export function ControllerLadder() {
           x={(blockById("slot").x + blockById("body").x + blockById("body").w) / 2}
           y={blockById("slot").y - 12}
           textAnchor="middle"
-          fill="#6FE39A"
+          fill={GREEN}
           fontSize={10}
         >
           ▷ live · all rungs built

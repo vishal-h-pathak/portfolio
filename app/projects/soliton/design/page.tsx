@@ -17,7 +17,7 @@ export default function SolitonDesignPage() {
     <>
       {/* ── masthead ──────────────────────────────────────────────────── */}
       <section>
-        <p className="sol-kicker">B-01 · Soliton — the design story</p>
+        <p className="plate-kicker">B-01 · Soliton — the design story</p>
         <h1 className="sol-title">Why it&rsquo;s built this way</h1>
         <div className="sol-lede">
           <p>

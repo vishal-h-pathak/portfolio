@@ -145,7 +145,7 @@ function CopyButton({ text }: { text: string }) {
         }
       }}
       className={
-        "shrink-0 border px-2 py-0.5 font-mono text-[10px] uppercase tracking-btn transition-colors duration-150 active:duration-0 " +
+        "shrink-0 border px-2 py-0.5 font-mono text-meta uppercase tracking-btn transition-colors duration-150 active:duration-0 " +
         (copied
           ? "border-green-dim text-green"
           : "border-rule text-ink-dim hover:border-amber hover:text-amber")
@@ -158,7 +158,7 @@ function CopyButton({ text }: { text: string }) {
 
 function DraftLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="text-[10px] uppercase tracking-kicker text-ink-faint">
+    <div className="text-meta uppercase tracking-kicker text-ink-faint">
       {children}
     </div>
   );
@@ -214,7 +214,7 @@ function FormAnswersBlock({
                 key={row.label}
                 className="grid grid-cols-[160px_1fr_auto] items-center gap-3 px-3 py-1.5"
               >
-                <dt className="text-[11px] text-ink-faint">{row.label}</dt>
+                <dt className="text-label text-ink-faint">{row.label}</dt>
                 <dd className="break-all text-xs text-ink">{row.value}</dd>
                 <CopyButton text={row.value} />
               </div>
@@ -243,7 +243,7 @@ function FormAnswersBlock({
           <ol className="space-y-3">
             {questions.map((q, i) => (
               <li key={i} className="border border-rule bg-bg p-3">
-                <div className="mb-1 text-[11px] font-medium text-ink">
+                <div className="mb-1 text-label font-medium text-ink">
                   Q{i + 1}: {q.question}
                 </div>
                 <div className="flex items-start justify-between gap-3">
@@ -289,7 +289,7 @@ function PrefillScreenshot({ storagePath }: { storagePath: string }) {
 
   return (
     <section className="mb-8">
-      <h2 className="mb-2.5 border-b border-rule-soft pb-1.5 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+      <h2 className="mb-2.5 border-b border-rule-soft pb-1.5 font-mono text-meta uppercase tracking-kicker text-ink-faint">
         Pre-fill screenshot
       </h2>
       <div className="border border-rule bg-bg-raised p-3">
@@ -308,7 +308,7 @@ function PrefillScreenshot({ storagePath }: { storagePath: string }) {
                 className="max-h-[600px] w-full bg-bg object-contain"
               />
             </a>
-            <div className="mt-2 flex items-center justify-between text-[11px] text-ink-faint">
+            <div className="mt-2 flex items-center justify-between text-label text-ink-faint">
               <span className="truncate">{storagePath}</span>
               <a
                 href={signedUrl}
@@ -577,7 +577,7 @@ export default function ReviewDetailPage() {
                 {job.location ? ` · ${job.location}` : ""}
               </p>
               {relativeTime(job.status_updated_at) && (
-                <p className="mt-1 text-[11px] text-ink-faint tabular-nums">
+                <p className="mt-1 text-label text-ink-faint tabular-nums">
                   status updated {relativeTime(job.status_updated_at)}
                 </p>
               )}
@@ -585,7 +585,7 @@ export default function ReviewDetailPage() {
             <div className="flex shrink-0 items-center gap-3">
               {score !== null && (
                 <div className="text-right">
-                  <div className="text-[10px] uppercase tracking-[0.16em] text-ink-faint">
+                  <div className="text-meta uppercase tracking-[0.16em] text-ink-faint">
                     Score
                   </div>
                   <div className="text-2xl text-ink tabular-nums">
@@ -629,12 +629,12 @@ export default function ReviewDetailPage() {
           >
             {banner.message}
             {status === "applied" && job.submitted_at && (
-              <span className="mt-1 block text-[11px] opacity-70 tabular-nums">
+              <span className="mt-1 block text-label opacity-70 tabular-nums">
                 submitted_at: {new Date(job.submitted_at).toISOString()}
               </span>
             )}
             {status === "failed" && job.failure_reason && (
-              <span className="mt-1 block text-[11px] opacity-80">
+              <span className="mt-1 block text-label opacity-80">
                 {job.failure_reason}
               </span>
             )}
@@ -643,14 +643,14 @@ export default function ReviewDetailPage() {
 
         {/* ── Materials ──────────────────────────────────────────── */}
         <section className="mb-8 space-y-3">
-          <h2 className="border-b border-rule-soft pb-1.5 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+          <h2 className="border-b border-rule-soft pb-1.5 font-mono text-meta uppercase tracking-kicker text-ink-faint">
             Materials
           </h2>
 
           <details className="group border border-rule bg-bg-raised">
             <summary className="flex select-none items-center justify-between px-4 py-3 text-xs text-ink transition-colors duration-150 hover:bg-bg-card">
               <span>Tailored resume (PDF)</span>
-              <span className="text-[10px] text-ink-faint group-open:hidden">
+              <span className="text-meta text-ink-faint group-open:hidden">
                 click to open
               </span>
             </summary>
@@ -659,7 +659,7 @@ export default function ReviewDetailPage() {
                 view
               </BtnLink>
               <BtnLink href={`${resumePdfUrl}?download=1`}>download</BtnLink>
-              <span className="ml-auto truncate text-[11px] text-ink-faint">
+              <span className="ml-auto truncate text-label text-ink-faint">
                 {job.resume_pdf_path ?? "(no storage path)"}
               </span>
             </div>
@@ -668,7 +668,7 @@ export default function ReviewDetailPage() {
           <details className="group border border-rule bg-bg-raised">
             <summary className="flex select-none items-center justify-between px-4 py-3 text-xs text-ink transition-colors duration-150 hover:bg-bg-card">
               <span>Cover letter</span>
-              <span className="text-[10px] text-ink-faint group-open:hidden">
+              <span className="text-meta text-ink-faint group-open:hidden">
                 click to open
               </span>
             </summary>
@@ -680,7 +680,7 @@ export default function ReviewDetailPage() {
                 {coverLetterText && <CopyButton text={coverLetterText} />}
               </div>
               {coverLetterText && (
-                <pre className="max-h-80 overflow-y-auto whitespace-pre-wrap border border-rule bg-bg p-3 text-[11px] leading-relaxed text-ink-dim">
+                <pre className="max-h-80 overflow-y-auto whitespace-pre-wrap border border-rule bg-bg p-3 text-label leading-relaxed text-ink-dim">
                   {coverLetterText}
                 </pre>
               )}
@@ -692,12 +692,12 @@ export default function ReviewDetailPage() {
               <span>
                 Form-answer drafts
                 {job.form_answers && (
-                  <span className="ml-2 text-[10px] uppercase tracking-[0.16em] text-ink-faint">
+                  <span className="ml-2 text-meta uppercase tracking-[0.16em] text-ink-faint">
                     ({(job.form_answers.additional_questions ?? []).length} custom Qs)
                   </span>
                 )}
               </span>
-              <span className="text-[10px] text-ink-faint group-open:hidden">
+              <span className="text-meta text-ink-faint group-open:hidden">
                 click to open
               </span>
             </summary>
@@ -720,7 +720,7 @@ export default function ReviewDetailPage() {
           >
             {showMatchAgent ? "Hide" : "Open"} Match Agent
             {Array.isArray(job.match_chat) && job.match_chat.length > 0 && (
-              <span className="ml-2 text-[10px] uppercase tracking-[0.16em] text-green tabular-nums">
+              <span className="ml-2 text-meta uppercase tracking-[0.16em] text-green tabular-nums">
                 {job.match_chat.length} turn(s) saved
               </span>
             )}

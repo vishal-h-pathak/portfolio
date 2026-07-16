@@ -26,7 +26,7 @@ export default async function ConsoleSolitonPage() {
   return (
     <main className="internal-surface mx-auto min-h-screen max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
       <header className="mb-8">
-        <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+        <div className="flex items-center gap-2 font-mono text-meta uppercase tracking-kicker text-ink-faint">
           <span
             aria-hidden="true"
             className={
@@ -46,9 +46,9 @@ export default async function ConsoleSolitonPage() {
         </p>
       </header>
 
-      <dl className="mb-8 grid grid-cols-2 gap-x-6 gap-y-2 border border-rule p-4 font-mono text-[12px] sm:grid-cols-4">
+      <dl className="mb-8 grid grid-cols-2 gap-x-6 gap-y-2 border border-rule p-4 font-mono text-ui sm:grid-cols-4">
         <div>
-          <dt className="text-[10px] uppercase tracking-label text-ink-faint">
+          <dt className="text-meta uppercase tracking-label text-ink-faint">
             source
           </dt>
           <dd className={source === "live" ? "text-green" : "text-amber"}>
@@ -56,19 +56,19 @@ export default async function ConsoleSolitonPage() {
           </dd>
         </div>
         <div>
-          <dt className="text-[10px] uppercase tracking-label text-ink-faint">
+          <dt className="text-meta uppercase tracking-label text-ink-faint">
             as of
           </dt>
           <dd className="text-ink">{bundle.as_of}</dd>
         </div>
         <div>
-          <dt className="text-[10px] uppercase tracking-label text-ink-faint">
+          <dt className="text-meta uppercase tracking-label text-ink-faint">
             exported
           </dt>
           <dd className="text-ink">{fmtDateTime(bundle.generated_at)}</dd>
         </div>
         <div>
-          <dt className="text-[10px] uppercase tracking-label text-ink-faint">
+          <dt className="text-meta uppercase tracking-label text-ink-faint">
             schema
           </dt>
           <dd className="text-ink">v{bundle.schema_version}</dd>
@@ -88,24 +88,24 @@ export default async function ConsoleSolitonPage() {
                 </span>
                 <Pill tone={armed ? "live" : "failed"}>{t.status}</Pill>
                 {t.signals_only && <Pill tone="dim">signals only</Pill>}
-                <span className="ml-auto font-mono text-[11px] text-ink-faint">
+                <span className="ml-auto font-mono text-label text-ink-faint">
                   updated {fmtDateTime(t.last_updated)}
                 </span>
               </div>
               <p className="mt-1 text-sm text-ink-dim">{t.name}</p>
               {!t.signals_only && equity && (
-                <p className="mt-1 font-mono text-[12px] text-ink-dim">
+                <p className="mt-1 font-mono text-ui text-ink-dim">
                   paper equity {fmtMoney(equity[1])} · {t.open_positions.length}{" "}
                   open · {t.trade_log.length} closed
                 </p>
               )}
               {t.halt_reason && (
-                <p className="mt-2 border-l-2 border-red pl-3 font-mono text-[12px] text-red">
+                <p className="mt-2 border-l-2 border-red pl-3 font-mono text-ui text-red">
                   {t.halt_reason}
                 </p>
               )}
               {!t.halt_reason && lastKill?.reason && (
-                <p className="mt-2 font-mono text-[11px] text-ink-faint">
+                <p className="mt-2 font-mono text-label text-ink-faint">
                   last kill ({lastKill.as_of}): {lastKill.reason}
                 </p>
               )}
@@ -114,7 +114,7 @@ export default async function ConsoleSolitonPage() {
         })}
       </ul>
 
-      <p className="mt-8 font-mono text-[11px] tracking-[0.1em] text-ink-faint">
+      <p className="mt-8 font-mono text-label tracking-[0.1em] text-ink-faint">
         Public page:{" "}
         <Link href="/projects/soliton" className="text-ink-dim underline hover:text-ink">
           /projects/soliton

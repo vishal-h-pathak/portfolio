@@ -15,6 +15,7 @@ import {
   type Controller,
 } from "@/lib/nca";
 import type { FlyStageCtx } from "@/components/cellular-gaits/FlyStage";
+import { TOKEN } from "@/lib/tokens";
 
 // The live body is the only heavy thing here (three.js + WASM); load it lazily
 // and only when this playground mounts, so the controller route stays light.
@@ -88,10 +89,12 @@ function ampColor(t: number): string {
 const CHANNEL_LABELS = ["ch0 · motor", "ch1", "ch2", "ch3"];
 
 type Regime = { label: string; color: string };
+// reg.color is painted into the λ line on the spark canvas (px.strokeStyle) as
+// well as into inline styles, so it has to be a hex — canvas can't read var().
 function regimeFor(lambda: number): Regime {
-  if (lambda < -0.04) return { label: "ordered · limit cycle", color: "#6FE39A" };
-  if (lambda > 0.04) return { label: "chaotic", color: "#E36F6F" };
-  return { label: "edge of chaos", color: "#E89B3D" };
+  if (lambda < -0.04) return { label: "ordered · limit cycle", color: TOKEN.green };
+  if (lambda > 0.04) return { label: "chaotic", color: TOKEN.red };
+  return { label: "edge of chaos", color: TOKEN.amber };
 }
 
 const PRESETS: { label: string; gain: number }[] = [
@@ -266,7 +269,7 @@ export function CriticalityPlayground({
     const gx = grid.getContext("2d")!;
     gx.setTransform(dpr, 0, 0, dpr, 0, 0);
     gx.clearRect(0, 0, gSize, gSize);
-    gx.fillStyle = "#0B0B0C";
+    gx.fillStyle = TOKEN.bg;
     gx.fillRect(0, 0, gSize, gSize);
     const gap = 5;
     const sub = (gSize - gap) / 2;
@@ -314,7 +317,7 @@ export function CriticalityPlayground({
     }
     const sx = sense.getContext("2d")!;
     sx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    sx.fillStyle = "#0B0B0C";
+    sx.fillStyle = TOKEN.bg;
     sx.fillRect(0, 0, sSize, sSize);
     const bf = Bfree.current;
     const scw = sSize / W;

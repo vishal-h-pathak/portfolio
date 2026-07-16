@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { TOKEN } from "@/lib/tokens";
 
 export type CACanvasProps = {
   // Per-tick CA state. Shape [n_cells][n_channels] — flat, not nested by row.
@@ -63,7 +64,7 @@ export function CACanvas({
     const cellH = subSize / rows;
 
     ctx.clearRect(0, 0, size, size);
-    ctx.fillStyle = "#0B0B0C"; // var(--bg)
+    ctx.fillStyle = TOKEN.bg; // canvas can't read var(--bg)
     ctx.fillRect(0, 0, size, size);
 
     for (let ci = 0; ci < nChan; ci++) {

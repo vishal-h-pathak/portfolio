@@ -47,7 +47,7 @@ function MasterStarToggle({
     <button
       onClick={() => onChange(!isMaster)}
       aria-busy={pending || undefined}
-      className={`border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.16em] transition-colors duration-150 active:duration-0 ${
+      className={`border px-2 py-0.5 font-mono text-meta uppercase tracking-[0.16em] transition-colors duration-150 active:duration-0 ${
         pending ? "opacity-50" : ""
       } ${
         isMaster
@@ -89,12 +89,12 @@ function StoryCard({
     >
       <header className="mb-3 flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <div className="text-[11px] text-ink-dim">
+          <div className="text-label text-ink-dim">
             {story.company ?? "—"}
             {story.role ? ` · ${story.role}` : ""}
           </div>
           {story.archetype && (
-            <span className="text-[10px] uppercase tracking-[0.16em] text-ink-faint">
+            <span className="text-meta uppercase tracking-[0.16em] text-ink-faint">
               {story.archetype}
             </span>
           )}
@@ -120,7 +120,7 @@ function StoryCard({
         {fields.map((f) => (
           <div key={f.label}>
             <dt
-              className={`text-[10px] uppercase tracking-kicker ${
+              className={`text-meta uppercase tracking-kicker ${
                 f.accent ? "text-amber" : "text-ink-faint"
               }`}
             >
@@ -271,7 +271,7 @@ export default function StoriesPage() {
       <DashboardNav />
       <main className="mx-auto min-h-screen max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
         <header className="mb-6">
-          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-kicker text-ink-faint">
+          <div className="flex items-center gap-2 font-mono text-meta uppercase tracking-kicker text-ink-faint">
             <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-green" />
             Job pipeline — interview prep
           </div>
@@ -320,7 +320,7 @@ export default function StoriesPage() {
             master only
           </label>
 
-          <span className="ml-auto text-[11px] text-ink-faint tabular-nums">
+          <span className="ml-auto text-label text-ink-faint tabular-nums">
             {filtered.length} / {stories.length} stories
             {selectedIds.size > 0 && ` · ${selectedIds.size} selected`}
           </span>

@@ -11,8 +11,8 @@
  * Server component — no client JS. Sits under the rendered F formula on the page.
  */
 
-const GREEN = "#6FE39A";
-const AMBER = "#E89B3D";
+const GREEN = "var(--green)";
+const AMBER = "var(--amber)";
 
 type Term = {
   sign: "+" | "−";

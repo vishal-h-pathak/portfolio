@@ -6,6 +6,7 @@ import { useEscapeToClose } from "@/lib/useEscapeToClose";
 import { Margin } from "./Margin";
 import { Project } from "./Project";
 import { Section } from "./Section";
+import { SectionHeader } from "./SectionHeader";
 
 type BenchProps = {
   // slug -> "updated …" label, resolved server-side in app/page.tsx.
@@ -44,16 +45,14 @@ export function Bench({ updatedMap }: BenchProps) {
         />
       }
     >
-      <div className="sec-head">
-        <div>
-          <div className="eyebrow amber">§ 4 &nbsp;·&nbsp; BENCH</div>
-          <h2>Bench</h2>
-        </div>
-        <div className="status amber">{PROJECTS.length} projects</div>
-      </div>
-      <p className="bench-intro">
-        Personal projects, built independently of GTRI.
-      </p>
+      <SectionHeader
+        number="§ 4"
+        label="BENCH"
+        title="Bench"
+        accent="amber"
+        status={{ tone: "amber", label: `${PROJECTS.length} projects` }}
+        lede="Personal projects, built independently of GTRI."
+      />
       {PROJECTS.map((project) => (
         <Project
           key={project.num}

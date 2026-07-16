@@ -120,11 +120,11 @@ const ms = (s: number | null) => (s == null ? "—" : `${Math.round(s * 1000)} m
 const turn = (v: number) => (v >= 0 ? "+" : "") + v.toFixed(2);
 
 // ── the embodied-loop top-down map: threat entry + pivot instant ──────────────
-const EB_GREEN = "#6FE39A";
-const EB_THREAT = "#F2683C";
-const EB_INK = "#E8E6DF";
-const EB_SUB = "#8C8B83";
-const EB_FAINT = "#7E7A6D";
+const EB_GREEN = "var(--green)";
+const EB_THREAT = "var(--signal-onset)";
+const EB_INK = "var(--ink)";
+const EB_SUB = "var(--ink-dim)";
+const EB_FAINT = "var(--ink-faint)";
 const EB_RULE = "rgba(232,230,223,0.18)";
 const MP_W = 248;
 const MP_H = 214;
@@ -516,7 +516,7 @@ export default async function EscapeTabPage() {
               </a>{" "}
               runs drawn <strong>world-fixed, top-down</strong>, with those two moments
               marked from the recorded trace: the{" "}
-              <strong style={{ color: "#F2683C" }}>orange dot</strong>{" "}
+              <strong style={{ color: "var(--signal-onset)" }}>orange dot</strong>{" "}
               is where the looming object entered, and the{" "}
               <strong style={{ color: "var(--green)" }}>green ring</strong> is the{" "}
               <strong>pivot</strong> — the first step after onset where the fly&apos;s

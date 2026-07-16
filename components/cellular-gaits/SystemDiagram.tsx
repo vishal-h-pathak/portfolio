@@ -17,8 +17,8 @@
  * system and lives on the Embodied tab; it is not redrawn inside this SVG.
  *
  * Colour semantics:
- *   runtime path  = green  (#6FE39A)  — per control step, 250 Hz, solid
- *   training path = amber  (#E89B3D)  — per 3 s rollout, solid
+ *   runtime path  = green  (--green)  — per control step, 250 Hz, solid
+ *   training path = amber  (--amber)  — per 3 s rollout, solid
  *   sensing/feedback = green, solid   — the proprioceptive arc is closed and runs
  *                                       across the behaviors; v1 walking is open-loop
  */
@@ -59,8 +59,8 @@ const PALETTE: Record<
   Kind,
   { stroke: string; fill: string; title: string; dash?: string }
 > = {
-  runtime: { stroke: "#6FE39A", fill: "rgba(111,227,154,0.10)", title: "#6FE39A" },
-  training: { stroke: "#E89B3D", fill: "rgba(232,155,61,0.10)", title: "#E89B3D" },
+  runtime: { stroke: "var(--green)", fill: "rgba(111,227,154,0.10)", title: "var(--green)" },
+  training: { stroke: "var(--amber)", fill: "rgba(232,155,61,0.10)", title: "var(--amber)" },
   planned: {
     stroke: "rgba(232,230,223,0.3)",
     fill: "rgba(232,230,223,0.03)",
@@ -69,7 +69,7 @@ const PALETTE: Record<
   },
 };
 
-const SUB = "#8C8B83";
+const SUB = "var(--ink-dim)";
 
 const BLOCKS: Block[] = [
   {
@@ -407,10 +407,10 @@ export function SystemDiagram() {
 
         <defs>
           <marker id="sysd-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M0 0L10 5L0 10z" fill="#6FE39A" />
+            <path d="M0 0L10 5L0 10z" fill="var(--green)" />
           </marker>
           <marker id="sysd-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M0 0L10 5L0 10z" fill="#E89B3D" />
+            <path d="M0 0L10 5L0 10z" fill="var(--amber)" />
           </marker>
           <marker id="sysd-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
             <path d="M0 0L10 5L0 10z" fill="rgba(232,230,223,0.45)" />
@@ -418,13 +418,13 @@ export function SystemDiagram() {
         </defs>
 
         {/* Band headers */}
-        <text x={40} y={42} fill="#6FE39A" fontSize={11} letterSpacing="0.08em">
+        <text x={40} y={42} fill="var(--green)" fontSize={11} letterSpacing="0.08em">
           RUNTIME LOOP
         </text>
         <text x={146} y={42} fill={SUB} fontSize={11}>
           · per control step · 250 Hz
         </text>
-        <text x={40} y={376} fill="#E89B3D" fontSize={11} letterSpacing="0.08em">
+        <text x={40} y={376} fill="var(--amber)" fontSize={11} letterSpacing="0.08em">
           TRAINING LOOP
         </text>
         <text x={150} y={376} fill={SUB} fontSize={11}>
@@ -433,15 +433,15 @@ export function SystemDiagram() {
 
         {/* Training edges (amber, solid) */}
         {TRAINING_EDGES.map((e, i) => (
-          <line key={`t${i}`} x1={e[0]} y1={e[1]} x2={e[2]} y2={e[3]} stroke="#E89B3D" strokeWidth={1.5} markerEnd="url(#sysd-amber)" />
+          <line key={`t${i}`} x1={e[0]} y1={e[1]} x2={e[2]} y2={e[3]} stroke="var(--amber)" strokeWidth={1.5} markerEnd="url(#sysd-amber)" />
         ))}
-        <text x={148} y={300} fill="#E89B3D" fontSize={11}>
+        <text x={148} y={300} fill="var(--amber)" fontSize={11}>
           θ · 660 params
         </text>
 
         {/* Feedback edges (green, solid — the closed proprioceptive arc) */}
         {FEEDBACK_EDGES.map((e, i) => (
-          <line key={`f${i}`} x1={e[0]} y1={e[1]} x2={e[2]} y2={e[3]} stroke="#6FE39A" strokeWidth={1.4} markerEnd="url(#sysd-green)" />
+          <line key={`f${i}`} x1={e[0]} y1={e[1]} x2={e[2]} y2={e[3]} stroke="var(--green)" strokeWidth={1.4} markerEnd="url(#sysd-green)" />
         ))}
         <text x={390} y={352} textAnchor="middle" fill={SUB} fontSize={10.5}>
           proprioceptive feedback · closed across the behaviors · v1 walk open-loop
@@ -449,7 +449,7 @@ export function SystemDiagram() {
 
         {/* Runtime edges (green, solid) */}
         {RUNTIME_EDGES.map((e, i) => (
-          <line key={`r${i}`} x1={e[0]} y1={e[1]} x2={e[2]} y2={e[3]} stroke="#6FE39A" strokeWidth={1.5} markerEnd="url(#sysd-green)" />
+          <line key={`r${i}`} x1={e[0]} y1={e[1]} x2={e[2]} y2={e[3]} stroke="var(--green)" strokeWidth={1.5} markerEnd="url(#sysd-green)" />
         ))}
 
         {BLOCKS.map((b) => (
@@ -465,11 +465,11 @@ export function SystemDiagram() {
 
         {/* Legend */}
         <g fontSize={11}>
-          <line x1={40} y1={520} x2={66} y2={520} stroke="#6FE39A" strokeWidth={1.5} markerEnd="url(#sysd-green)" />
+          <line x1={40} y1={520} x2={66} y2={520} stroke="var(--green)" strokeWidth={1.5} markerEnd="url(#sysd-green)" />
           <text x={74} y={524} fill={SUB}>runtime</text>
-          <line x1={170} y1={520} x2={196} y2={520} stroke="#E89B3D" strokeWidth={1.5} markerEnd="url(#sysd-amber)" />
+          <line x1={170} y1={520} x2={196} y2={520} stroke="var(--amber)" strokeWidth={1.5} markerEnd="url(#sysd-amber)" />
           <text x={204} y={524} fill={SUB}>training</text>
-          <line x1={300} y1={520} x2={326} y2={520} stroke="#6FE39A" strokeWidth={1.4} markerEnd="url(#sysd-green)" />
+          <line x1={300} y1={520} x2={326} y2={520} stroke="var(--green)" strokeWidth={1.4} markerEnd="url(#sysd-green)" />
           <text x={334} y={524} fill={SUB}>feedback · closed (v1 walk open-loop)</text>
         </g>
 

@@ -39,11 +39,11 @@ import {
   type ReactNode,
 } from "react";
 
-const GREEN = "#6FE39A"; // the resolved detour heading (our controller's action)
-const AMBER = "#E89B3D"; // the odor goal beacon + the seek drive (toward goal)
-const DANGER = "#F2683C"; // the obstacle + the avoid drive (away from the wall)
-const INK = "#E8E6DF";
-const SUB = "#8C8B83";
+const GREEN = "var(--green)"; // the resolved detour heading (our controller's action)
+const AMBER = "var(--amber)"; // the odor goal beacon + the seek drive (toward goal)
+const DANGER = "var(--signal-onset)"; // the obstacle + the avoid drive (away from the wall)
+const INK = "var(--ink)";
+const SUB = "var(--ink-dim)";
 const RULE = "rgba(232,230,223,0.18)";
 
 // SVG coordinate system; the <svg> scales to fill its width. Box fractions

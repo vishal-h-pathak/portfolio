@@ -32,9 +32,9 @@ import {
   type ReactNode,
 } from "react";
 
-const GREEN = "#6FE39A"; // our hand-built stand-in
-const AMBER = "#E89B3D"; // the real Drosophila circuit
-const SUB = "#8C8B83";
+const GREEN = "var(--green)"; // our hand-built stand-in
+const AMBER = "var(--amber)"; // the real Drosophila circuit
+const SUB = "var(--ink-dim)";
 const RULE = "rgba(232,230,223,0.30)";
 
 // SVG coordinate system; the <svg> scales to fill its width. Box fractions

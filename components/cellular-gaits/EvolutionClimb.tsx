@@ -34,10 +34,10 @@ type Point = {
 const curve = evolution.curve as Point[];
 const meta = evolution.meta;
 
-const GREEN = "#6FE39A";
-const AMBER = "#E89B3D";
-const SUB = "#8C8B83";
-const INK = "#E8E6DF";
+const GREEN = "var(--green)";
+const AMBER = "var(--amber)";
+const SUB = "var(--ink-dim)";
+const INK = "var(--ink)";
 
 // ── geometry ────────────────────────────────────────────────────────────────
 const VW = 840;
