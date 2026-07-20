@@ -13,7 +13,7 @@ import {
   trackRole,
   trackStyle,
 } from "./derive";
-import { decisionAnchor } from "./digest";
+import { decisionAnchor, rationaleExcerpt } from "./digest";
 
 /**
  * The decision log — every day's journal reasoning records, verbatim,
@@ -89,6 +89,29 @@ function Entry({ track, d }: { track: SolitonTrack; d: DecisionRecord }) {
       </div>
       <EntryBody track={track} d={d} />
     </li>
+  );
+}
+
+/**
+ * A verbatim model rationale, one click deep. These run 200–400 words; dumped
+ * inline they bury the record. Show the first ~220 chars, the rest behind a
+ * native <details> (no client JS) — the full text is always one click away,
+ * never edited, never hidden. Short rationales render whole with no toggle.
+ */
+function Rationale({ text }: { text: string }) {
+  const excerpt = rationaleExcerpt({ record: "", rationale: text }, 220);
+  const truncated = excerpt != null && excerpt !== text;
+  if (!truncated) {
+    return <blockquote className="sol-rationale">{text}</blockquote>;
+  }
+  return (
+    <details className="sol-rationale-wrap">
+      <summary className="sol-rationale-summary">
+        <span className="sol-rationale sol-rationale-excerpt">{excerpt}</span>
+        <span className="sol-rationale-toggle" aria-hidden="true" />
+      </summary>
+      <blockquote className="sol-rationale sol-rationale-full">{text}</blockquote>
+    </details>
   );
 }
 
@@ -206,9 +229,7 @@ function FableDecision({
           <span className="sol-transition"> · mandate unmet</span>
         )}
       </p>
-      {d.rationale && (
-        <blockquote className="sol-rationale">{d.rationale}</blockquote>
-      )}
+      {d.rationale && <Rationale text={d.rationale} />}
       {orders.length > 0 && (
         <ul className="sol-positions">
           {orders.map((o, i) => (
@@ -283,7 +304,7 @@ function GenericRecord({ d }: { d: DecisionRecord }) {
           → <strong>{d.decision}</strong>
         </p>
       )}
-      {d.rationale && <blockquote className="sol-rationale">{d.rationale}</blockquote>}
+      {d.rationale && <Rationale text={d.rationale} />}
       {d.reason && !d.rationale && (
         <p className="sol-verbatim">“{d.reason}”</p>
       )}

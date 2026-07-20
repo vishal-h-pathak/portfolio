@@ -152,10 +152,85 @@ export function linkedTrade(
   );
 }
 
+// ── Scoreboard ──────────────────────────────────────────────────────────────
+// The one thing the verdict strip has to answer in 60 seconds: is each
+// protagonist account up or down, and up or down against SPY, since its own
+// launch. Everything null-safe so a day-zero bundle renders "not started yet"
+// rather than a fake 0.0%.
+
+export type AccountScore = {
+  /** false until the account has ≥2 equity marks (a curve, not a dot). */
+  started: boolean;
+  /** % return vs the account's starting bankroll; null pre-launch. */
+  sinceLaunchPct: number | null;
+  /** SPY buy-and-hold % over the SAME window (account launch → last mark). */
+  spyPct: number | null;
+  /** account − SPY, in percentage points; null until started. */
+  vsSpy: number | null;
+};
+
+/** Benchmark close on `date`, else the last one before it (day-zero safe). */
+function closeOnOrBefore(closes: CurvePoint[], date: string): number | null {
+  let best: number | null = null;
+  for (const [d, v] of closes) {
+    if (d <= date) best = v;
+    else break;
+  }
+  return best;
+}
+
+export function accountScore(
+  track: SolitonTrack,
+  bundle: SolitonBundle,
+): AccountScore {
+  const curve = track.equity_curve;
+  const started = curve.length >= 2;
+  const series = pctSeries(curve, track.virtual_capital);
+  const sinceLaunchPct = series.length
+    ? series[series.length - 1][1]
+    : null;
+
+  // SPY measured over the account's own span, so "vs SPY" is apples-to-apples
+  // even if an account joins the field later than the benchmark's first close.
+  const closes = bundle.benchmark?.closes ?? [];
+  const startDate = curve[0]?.[0];
+  const endDate = curve[curve.length - 1]?.[0];
+  let spyPct: number | null = null;
+  if (started && startDate && endDate) {
+    const base = closeOnOrBefore(closes, startDate);
+    const end = closeOnOrBefore(closes, endDate);
+    if (base && end != null) spyPct = ((end - base) / base) * 100;
+  }
+  const vsSpy =
+    started && sinceLaunchPct != null && spyPct != null
+      ? sinceLaunchPct - spyPct
+      : null;
+  return { started, sinceLaunchPct, spyPct, vsSpy };
+}
+
+/** "up 2.3 pts on SPY" / "behind SPY by 1.1 pts" / null when not started. */
+export function vsSpyPhrase(vsSpy: number | null): string | null {
+  if (vsSpy == null) return null;
+  if (Math.abs(vsSpy) < 0.05) return "dead even with SPY";
+  const pts = Math.abs(vsSpy).toFixed(1);
+  return vsSpy > 0 ? `up ${pts} pts on SPY` : `behind SPY by ${pts} pts`;
+}
+
 // ── Experiment state ────────────────────────────────────────────────────────
 
 export function protagonists(bundle: SolitonBundle): SolitonTrack[] {
   return bundle.tracks.filter((t) => trackRole(t) === "protagonist");
+}
+
+/** Plain-language name for an account, jargon stripped ("FA — fast bets"). */
+export function plainAccountName(track: SolitonTrack): string {
+  if (/aggr/i.test(track.name) || track.id === "FA") {
+    return "the fast-bets account";
+  }
+  if (/econ/i.test(track.name) || track.id === "FE") {
+    return "the thesis account";
+  }
+  return track.name.split("—")[0]?.trim() || track.id;
 }
 
 /** True once any capital-bearing track has ≥2 equity marks (curves move). */

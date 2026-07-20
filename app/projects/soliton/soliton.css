@@ -65,6 +65,133 @@
 }
 .sol-prelaunch strong { color: var(--amber); font-weight: 500; }
 
+/* ── verdict strip (top-of-page scoreboard) ────────────────────────────── */
+/* The 60-second answer, above the lede: state, what-this-is, per-account
+   score vs SPY, latest session. Server-rendered from the same bundle. */
+.sol-verdict {
+  margin-top: 24px;
+  border: 1px solid var(--rule);
+  border-top: 2px solid var(--green);
+  background: var(--bg-raised);
+  padding: 18px 20px;
+}
+.sol-verdict-top {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.sol-verdict-state {
+  font-family: var(--mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border: 1px solid currentColor;
+}
+.sol-verdict-state-live { color: var(--green); }
+.sol-verdict-state-sample { color: var(--amber); }
+.sol-verdict-asof {
+  font-family: var(--mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-meta);
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.sol-verdict-what {
+  margin: 12px 0 0;
+  max-width: 64ch;
+  font-size: var(--text-lede);
+  line-height: 1.55;
+  color: var(--ink-dim);
+}
+.sol-verdict-what strong { color: var(--ink); font-weight: 600; }
+.sol-verdict-note {
+  margin: 10px 0 0;
+  max-width: 64ch;
+  border-left: 2px solid var(--amber-dim);
+  padding-left: 12px;
+  font-family: var(--mono);
+  font-size: var(--text-ui);
+  line-height: 1.55;
+  color: var(--ink-faint);
+}
+.sol-verdict-note strong { color: var(--amber); }
+.sol-verdict-cards {
+  margin-top: 16px;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.sol-verdict-card {
+  border: 1px solid var(--rule-soft);
+  background: var(--bg-card);
+  padding: 12px 14px;
+}
+.sol-verdict-card-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.sol-verdict-card-id {
+  font-family: var(--mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-wide);
+  font-weight: 600;
+  color: var(--ink);
+}
+.sol-verdict-card-name {
+  font-family: var(--mono);
+  font-size: var(--text-ui);
+  color: var(--ink-faint);
+}
+.sol-verdict-num {
+  margin-top: 6px;
+  font-family: var(--mono);
+  font-size: var(--text-metric);
+  line-height: 1.1;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.sol-verdict-num-sub {
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-meta);
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.sol-verdict-vs {
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: var(--text-ui);
+  letter-spacing: var(--tracking-data);
+}
+.sol-verdict-latest {
+  margin: 16px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule-soft);
+  font-family: var(--mono);
+  font-size: var(--text-ui);
+  line-height: 1.6;
+  color: var(--ink-dim);
+}
+.sol-verdict-latest-k {
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--ink-faint);
+  margin-right: 6px;
+}
+.sol-verdict-latest a {
+  color: var(--green);
+  white-space: nowrap;
+  border-bottom: 1px solid var(--green-dim);
+}
+.sol-verdict-latest a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+/* inline plain-language gloss inside prose */
+.sol-gloss { color: var(--ink-faint); font-style: italic; }
+
 /* ── race chart ────────────────────────────────────────────────────────── */
 
 .sol-race { margin: 0; }
@@ -174,6 +301,26 @@
   font-style: italic;
   color: var(--ink);
 }
+/* rationale one click deep — native <details>, no client JS (P6f) */
+.sol-rationale-wrap { margin: 8px 0 4px; }
+.sol-rationale-wrap .sol-rationale { margin: 0; }
+.sol-rationale-summary { cursor: pointer; list-style: none; display: block; }
+.sol-rationale-summary::-webkit-details-marker { display: none; }
+.sol-rationale-excerpt { display: block; }
+.sol-rationale-toggle {
+  display: inline-block;
+  margin: 5px 0 0 14px;
+  font-family: var(--mono);
+  font-style: normal;
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-data);
+  color: var(--green);
+}
+.sol-rationale-toggle::after { content: "+ read the model\2019s full reasoning"; }
+.sol-rationale-summary:hover .sol-rationale-toggle { color: var(--ink); }
+.sol-rationale-wrap[open] .sol-rationale-excerpt { display: none; }
+.sol-rationale-wrap[open] .sol-rationale-toggle::after { content: "\2212 hide full reasoning"; }
+.sol-rationale-full { display: block; }
 .sol-order {
   font-family: var(--mono);
   font-size: var(--text-ui);
@@ -311,6 +458,12 @@
 .sol-v .sol-dim { color: var(--ink-faint); }
 
 .sol-ivdial { width: 100%; height: auto; margin-top: 6px; display: block; }
+.sol-ivdial-gloss {
+  margin: 6px 0 0;
+  font-size: var(--text-cap);
+  line-height: 1.5;
+  color: var(--ink-faint);
+}
 
 .sol-dials { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 6px; }
 .sol-dial {
@@ -406,6 +559,33 @@
   font-size: var(--text-cap);
   line-height: 1.65;
   color: var(--ink-dim);
+}
+
+/* plain-language key + collapsed track panels reuse .sol-detail, but need
+   full width (the design-story details are capped at a reading measure). */
+.sol-key,
+.sol-tracks-detail { max-width: 100%; }
+.sol-key { margin: 0 0 24px; }
+.sol-key-dl { margin: 0; display: grid; gap: 10px; }
+.sol-key-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 190px) 1fr;
+  gap: 12px;
+  align-items: baseline;
+}
+.sol-key-row dt {
+  font-family: var(--mono);
+  font-size: var(--text-ui);
+  color: var(--ink);
+}
+.sol-key-row dd {
+  margin: 0;
+  font-size: var(--text-cap);
+  line-height: 1.55;
+  color: var(--ink-dim);
+}
+@media (max-width: 560px) {
+  .sol-key-row { grid-template-columns: 1fr; gap: 2px; }
 }
 
 .sol-table {

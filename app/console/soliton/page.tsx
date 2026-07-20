@@ -39,6 +39,18 @@ export default async function ConsoleSolitonPage() {
         <h1 className="mt-3 font-serif text-2xl tracking-tight text-ink">
           Track arm/halt state
         </h1>
+        <p className="mt-2 max-w-prose text-sm text-ink">
+          Owner-only operations check: is the engine alive and which tracks are
+          armed vs halted right now? The public story — the scoreboard, the
+          day-by-day record, the reasoning — lives at{" "}
+          <Link
+            href="/projects/soliton"
+            className="text-ink-dim underline hover:text-ink"
+          >
+            /projects/soliton
+          </Link>
+          .
+        </p>
         <p className="mt-2 max-w-prose text-sm text-ink-dim">
           What the last export bundle reported. Halt and re-arm happen at
           the engine (see the trading-agent RUNBOOK) — this view is

@@ -5,7 +5,7 @@ import type {
   SolitonBundle,
   SolitonTrack,
 } from "@/app/lib/soliton-export";
-import { trackRole } from "./derive";
+import { fmtDate, trackRole } from "./derive";
 
 /**
  * The daily digest — pure derivations for the written day-over-day log.
@@ -161,6 +161,52 @@ export function digestDays(bundle: SolitonBundle): DigestDay[] {
       spyPct: spyPctOn(bundle, date),
     }))
     .reverse(); // newest first
+}
+
+// ── Latest-session one-liner (for the verdict strip) ─────────────────────────
+// The 60-second reader's answer to "what did it do TODAY?", in words a
+// non-trader can parse — no structures, no tickers-as-jargon. Derived from the
+// same digest data, so it can never drift from the record below.
+
+function faClause(day: DigestDay): string | null {
+  const f = day.fa;
+  if (!f) return null;
+  const outcome = f.record.validation?.outcome ?? "";
+  if (outcome === "all_orders_invalid") {
+    return "the fast-bets account tried a trade but its own risk caps blocked it";
+  }
+  if (outcome === "stand_aside_mandate_violation") {
+    return "the fast-bets account stood aside";
+  }
+  if ((f.record.orders?.length ?? 0) > 0) {
+    return f.record.mandate_forced
+      ? "the fast-bets account made a trade (forced by its daily-trade rule)"
+      : "the fast-bets account placed a bet";
+  }
+  return "the fast-bets account logged a session";
+}
+
+function feClause(day: DigestDay): string | null {
+  const f = day.fe;
+  if (!f) return null;
+  const buys = orderSymbols(f.record, "buy");
+  if (buys.length > 0) {
+    return `the thesis account bought ${englishList(buys)}`;
+  }
+  return "the thesis account held its positions";
+}
+
+/** e.g. "Day 1 (Jul 07): the thesis account bought MU and VRT; the fast-bets
+ * account tried a trade but its own risk caps blocked it." Null pre-launch. */
+export function latestSessionSummary(bundle: SolitonBundle): string | null {
+  const days = digestDays(bundle);
+  if (days.length === 0) return null;
+  const d = days[0];
+  const clauses = [feClause(d), faClause(d)].filter(
+    (c): c is string => typeof c === "string",
+  );
+  if (clauses.length === 0) return null;
+  return `Day ${d.dayNumber} (${fmtDate(d.date)}): ${clauses.join("; ")}.`;
 }
 
 // ── Order/record readings used by the prose templates ───────────────────────

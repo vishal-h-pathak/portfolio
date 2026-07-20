@@ -256,6 +256,10 @@ function IvDial({ ivRank, gate }: { ivRank: number; gate: number | null }) {
           100
         </text>
       </svg>
+      <p className="sol-ivdial-gloss">
+        IV rank = how expensive options insurance is right now (0–100 vs the
+        past year); this control only sells above its gate.
+      </p>
     </div>
   );
 }

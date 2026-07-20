@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { getSolitonExport } from "@/app/lib/soliton-export";
 import {
-  fmtDate,
   fmtDateTime,
   hasHistory,
   protagonists,
@@ -14,6 +13,7 @@ import { RaceChart } from "@/components/soliton/RaceChart";
 import { DailyDigest } from "@/components/soliton/DailyDigest";
 import { DecisionLog } from "@/components/soliton/DecisionLog";
 import { TrackPanel } from "@/components/soliton/TrackPanel";
+import { VerdictStrip } from "@/components/soliton/VerdictStrip";
 
 export const metadata: Metadata = {
   title: "Soliton — can the most advanced available model trade?",
@@ -38,30 +38,42 @@ export default async function SolitonPage() {
         <h1 className="sol-title">
           Can the most advanced available model trade?
         </h1>
+
+        {/* verdict strip — answers the 60-second questions before the prose */}
+        <VerdictStrip bundle={bundle} source={source} />
+
         <div className="sol-lede">
           <p>
-            This plate used to be{" "}
-            <a href="/projects/meridian">MERIDIAN</a>{" "}— five specialist LLMs
-            deliberating over filings and news sentiment. It produced
-            sophisticated reasoning and, in two months, exactly one trade. The
-            honest review: an analysis engine with no defined edge. SOLITON is
-            the rebuild — the predecessor&rsquo;s console is{" "}
-            <a href="/projects/meridian">preserved as an archive</a>. Every
-            strategy here is a mechanical, pre-registered rule set — same
-            inputs, same trade — backtested before it touches even paper
-            money, and run in public.
+            <strong>The experiment:</strong> two paper accounts are run by{" "}
+            <strong>Fable</strong>, the most advanced Claude model available over
+            an API, both under a <em>daily-trade mandate</em> (each must act at
+            least once a session — so a trade here is not automatically
+            conviction).{" "}
+            <strong>Fable-aggressive (FA)</strong> makes short-dated options bets{" "}
+            <span className="sol-gloss">
+              (cheap bets that pay off big if the market lurches around scheduled
+              events like a CPI print or a Fed meeting)
+            </span>{" "}
+            inside caps enforced by code, not prompt.{" "}
+            <strong>Fable-economist (FE)</strong> keeps a written thesis journal
+            on the AI economy — with web search as its eyes — and buys the
+            companies it argues are the leverage points. Everything else on this
+            page is a reference line to beat: a mechanical control strategy, a
+            market-state overlay, and SPY buy-and-hold.
           </p>
           <p>
-            The experiment sitting on top: <strong>two paper accounts are run
-            by Fable</strong>, the most advanced Claude model available over an
-            API, both under a daily-trade mandate.{" "}
-            <strong>Fable-aggressive (FA)</strong> buys short-dated convexity
-            off the macro calendar, inside caps enforced by code, not prompt.{" "}
-            <strong>Fable-economist (FE)</strong> keeps a running thesis
-            journal on the AI economy — with web search as its eyes — and buys
-            the structural leverage points it finds. Everything else on this
-            page is a reference line: the mechanical control, the
-            dynamical-state overlay, SPY buy-and-hold.
+            {!live && fable.length > 0 ? (
+              <>Every account is at day zero; the curves draw themselves from
+              here. </>
+            ) : null}
+            <strong>Where it came from:</strong> this plate used to be{" "}
+            <a href="/projects/meridian">MERIDIAN</a> — five specialist LLMs
+            deliberating over filings and news sentiment. It produced
+            sophisticated reasoning and, in two months, exactly one trade: an
+            analysis engine with no defined edge. SOLITON is the rebuild
+            (MERIDIAN is <a href="/projects/meridian">kept as an archive</a>).
+            Every strategy here is a mechanical, pre-registered rule set,
+            backtested before it touches even paper money, and run in public.
           </p>
           <p style={{ color: "var(--ink-faint)" }}>
             Success was defined before launch: beat the controls over 100+
@@ -74,33 +86,21 @@ export default async function SolitonPage() {
             </a>
           </p>
         </div>
-
-        {(!live || fable.length === 0) && (
-          <aside className="sol-prelaunch" aria-label="Pre-launch status">
-            <strong>PRE-LAUNCH</strong> — as of {fmtDate(bundle.as_of)}
-            {fable.length === 0 ? (
-              <>
-                {" "}
-                the protagonists aren&rsquo;t on the field yet: the Fable
-                accounts join with the next engine phase. The reference tracks
-                below are already cycling and logging — every record shown is
-                real engine output.
-              </>
-            ) : (
-              <>
-                {" "}
-                every account is at day zero. The curves draw themselves from
-                here.
-              </>
-            )}
-          </aside>
-        )}
       </section>
 
-      {/* ── the race ──────────────────────────────────────────────────── */}
+      {/* ── daily digest (the hero: the record in plain language) ──────── */}
+      <section className="sol-section" aria-labelledby="sol-digest-head">
+        <h2 className="sol-section-head" id="sol-digest-head">
+          The record — day by day, in plain language
+        </h2>
+        <PlainLanguageKey />
+        <DailyDigest bundle={bundle} />
+      </section>
+
+      {/* ── the race (the same story as a chart) ───────────────────────── */}
       <section className="sol-section" aria-labelledby="sol-race-head">
         <h2 className="sol-section-head" id="sol-race-head">
-          The race — % return since inception, paper accounts
+          The race — the same accounts as one chart, % return since launch
         </h2>
         <RaceChart bundle={bundle} />
         <div className="sol-legend">
@@ -132,14 +132,6 @@ export default async function SolitonPage() {
         </p>
       </section>
 
-      {/* ── daily digest ──────────────────────────────────────────────── */}
-      <section className="sol-section" aria-labelledby="sol-digest-head">
-        <h2 className="sol-section-head" id="sol-digest-head">
-          The daily digest — the record, day by day
-        </h2>
-        <DailyDigest bundle={bundle} />
-      </section>
-
       {/* ── decision log ──────────────────────────────────────────────── */}
       <section className="sol-section" aria-labelledby="sol-log-head">
         <h2 className="sol-section-head" id="sol-log-head">
@@ -155,16 +147,30 @@ export default async function SolitonPage() {
         <DecisionLog bundle={bundle} />
       </section>
 
-      {/* ── track panels ──────────────────────────────────────────────── */}
+      {/* ── track panels (progressive disclosure — the deep view) ──────── */}
       <section className="sol-section" aria-labelledby="sol-tracks-head">
         <h2 className="sol-section-head" id="sol-tracks-head">
-          The tracks
+          Under the hood — every track&rsquo;s live panel
         </h2>
-        <div className="sol-panels">
-          {bundle.tracks.map((t) => (
-            <TrackPanel key={t.id} track={t} />
-          ))}
-        </div>
+        <p className="sol-lede" style={{ marginTop: 0, marginBottom: 16 }}>
+          One panel per track: paper equity, its win/loss record, open positions,
+          and — kept in plain sight — the honest evidence label and any safety
+          halt. The two Fable accounts are the experiment; the rest are the
+          reference lines they&rsquo;re measured against.
+        </p>
+        <details className="sol-detail sol-tracks-detail">
+          <summary>
+            Open the {bundle.tracks.length} track panels (equity · records ·
+            positions · alarms)
+          </summary>
+          <div className="sol-detail-body">
+            <div className="sol-panels">
+              {bundle.tracks.map((t) => (
+                <TrackPanel key={t.id} track={t} />
+              ))}
+            </div>
+          </div>
+        </details>
       </section>
 
       {/* ── methodology ───────────────────────────────────────────────── */}
@@ -237,6 +243,38 @@ export default async function SolitonPage() {
         </div>
       </section>
     </>
+  );
+}
+
+/**
+ * The plain-language key — the honest-but-jargon-heavy labels this page
+ * insists on keeping, each translated once. Collapsed by default so it never
+ * competes with the record; there for the visitor who hits a term cold.
+ */
+function PlainLanguageKey() {
+  const terms: [string, string][] = [
+    ["paper money", "virtual $100k (or a smaller ring-fenced bankroll) traded against real prices — no real money moves."],
+    ["daily-trade mandate", "each Fable account must take at least one action every session, so some trades are obligation, not conviction — those are flagged."],
+    ["mandate-forced", "the model itself flagged a trade as taken only to satisfy that rule."],
+    ["IV rank (0–100)", "how expensive options insurance is right now versus the past year — high means pricey."],
+    ["put spread / iron condor", "defined-risk options bets: you know the most you can lose up front."],
+    ["evidence label", "each track wears its honest status: control = a yardstick, not a bet; negative / unproven = the backtest found no edge; shadow = tracked for signal only, no money."],
+    ["SPY buy-and-hold", "just holding the S&P 500 — the do-nothing baseline every strategy has to beat."],
+  ];
+  return (
+    <details className="sol-detail sol-key">
+      <summary>Plain-language key — what the labels on this page mean</summary>
+      <div className="sol-detail-body">
+        <dl className="sol-key-dl">
+          {terms.map(([t, d]) => (
+            <div key={t} className="sol-key-row">
+              <dt>{t}</dt>
+              <dd>{d}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </details>
   );
 }
 
