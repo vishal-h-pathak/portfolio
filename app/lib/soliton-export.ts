@@ -9,16 +9,25 @@ import sampleBundle from "@/content/soliton/site-export.sample.json";
  * `python -m soliton.engine push-export` — default target: table
  * `site_export`, one upserted row `id='soliton'` with the bundle in a
  * `bundle` jsonb column. The contract is docs/SITE_EXPORT_SCHEMA.md in the
- * trading-agent repo (schema_version 2); the engine validates every bundle
- * against it before writing, including public-safety greps (no keys, no
- * account ids, no order ids) — so serving it verbatim from a public page
- * is by construction safe.
+ * trading-agent repo; the engine validates every bundle against it before
+ * writing, including public-safety greps (no keys, no account ids, no order
+ * ids) — so serving it verbatim from a public page is by construction safe.
+ *
+ * Schema versions: we speak v2 and v3. v3 was an ADDITIVE bump — it added
+ * fields (top-level `methodology`; per-fable-decision `llm_backend` /
+ * `llm_client_version`; `cost.billing`) without changing or removing any v2
+ * field. Per the versioning policy additive keys may appear WITHOUT a bump,
+ * so validation only asserts the fields we actually render and tolerates
+ * unknown extras. We accept any version in SUPPORTED_SCHEMA_VERSIONS.
  *
  * Server-only (imports the service-role client). Never throws: any
- * failure — missing env, missing table, wrong schema_version — falls back
- * to the checked-in sample fixture (a real P4 dry-run bundle), so the page
- * static-renders the pre-launch state instead of erroring. Mirrors the
- * getFleetStatus / getBenchActivity never-throws contract.
+ * failure — missing env, missing table, malformed bundle — falls back to the
+ * checked-in sample fixture, so the page static-renders the pre-launch state
+ * instead of erroring. Mirrors the getFleetStatus / getBenchActivity
+ * never-throws contract. The fallback is NEVER silent: when a live row is
+ * present but rejected (notably a schema_version we don't yet speak — exactly
+ * the class of bug a future additive→breaking bump would cause), we log the
+ * reason and surface it on `SolitonExport.fallbackReason` so it is visible.
  */
 
 // ── Schema v2 types (docs/SITE_EXPORT_SCHEMA.md) ───────────────────────────
@@ -162,6 +171,10 @@ export type FableCost = {
   input_tokens?: number;
   output_tokens?: number;
   web_searches?: number;
+  // v3 — how this decision's LLM call was billed: "metered" (Anthropic API,
+  // real per-token spend) or "subscription" (headless Claude Code on the
+  // operator's Claude Max plan, no marginal cost).
+  billing?: "metered" | "subscription" | string;
   [key: string]: unknown;
 };
 
@@ -196,6 +209,11 @@ export type DecisionRecord = {
   orders?: OrderSummary[];
   // fable_decision (v2)
   model?: string;
+  // v3 — transport of the LLM call: "anthropic_api" (metered) or
+  // "claude_code" (headless, on the Claude Max subscription). Paired with
+  // llm_client_version (e.g. the Claude Code version string).
+  llm_backend?: string;
+  llm_client_version?: string;
   prompt_version?: string;
   prompt_sha256?: string;
   state_packet_sha256?: string;
@@ -239,34 +257,55 @@ export type SolitonBundle = {
   as_of: string;
   benchmark: { symbol: string; closes: CurvePoint[] };
   tracks: SolitonTrack[];
+  // v3, optional — operator prose describing how LLM decisions are made and
+  // billed (rendered as text only; never as markup).
+  methodology?: string[];
 };
 
 export type SolitonExport = {
   bundle: SolitonBundle;
   /** "live" = read from Supabase this render; "sample" = checked-in fixture. */
   source: "live" | "sample";
+  /** Set only when we HAD a live row but fell back to the sample anyway —
+   * the human-readable reason (e.g. an unsupported schema_version). Undefined
+   * on a clean live read or an expected pre-launch fallback. */
+  fallbackReason?: string;
 };
 
 // ── Fetch ───────────────────────────────────────────────────────────────────
 
-const SCHEMA_VERSION = 2;
+// Every version whose rendered shape we understand. v3 is additive over v2
+// (see the header comment), so both render with the same code. A future
+// version is rejected rather than misrendered — but LOUDLY (see below), so
+// the next additive bump is a one-line edit here, not a silent blank page.
+const SUPPORTED_SCHEMA_VERSIONS = [2, 3];
 
-function isBundle(x: unknown): x is SolitonBundle {
-  if (typeof x !== "object" || x === null) return false;
+/**
+ * Validate a candidate bundle. Returns null if it is a bundle we can render,
+ * otherwise a human-readable rejection reason. We assert only the fields the
+ * page actually reads (version, generated_at, as_of, and each track's id +
+ * equity_curve) and ignore unknown/additive keys — that tolerance is what
+ * lets an additive bump land without a code change.
+ */
+function bundleRejectReason(x: unknown): string | null {
+  if (typeof x !== "object" || x === null) return "bundle is not an object";
   const b = x as Record<string, unknown>;
-  return (
-    b.schema_version === SCHEMA_VERSION &&
-    typeof b.generated_at === "string" &&
-    typeof b.as_of === "string" &&
-    Array.isArray(b.tracks) &&
-    b.tracks.every(
-      (t) =>
-        typeof t === "object" &&
-        t !== null &&
-        typeof (t as Record<string, unknown>).id === "string" &&
-        Array.isArray((t as Record<string, unknown>).equity_curve),
-    )
+  if (typeof b.schema_version !== "number")
+    return `missing/non-numeric schema_version (${typeof b.schema_version})`;
+  if (!SUPPORTED_SCHEMA_VERSIONS.includes(b.schema_version))
+    return `unsupported schema_version ${b.schema_version} (this reader speaks ${SUPPORTED_SCHEMA_VERSIONS.join("/")}) — likely a new bundle version the reader hasn't been taught yet`;
+  if (typeof b.generated_at !== "string") return "missing generated_at";
+  if (typeof b.as_of !== "string") return "missing as_of";
+  if (!Array.isArray(b.tracks)) return "tracks is not an array";
+  const bad = b.tracks.findIndex(
+    (t) =>
+      typeof t !== "object" ||
+      t === null ||
+      typeof (t as Record<string, unknown>).id !== "string" ||
+      !Array.isArray((t as Record<string, unknown>).equity_curve),
   );
+  if (bad !== -1) return `track[${bad}] missing id or equity_curve`;
+  return null;
 }
 
 const SAMPLE: SolitonBundle = sampleBundle as unknown as SolitonBundle;
@@ -282,14 +321,30 @@ export async function getSolitonExport(): Promise<SolitonExport> {
       .eq("id", "soliton")
       .maybeSingle();
 
-    // A schema_version we don't speak is treated as absent (the versioning
-    // policy says a bump means breaking change — safer to show the honest
-    // pre-launch fixture than to misrender live money curves).
-    if (error || !data || !isBundle(data.bundle)) {
+    if (error) {
+      const reason = `site_export query error: ${error.message}`;
+      console.warn(`[soliton-export] falling back to sample — ${reason}`);
+      return { bundle: SAMPLE, source: "sample", fallbackReason: reason };
+    }
+    if (!data) {
+      // No row yet — the expected pre-launch state. Quiet, non-alarming.
       return { bundle: SAMPLE, source: "sample" };
     }
-    return { bundle: data.bundle, source: "live" };
-  } catch {
-    return { bundle: SAMPLE, source: "sample" };
+
+    // A row exists. If we reject it we are choosing the fixture over real
+    // data, so this must NEVER be silent — log the reason and surface it.
+    const reason = bundleRejectReason(data.bundle);
+    if (reason) {
+      console.warn(
+        `[soliton-export] live row present but rejected; serving sample instead — ${reason}`,
+      );
+      return { bundle: SAMPLE, source: "sample", fallbackReason: reason };
+    }
+
+    return { bundle: data.bundle as SolitonBundle, source: "live" };
+  } catch (e) {
+    const reason = e instanceof Error ? e.message : String(e);
+    console.warn(`[soliton-export] falling back to sample — threw: ${reason}`);
+    return { bundle: SAMPLE, source: "sample", fallbackReason: reason };
   }
 }
