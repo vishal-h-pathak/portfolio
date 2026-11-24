@@ -1,8 +1,7 @@
 /*
-  Shared shell for every project micro-site (Soliton, Cellular Gaits,
-  Meridian archive) — one topbar + one footer, imported by each segment's
-  layout.tsx. Reconciles the drifted .sol-topbar/.cg-topbar and
-  .sol-footer/.cg-footer forks (padding, z-index, align-items, breakpoint)
+  Shared shell for every project micro-site (VANE, Cellular Gaits) — one topbar + one footer, imported by each segment's
+  layout.tsx. Reconciles the drifted per-project topbar and
+  footer forks (padding, z-index, align-items, breakpoint)
   into one component + one token set (W5/#23, W5/#28). Colors come
   exclusively from the :root tokens in globals.css.
 */
@@ -46,7 +45,7 @@
   .proj-topbar-brand { gap: 6px; }
 }
 /* Brand truncates before it wraps: drop the full name under 480px, keep
-   "BENCH · B-0N" (W5/#23 — the two-line wrap on soliton at 390). */
+   "BENCH · B-0N" (W5/#23 — the two-line wrap at 390). */
 @media (max-width: 480px) {
   .proj-topbar-brand-name,
   .proj-topbar-sep {
@@ -61,7 +60,7 @@
 
    It was violated one click later (W6/#27). Cellular Gaits is a BENCH project —
    its tab nav and section heads are already amber — yet its identity eyebrow
-   rendered green, while Soliton, the other bench project, got a colorless
+   rendered green, while VANE, the other bench project, got a colorless
    ink-faint kicker. The same element, two different colors, neither matching
    the legend. Both are bench plates, so both are amber. */
 .plate-kicker {
@@ -74,8 +73,7 @@
 }
 
 /* The serif display title on a project plate — the same shared formula as the
-   landing h1, .cg-title and .sol-title. Used by the Meridian archive, which
-   had no h1 at all (W6/#12). */
+   landing h1 and .cg-title. */
 .proj-plate-title {
   font-family: var(--serif);
   font-size: var(--text-display);

@@ -2,7 +2,7 @@
 
 /**
  * Button primitives — the register's single action language, shared by
- * every console tab (job pipeline, credits, soliton, agent runbooks).
+ * every console tab (job pipeline, credits, agent runbooks).
  *
  * Visually these are the notebook's .btn spec (mono, small, tracked,
  * 1px hairline, square corners, transparent fill) with dashboard

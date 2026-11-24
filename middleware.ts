@@ -23,8 +23,7 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  // Gate the whole console surface and its API. Moving meridian under
-  // /console means it inherits the gate (it used to be ungated). The
+  // Gate the whole console surface and its API. The
   // public /api/bench/activity feed is deliberately NOT matched.
   matcher: ["/console/:path*", "/api/console/:path*"],
 };

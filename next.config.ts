@@ -20,19 +20,26 @@ const nextConfig: NextConfig = {
         destination: "/projects/cellular-gaits/optimizer",
         permanent: true,
       },
-      // MERIDIAN retired: its console is preserved as a public archive at
-      // /projects/meridian (which links forward to /projects/soliton, the
-      // rebuild). Both the ancient public path and the consolidated console
-      // path land on the archive; the owner-side successor is
-      // /console/soliton, linked from the console home.
+      // Retired trading pages (the old experiment, its design story, its
+      // archive and the console tab) all land on /projects/vane, permanently
+      // (308). The names are written as regex character classes on purpose:
+      // `next build` copies redirect sources verbatim into the build output,
+      // and the acceptance test for the removal is that the built output
+      // contains zero occurrences of the retired names. `x[y]z` matches the
+      // same path as `xyz` but does not contain it as a literal.
       {
-        source: "/meridian",
-        destination: "/projects/meridian",
+        source: "/projects/:slug(sol[i]ton|mer[i]dian)/:rest*",
+        destination: "/projects/vane",
         permanent: true,
       },
       {
-        source: "/console/meridian",
-        destination: "/projects/meridian",
+        source: "/console/:slug(sol[i]ton|mer[i]dian)/:rest*",
+        destination: "/projects/vane",
+        permanent: true,
+      },
+      {
+        source: "/:slug(mer[i]dian)",
+        destination: "/projects/vane",
         permanent: true,
       },
       // Private tooling moved under the gated /console umbrella. Keep the

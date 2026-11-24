@@ -17,7 +17,7 @@ That present-tense interest — agentic builder, learning these tools to stay ah
 Good communicator, creative problem-solver, works best with clear direction and a compelling reason to solve the problem. Self-aware about needing external structure to stay focused. Strong once pointed at something.
 
 ## Key technical skills
-**Agentic / current:** frontier agentic workflows for building real tools end-to-end (the portfolio itself, Meridian trading telemetry, Cellular Gaits, the job pipeline, Papercuts), multi-machine agent orchestration, LLM app plumbing (Anthropic SDK, Supabase, Next.js/React).
+**Agentic / current:** frontier agentic workflows for building real tools end-to-end (the portfolio itself, VANE trading experiment, Cellular Gaits, the job pipeline, Papercuts), multi-machine agent orchestration, LLM app plumbing (Anthropic SDK, Supabase, Next.js/React).
 **Applied ML/CV & embedded (GTRI breadth):** RT-DETRv2, PyTorch, TensorFlow, HPC training, embedded ML (Jetson Orin), real-world CV deployment.
 **Neuromorphic / hardware (roots):** VHDL SNN implementation, Intel Kapoho Bay, memristive hardware, DNN→SNN conversion, FlyGym, MuJoCo, Brian2, Gymnasium API, PCB design (EagleCAD/Altium), C++, Python.
 > The full breadth of the GTRI skillset is documented in files within the `portfolio` and `job-pipeline` projects — pull from those when detailing experience rather than relying on this summary alone.

@@ -17,7 +17,7 @@ const CSS = [
   "app/globals.css",
   "app/_internal.css",
   "app/projects/project-shell.css",
-  "app/projects/soliton/soliton.css",
+  "app/projects/vane/vane.css",
 ];
 const SRC_DIRS = ["app", "components", "lib", "content"];
 

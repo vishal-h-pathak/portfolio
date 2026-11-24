@@ -7,7 +7,7 @@
 // Adding a project = drop one `<slug>.ts` file and add it to RAW below.
 
 import type { Project, ProjectTier } from "./schema";
-import { soliton } from "./soliton";
+import { vane } from "./vane";
 import { papercuts } from "./papercuts";
 import { jobPipeline } from "./job-pipeline";
 import { cellularGaits } from "./cellular-gaits";
@@ -17,9 +17,9 @@ import { thisSite } from "./this-site";
 export * from "./schema";
 
 // Array order is the display order and must match ascending `num` plates
-// (enforced below) — soliton inherits meridian's B-01 slot, "This site"
+// (enforced below) — vane holds the B-01 slot, "This site"
 // stays the closing B-06 entry.
-const RAW: Project[] = [soliton, papercuts, jobPipeline, cellularGaits, fleetControlSystem, thisSite];
+const RAW: Project[] = [vane, papercuts, jobPipeline, cellularGaits, fleetControlSystem, thisSite];
 
 // Build-time integrity guard. Plain TS (no zod in the client bundle): runs at
 // module load, so a malformed or duplicated entry throws and fails the build.

@@ -3,7 +3,7 @@
   THE TOKEN LAYER — REFACTOR_PLAN Step 3.
   The single source of truth for every color, size, tracking, gutter and
   container width on the site. Imported first by app/globals.css, so every
-  other stylesheet (globals, project-shell, soliton, _internal) can consume
+  other stylesheet (globals, project-shell, vane, _internal) can consume
   these and nothing else.
 
   Rules of the road:
@@ -55,16 +55,12 @@
 
   /* ONE red. There were three: #E36F6F (--chaos, declared in a second :root
      halfway down globals.css), #E0655B (the cockpit's "failed" tone, declared
-     in _internal.css) and #ef4444 (meridian) — two of which shipped on public
+     in _internal.css) and a retired exhibit's #ef4444 — two of which shipped on public
      surfaces at once. The cockpit's value wins because it is the one that was
      measured against --bg for 4.5:1. Red is a STATUS/DATA color, not a third
      accent: the accent system is still exactly green (research/live) and amber
      (bench/build).
-
-     Meridian keeps its own #ef4444 — that page is an archived exhibit that
-     reproduces the retired dashboard's own palette, and its contrast was tuned
-     against its own #0a0a0a ground in W2/#16. Re-theming it onto site tokens
-     would falsify the archive. */
+ */
   --red: #e0655b;
   --red-dim: color-mix(in srgb, var(--red) 40%, transparent);
   /* Semantic alias — the criticality playground's "chaotic regime" reads in the
@@ -159,7 +155,7 @@
   /* ── Containers ───────────────────────────────────────────────────────── *
      --w-page  chrome that spans the full site (nav, .page grid, footer)
      --w-prose the reading column every project micro-site centers on. One
-               measure, so navigating landing → soliton → cellular-gaits stops
+               measure, so navigating landing → vane → cellular-gaits stops
                moving the text column sideways (W6/#25). Landing stays
                left-anchored inside --w-page by design — that asymmetry is a
                choice; 920-vs-980-vs-1080 was not. */

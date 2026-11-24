@@ -61,7 +61,7 @@ a { color: inherit; text-decoration: none; }
 ::selection { background: var(--ink); color: var(--bg); }
 
 /* ===== TYPE ===== */
-/* All three page titles (landing h1, .cg-title, .sol-title) share ONE display
+/* All three page titles (landing h1, .cg-title, project titles) share ONE display
    formula — see --text-display in tokens.css (W6/#12). */
 h1, h2, h3 {
   font-family: var(--serif);
@@ -1036,7 +1036,7 @@ section.nb.visible .row > div > *:nth-child(n + 5) { transition-delay: 280ms; }
   margin: 0 0 16px;
 }
 
-/* The shared display formula — same as the landing h1 and .sol-title. This page
+/* The shared display formula — same as the landing h1 and project titles. This page
    used to render its title at 64px, out-shouting the site's own thesis at 52px
    while the live experiment whispered at 44px (W6/#12). */
 .cg-title {

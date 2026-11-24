@@ -1,7 +1,7 @@
 /**
  * Pill — the console's single status-marker primitive (mono, 10px,
  * tracked, square, hairline border in the tone's dim color). Every
- * status/tag marker on the console (job pipeline, credits, soliton,
+ * status/tag marker on the console (job pipeline, credits,
  * agent runbooks) renders through this. Per-status ad-hoc styling
  * anywhere else is a bug.
  *

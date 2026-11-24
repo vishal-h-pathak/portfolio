@@ -1,0 +1,101 @@
+/*
+  VANE page — scoped styles (.vane-*). Imported only by
+  app/projects/vane/layout.tsx. Every color is a :root token from tokens.css;
+  topbar/footer/kicker come from the shared project-shell.css.
+*/
+.vane-page { max-width: var(--w-prose); margin: 0 auto; padding: 48px var(--gutter) 80px; }
+@media (max-width: 700px) { .vane-page { padding: 32px var(--gutter) 64px; } }
+
+.vane-title {
+  font-family: var(--serif);
+  font-size: var(--text-display);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  text-wrap: balance;
+  margin: 12px 0 0;
+  color: var(--ink);
+}
+.vane-dim { color: var(--ink-dim); font-size: var(--text-note); }
+.vane-pos { color: var(--green); }
+.vane-neg { color: var(--red); }
+
+/* notices: empty / error / stale share a shape, differ in accent */
+.vane-notice {
+  margin-top: 28px; padding: 14px 18px;
+  border: 1px solid var(--rule); border-left: 3px solid var(--ink-faint);
+  font-family: var(--mono); font-size: var(--text-note); line-height: 1.6; color: var(--ink-dim);
+}
+.vane-notice strong { color: var(--ink); font-weight: 600; }
+.vane-notice-wait { border-left-color: var(--amber); background: var(--amber-wash); }
+.vane-notice-wait strong { color: var(--amber); }
+.vane-notice-stale { border-color: var(--amber-dim); border-left-color: var(--amber); background: var(--amber-wash); }
+.vane-notice-stale strong { color: var(--amber); }
+.vane-notice-error { border-color: var(--red-dim); border-left-color: var(--red); }
+.vane-notice-error strong { color: var(--red); }
+.vane-errlist { margin: 10px 0 0; padding-left: 18px; font-size: var(--text-ui); color: var(--ink-faint); }
+
+.vane-asof {
+  margin-top: 24px; display: flex; flex-wrap: wrap; gap: 6px 20px;
+  font-family: var(--mono); font-size: var(--text-label);
+  letter-spacing: var(--tracking-meta); color: var(--ink-faint);
+}
+
+.vane-tiles { margin-top: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+@media (max-width: 700px) { .vane-tiles { grid-template-columns: repeat(2, 1fr); } }
+.vane-tile { background: var(--bg-raised); padding: 14px 16px; }
+.vane-tile-k { font-family: var(--mono); font-size: var(--text-meta); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--ink-faint); }
+.vane-tile-v { margin-top: 6px; font-family: var(--serif); font-size: var(--text-metric); color: var(--ink); font-variant-numeric: tabular-nums; }
+.vane-tile-sub { margin-top: 4px; font-family: var(--mono); font-size: var(--text-meta); color: var(--ink-faint); }
+
+.vane-section { margin-top: 56px; }
+.vane-section-head {
+  font-family: var(--mono); font-size: var(--text-label); font-weight: 400;
+  letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--ink-faint);
+  border-bottom: 1px solid var(--rule); padding-bottom: 8px; margin: 0 0 20px;
+}
+.vane-prose { max-width: 64ch; color: var(--ink-dim); line-height: var(--leading-prose); }
+.vane-prose p { margin: 0 0 1em; }
+.vane-disclosures { margin: 0; padding-left: 18px; color: var(--ink-dim); font-size: var(--text-note); line-height: 1.6; }
+
+/* chart */
+.vane-chart { margin: 0; }
+.vane-chart svg { display: block; width: 100%; height: auto; }
+.vane-grid { stroke: var(--rule-soft); stroke-width: 1; }
+.vane-axis0 { stroke: var(--ink-faint); stroke-width: 1; stroke-dasharray: 3 4; }
+.vane-tick { fill: var(--ink-faint); font-family: var(--mono); font-size: 11px; }
+.vane-line-vane { stroke: var(--green); stroke-width: 2; }
+.vane-line-spy { stroke: var(--ink-dim); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.vane-dot-vane { fill: var(--green); }
+.vane-dot-spy { fill: var(--ink-dim); }
+.vane-legend { display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 10px; font-family: var(--mono); font-size: var(--text-label); color: var(--ink-faint); }
+.vane-key-vane { color: var(--green); }
+.vane-key-spy { color: var(--ink-dim); }
+
+/* tables */
+.vane-tranche { margin-bottom: 24px; }
+.vane-tranche-head { font-family: var(--mono); font-size: var(--text-ui); font-weight: 400; letter-spacing: var(--tracking-meta); color: var(--amber); margin: 0 0 8px; }
+.vane-scroll { overflow-x: auto; }
+.vane-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: var(--text-ui); font-variant-numeric: tabular-nums; }
+.vane-table th { text-align: left; font-weight: 400; font-size: var(--text-meta); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--ink-faint); padding: 6px 12px 6px 0; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+.vane-table td { padding: 7px 12px 7px 0; border-bottom: 1px solid var(--rule-soft); color: var(--ink-dim); white-space: nowrap; }
+.vane-flag { font-size: var(--text-meta); letter-spacing: var(--tracking-nav); color: var(--amber); border: 1px solid var(--amber-dim); padding: 1px 6px; }
+
+/* weekly strip */
+.vane-weeks { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.vane-week { border: 1px solid var(--rule); border-top: 3px solid var(--ink-faint); padding: 10px 12px; background: var(--bg-raised); font-family: var(--mono); }
+.vane-week-date { font-size: var(--text-meta); letter-spacing: var(--tracking-meta); color: var(--ink-faint); }
+.vane-week-count { margin-top: 4px; font-size: var(--text-title-sm); color: var(--ink); font-variant-numeric: tabular-nums; }
+.vane-week-count span { font-size: var(--text-ui); color: var(--ink-faint); }
+.vane-week-sub { margin-top: 2px; font-size: var(--text-meta); color: var(--ink-faint); }
+.vane-week-state { margin-top: 8px; font-size: var(--text-meta); letter-spacing: var(--tracking-nav); }
+.vane-week-met { border-top-color: var(--green); }
+.vane-week-met .vane-week-state { color: var(--green); }
+.vane-week-missed { border-top-color: var(--red); }
+.vane-week-missed .vane-week-state { color: var(--red); }
+.vane-week-open { border-top-color: var(--amber); border-style: dashed; border-top-style: solid; }
+.vane-week-open .vane-week-state { color: var(--amber); }
+
+/* evidence label */
+.vane-evidence { display: inline-block; font-family: var(--mono); font-size: var(--text-label); letter-spacing: var(--tracking-nav); padding: 3px 8px; border: 1px solid currentColor; }
+.vane-evidence-unproven { color: var(--amber); }
+.vane-evidence-backtested-oos-pass { color: var(--green); }
