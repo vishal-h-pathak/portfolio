@@ -118,16 +118,16 @@ function Live({ bundle: b, staleness }: { bundle: VaneBundle; staleness: Stalene
                   </thead>
                   <tbody>
                     {byTranche.get(t)!.map((p) => {
-                      const pl = p.market_value - p.avg_entry * p.qty;
+                      const pl = p.avg_entry === null ? null : p.market_value - p.avg_entry * p.qty;
                       return (
-                        <tr key={`${p.symbol}-${p.entered_session}`}>
+                        <tr key={`${p.tranche}-${p.symbol}-${p.entered_session ?? "none"}`}>
                           <td>{p.symbol}</td>
                           <td>{num(p.qty, 4)}</td>
-                          <td>{usd(p.avg_entry, 2)}</td>
+                          <td>{p.avg_entry === null ? "—" : usd(p.avg_entry, 2)}</td>
                           <td>{usd(p.mark, 2)}</td>
                           <td>{usd(p.market_value)}</td>
-                          <td className={tone(pl)}>{usd(pl)}</td>
-                          <td>{p.entered_session}</td>
+                          <td className={pl === null ? "" : tone(pl)}>{pl === null ? "—" : usd(pl)}</td>
+                          <td>{p.entered_session ?? "—"}</td>
                         </tr>
                       );
                     })}

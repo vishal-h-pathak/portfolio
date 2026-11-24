@@ -37,14 +37,14 @@ export type Position = {
   tranche: number;
   symbol: string;
   qty: number;
-  avg_entry: number;
+  avg_entry: number | null;
   mark: number;
   market_value: number;
-  entered_session: string;
+  entered_session: string | null;
 };
 export type Trade = {
   session: string;
-  submitted_at: string;
+  submitted_at: string | null;
   filled_at: string | null;
   symbol: string;
   side: "buy" | "sell";
@@ -108,7 +108,10 @@ export type VaneResult =
 type Rec = Record<string, unknown>;
 const isRec = (v: unknown): v is Rec => typeof v === "object" && v !== null && !Array.isArray(v);
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-const TS_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
+const TS_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
+const HTTPS_RE = /^https:\/\//;
+// Retired names never render. Assembled from fragments so this source stays grep-clean.
+const RETIRED_RE = new RegExp(["sol" + "iton", "mer" + "idian"].join("|"), "i");
 const EVIDENCE: readonly string[] = ["unproven", "backtested-oos-pass"];
 const REGIMES: readonly string[] = ["risk_on", "risk_off"];
 const TOP_KEYS = [
@@ -226,8 +229,9 @@ export function validateVaneBundle(raw: unknown): Validation {
   c.each(raw, "positions", "$", (p, path) => {
     c.num(p, "tranche", path, { int: true, min: 0 });
     c.str(p, "symbol", path, { nonEmpty: true });
-    for (const k of ["qty", "avg_entry", "mark", "market_value"]) c.num(p, k, path);
-    c.str(p, "entered_session", path, { re: DATE_RE });
+    for (const k of ["qty", "mark", "market_value"]) c.num(p, k, path);
+    c.num(p, "avg_entry", path, { nullable: true });
+    c.str(p, "entered_session", path, { re: DATE_RE, nullable: true });
   });
 
   const tb = c.obj(raw, "tbill", "$");
@@ -239,7 +243,7 @@ export function validateVaneBundle(raw: unknown): Validation {
 
   c.each(raw, "trades", "$", (t, path) => {
     c.str(t, "session", path, { re: DATE_RE });
-    c.str(t, "submitted_at", path, { re: TS_RE });
+    c.str(t, "submitted_at", path, { re: TS_RE, nullable: true });
     c.str(t, "filled_at", path, { re: TS_RE, nullable: true });
     c.str(t, "symbol", path, { nonEmpty: true });
     c.oneOf(t, "side", path, ["buy", "sell"]);
@@ -257,6 +261,14 @@ export function validateVaneBundle(raw: unknown): Validation {
     for (const k of ["sessions", "required", "filled", "floor_trades"]) c.num(w, k, path, { int: true, min: 0 });
     c.bool(w, "met", path);
     c.bool(w, "complete", path);
+    const { sessions, required, filled, floor_trades: ft, met } = w as Record<string, unknown>;
+    if ([sessions, required, filled, ft].every((v) => typeof v === "number")) {
+      if (met !== undefined && met !== ((filled as number) >= (required as number)))
+        c.fail(`${path}.met`, "must equal (filled >= required)");
+      if ((ft as number) > (filled as number)) c.fail(`${path}.floor_trades`, "must not exceed filled");
+      if (required !== ((sessions as number) >= 3 ? 3 : 2))
+        c.fail(`${path}.required`, "must be 3 if sessions >= 3 else 2");
+    }
   });
 
   const lc = c.obj(raw, "last_cycle", "$");
@@ -273,7 +285,7 @@ export function validateVaneBundle(raw: unknown): Validation {
   if (r) {
     c.str(r, "verdict", "$.research", { nonEmpty: true });
     c.oneOf(r, "evidence_label", "$.research", EVIDENCE);
-    c.str(r, "report_url", "$.research", { nullable: true });
+    c.str(r, "report_url", "$.research", { nullable: true, re: HTTPS_RE });
   }
 
   c.each(raw, "disclosures", "$", (d, path) => {
@@ -288,6 +300,19 @@ export function validateVaneBundle(raw: unknown): Validation {
     const first = raw.equity_curve[0];
     if (isRec(first) && first.session !== day0.session) c.fail("$.equity_curve[0].session", "must equal day0.session");
   }
+
+  // Retired names never render: reject any string (value or key) that contains one.
+  const scan = (v: unknown, path: string) => {
+    if (typeof v === "string") {
+      if (RETIRED_RE.test(v)) c.fail(path, "contains a retired name");
+    } else if (Array.isArray(v)) v.forEach((x, i) => scan(x, `${path}[${i}]`));
+    else if (isRec(v))
+      for (const [k, x] of Object.entries(v)) {
+        if (RETIRED_RE.test(k)) c.fail(`${path}.${k}`, "key contains a retired name");
+        scan(x, `${path}.${k}`);
+      }
+  };
+  scan(raw, "$");
 
   return c.errors.length ? { ok: false, errors: c.errors } : { ok: true, bundle: raw as unknown as VaneBundle };
 }

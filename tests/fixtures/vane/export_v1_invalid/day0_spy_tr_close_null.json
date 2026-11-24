@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "system": "vane",
+  "config_id": "vane_v1",
+  "evidence_label": "unproven",
+  "as_of_session": "2026-11-25",
+  "exported_at": "2026-11-25T22:31:04Z",
+  "day0": {
+    "session": "2026-11-24",
+    "equity": 250000,
+    "spy_tr_close": null
+  },
+  "equity_curve": [
+    {
+      "session": "2026-11-24",
+      "equity": 250000,
+      "spy_tr_index": 1.0,
+      "vane_index": 1.0
+    },
+    {
+      "session": "2026-11-25",
+      "equity": 251250,
+      "spy_tr_index": 1.004,
+      "vane_index": 1.005
+    }
+  ],
+  "summary": {
+    "equity": 251250,
+    "total_return": 0.005,
+    "spy_total_return": 0.004,
+    "excess_return": 0.001,
+    "peak_equity": 251250,
+    "drawdown": 0,
+    "degrossed": false,
+    "regime": "risk_on"
+  },
+  "positions": [
+    {
+      "tranche": 0,
+      "symbol": "AAA",
+      "qty": 10,
+      "avg_entry": 100,
+      "mark": 101,
+      "market_value": 1010,
+      "entered_session": "2026-11-24"
+    },
+    {
+      "tranche": 1,
+      "symbol": "BBB",
+      "qty": 5,
+      "avg_entry": null,
+      "mark": 198,
+      "market_value": 990,
+      "entered_session": null
+    }
+  ],
+  "cash": 10000,
+  "tbill": {
+    "symbol": "BIL",
+    "qty": 100,
+    "market_value": 9150
+  },
+  "trades": [
+    {
+      "session": "2026-11-25",
+      "submitted_at": "2026-11-25T20:45:00Z",
+      "filled_at": "2026-11-26T14:30:02Z",
+      "symbol": "BBB",
+      "side": "buy",
+      "qty": 5,
+      "fill_price": 200,
+      "tranche": 1,
+      "client_order_id": "vane-t-1",
+      "floor_trade": true,
+      "status": "filled"
+    },
+    {
+      "session": "2026-11-24",
+      "submitted_at": null,
+      "filled_at": null,
+      "symbol": "AAA",
+      "side": "buy",
+      "qty": 10,
+      "fill_price": null,
+      "tranche": 0,
+      "client_order_id": "vane-t-0",
+      "floor_trade": false,
+      "status": "submitted"
+    }
+  ],
+  "weeks": [
+    {
+      "week_start": "2026-11-23",
+      "sessions": 3,
+      "required": 3,
+      "filled": 4,
+      "floor_trades": 1,
+      "met": true,
+      "complete": false
+    }
+  ],
+  "last_cycle": {
+    "started_at": "2026-11-25T20:45:00Z",
+    "finished_at": null,
+    "outcome": "ok",
+    "error": null
+  },
+  "strategy_text": "Synthetic fixture strategy text.",
+  "research": {
+    "verdict": "Synthetic verdict.",
+    "evidence_label": "unproven",
+    "report_url": null
+  },
+  "disclosures": [
+    {
+      "date": "2026-11-24",
+      "text": "Synthetic disclosure."
+    }
+  ]
+}

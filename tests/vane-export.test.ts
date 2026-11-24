@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { readdirSync, readFileSync, statSync } from "node:fs";
+import { FIXTURE_DIR } from "./fixtures/vane-bundle";
 import { join, extname } from "node:path";
 import { interpretRow, validateVaneBundle } from "@/app/lib/vane-export";
 import { assessStaleness, sessionsBetween, currentSession } from "@/app/lib/vane-sessions";
@@ -14,6 +15,31 @@ function mutate(fn: (b: Record<string, any>) => void) {
   fn(b);
   return validateVaneBundle(b);
 }
+
+describe("golden fixtures (tests/fixtures/vane)", () => {
+  it("valid fixture passes", () => {
+    const r = validateVaneBundle(JSON.parse(readFileSync(join(FIXTURE_DIR, "export_v1_valid.json"), "utf8")));
+    expect(r.ok).toBe(true);
+  });
+  const invDir = join(FIXTURE_DIR, "export_v1_invalid");
+  const files = readdirSync(invDir).filter((f) => f.endsWith(".json"));
+  it("has invalid fixtures", () => expect(files.length).toBeGreaterThan(0));
+  for (const f of files) {
+    it(`invalid/${f} fails`, () => {
+      expect(validateVaneBundle(JSON.parse(readFileSync(join(invDir, f), "utf8"))).ok).toBe(false);
+    });
+  }
+  it("retired names anywhere in a string are rejected (built programmatically)", () => {
+    const name = ["sol", "iton"].join("");
+    expect(mutate((b) => (b.disclosures[0].text = `see ${name.toUpperCase()} notes`)).ok).toBe(false);
+    expect(mutate((b) => (b.strategy_text = ["mer", "idian"].join(""))).ok).toBe(false);
+  });
+  it("interpretRow renders an explicit error for a retired name", () => {
+    const b = makeBundle();
+    b.research.verdict = ["mer", "idian"].join("");
+    expect(interpretRow(b, NOW).status).toBe("error");
+  });
+});
 
 describe("validateVaneBundle", () => {
   it("accepts a conforming v1 bundle", () => {
@@ -57,8 +83,11 @@ describe("validateVaneBundle", () => {
   it("rejects more than 200 trades", () => {
     expect(mutate((b) => (b.trades = Array.from({ length: 201 }, () => b.trades[0]))).ok).toBe(false);
   });
-  it("allows null filled_at / fill_price for unfilled orders", () => {
-    expect(validateVaneBundle(makeBundle()).ok).toBe(true); // fixture trade[1] is unfilled
+  it("allows the contracted nulls (valid fixture contains them)", () => {
+    const b = makeBundle();
+    expect(b.positions[1].avg_entry).toBeNull();
+    expect(b.trades[1].submitted_at).toBeNull();
+    expect(validateVaneBundle(b).ok).toBe(true);
   });
 });
 

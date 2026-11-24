@@ -13,8 +13,8 @@ export const vane: Project = {
   featured: true,
   title: "VANE",
   oneLiner: "a boring, rules-based paper portfolio · measured against SPY from Day 0",
-  status: "live",
-  statusLabel: "LIVE · paper",
+  status: "wip",
+  statusLabel: "PAPER",
   repo: "vishal-h-pathak/trading-agent",
   updated: "2026-11",
   paragraphs: [
