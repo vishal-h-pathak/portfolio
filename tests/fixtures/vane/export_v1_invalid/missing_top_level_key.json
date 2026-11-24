@@ -69,12 +69,12 @@
   }
  ],
  "evidence_label": "unproven",
- "exported_at": "2026-11-24T17:24:04Z",
+ "exported_at": "2026-11-24T17:48:19Z",
  "last_cycle": {
   "error": null,
-  "finished_at": "2026-11-24T17:24:04Z",
+  "finished_at": "2026-11-24T17:48:19Z",
   "outcome": "ok",
-  "started_at": "2026-11-24T17:24:04Z"
+  "started_at": "2026-11-24T17:48:19Z"
  },
  "positions": [
   {
@@ -157,6 +157,15 @@
    "qty": 177,
    "symbol": "AYX",
    "tranche": 2
+  },
+  {
+   "avg_entry": 5.0,
+   "entered_session": null,
+   "mark": 5.5,
+   "market_value": 55.0,
+   "qty": 10.0,
+   "symbol": "ZZZ",
+   "tranche": -1
   }
  ],
  "research": {

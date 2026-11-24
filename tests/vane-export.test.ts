@@ -42,6 +42,12 @@ describe("golden fixtures (tests/fixtures/vane)", () => {
     "week_met_inconsistent.json": "$.weeks[0].met",
     "week_required_wrong.json": "$.weeks[0].required",
     "wrong_schema_version.json": "schema_version",
+    "bool_as_int_tranche.json": "$.positions[0].tranche",
+    "equity_curve_session_bad_format.json": "$.equity_curve[1].session",
+    "nan_in_summary.json": "UNPARSEABLE", // NaN is not JSON: rejected before validation
+    "null_container_positions.json": "$.positions",
+    "untracked_tranche_below_minus_one.json": "$.positions[9].tranche",
+    "verdict_null.json": "$.research.verdict",
   };
   // retired_name_in_content.json is intentionally not copied (the literal would
   // break the source grep); that rule is tested below with a runtime-built string.
@@ -52,11 +58,28 @@ describe("golden fixtures (tests/fixtures/vane)", () => {
   });
   for (const f of files) {
     it(`invalid/${f} fails on ${EXPECTED[f]}`, () => {
-      const r = validateVaneBundle(JSON.parse(readFileSync(join(invDir, f), "utf8")));
+      const text = readFileSync(join(invDir, f), "utf8");
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(text);
+      } catch {
+        expect(EXPECTED[f]).toBe("UNPARSEABLE"); // strict JSON parse is itself the rejection
+        return;
+      }
+      expect(EXPECTED[f]).not.toBe("UNPARSEABLE");
+      const r = validateVaneBundle(parsed);
       expect(r.ok).toBe(false);
       if (!r.ok) expect(r.errors.join(" | ")).toContain(EXPECTED[f]);
     });
   }
+  it("accepts tranche -1 (untracked) and rejects other out-of-range tranches", () => {
+    expect(mutate((b) => (b.positions[0].tranche = -1)).ok).toBe(true);
+    expect(mutate((b) => (b.positions[0].tranche = -2)).ok).toBe(false);
+    expect(mutate((b) => (b.positions[0].tranche = 3)).ok).toBe(false);
+    expect(mutate((b) => (b.positions[0].tranche = 0.5)).ok).toBe(false);
+    expect(mutate((b) => (b.positions[0].tranche = false)).ok).toBe(false);
+    expect(mutate((b) => (b.summary.equity = Infinity)).ok).toBe(false);
+  });
   it("retired names anywhere in a string are rejected (built programmatically)", () => {
     const name = ["sol", "iton"].join("");
     expect(mutate((b) => (b.disclosures[0].text = `see ${name.toUpperCase()} notes`)).ok).toBe(false);

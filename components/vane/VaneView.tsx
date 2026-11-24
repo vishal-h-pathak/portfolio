@@ -68,7 +68,8 @@ function Live({ bundle: b, staleness }: { bundle: VaneBundle; staleness: Stalene
   const cycleBad = b.last_cycle.outcome !== "ok" || b.last_cycle.error;
   const byTranche = new Map<number, VaneBundle["positions"]>();
   for (const p of b.positions) byTranche.set(p.tranche, [...(byTranche.get(p.tranche) ?? []), p]);
-  const tranches = [...byTranche.keys()].sort((a, c) => a - c);
+  // Untracked (-1) sorts last, after the real tranches.
+  const tranches = [...byTranche.keys()].sort((a, c) => (a < 0 ? 1 : c < 0 ? -1 : a - c));
 
   return (
     <div data-vane-state={staleness.stale ? "live-stale" : "live"}>
@@ -109,7 +110,7 @@ function Live({ bundle: b, staleness }: { bundle: VaneBundle; staleness: Stalene
           tranches.map((t) => (
             <div key={t} className="vane-tranche">
               <h3 className="vane-tranche-head">
-                Tranche {t} · {usd(byTranche.get(t)!.reduce((a, p) => a + p.market_value, 0))}
+                {t < 0 ? "Untracked" : `Tranche ${t}`} · {usd(byTranche.get(t)!.reduce((a, p) => a + p.market_value, 0))}
               </h3>
               <div className="vane-scroll">
                 <table className="vane-table">

@@ -128,12 +128,13 @@ class Check {
   fail(path: string, msg: string) {
     if (this.errors.length < 25) this.errors.push(`${path}: ${msg}`);
   }
-  num(o: Rec, k: string, path: string, opts: { int?: boolean; min?: number; nullable?: boolean } = {}) {
+  num(o: Rec, k: string, path: string, opts: { int?: boolean; min?: number; max?: number; nullable?: boolean } = {}) {
     const v = o[k];
     if (v === null && opts.nullable) return;
     if (typeof v !== "number" || !Number.isFinite(v)) return this.fail(`${path}.${k}`, "expected finite number");
     if (opts.int && !Number.isInteger(v)) this.fail(`${path}.${k}`, "expected integer");
     if (opts.min !== undefined && v < opts.min) this.fail(`${path}.${k}`, `expected >= ${opts.min}`);
+    if (opts.max !== undefined && v > opts.max) this.fail(`${path}.${k}`, `expected <= ${opts.max}`);
   }
   str(o: Rec, k: string, path: string, opts: { nullable?: boolean; re?: RegExp; nonEmpty?: boolean } = {}) {
     const v = o[k];
@@ -230,7 +231,8 @@ export function validateVaneBundle(raw: unknown): Validation {
   }
 
   c.each(raw, "positions", "$", (p, path) => {
-    c.num(p, "tranche", path, { int: true, min: 0 });
+    // -1 = untracked (held at the broker, not attributable to a VANE order)
+    c.num(p, "tranche", path, { int: true, min: -1, max: 2 });
     c.str(p, "symbol", path, { nonEmpty: true });
     for (const k of ["qty", "mark", "market_value"]) c.num(p, k, path);
     c.num(p, "avg_entry", path, { nullable: true });
