@@ -41,6 +41,14 @@ describe("VaneView", () => {
     expect(h).not.toContain("NaN");
     expect(h).not.toContain("null");
   });
+  it("renders untracked positions (tranche -1) under an Untracked group, after the tranches", () => {
+    const b = makeBundle();
+    b.positions[0].tranche = -1;
+    const h = html(interpretRow(b, new Date("2026-03-13T18:00:00Z")));
+    expect(h).toContain("Untracked");
+    expect(h.indexOf("Untracked")).toBeGreaterThan(h.indexOf("Tranche 2"));
+    expect(h).not.toContain("Tranche -1");
+  });
   it("shows the stale warning when the export is >2 sessions old", () => {
     const h = html(interpretRow(makeBundle(), new Date("2026-03-20T18:00:00Z")));
     expect(h).toContain('data-vane-state="live-stale"');
