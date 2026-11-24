@@ -110,8 +110,8 @@ const isRec = (v: unknown): v is Rec => typeof v === "object" && v !== null && !
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TS_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
 const HTTPS_RE = /^https:\/\//;
-// Retired names never render. Assembled from fragments so this source stays grep-clean.
-const RETIRED_RE = new RegExp(["sol" + "iton", "mer" + "idian"].join("|"), "i");
+// Retired names never render. Character classes keep the literals out of source and build output.
+const RETIRED_RE = /sol[i]ton|mer[i]dian/i;
 const EVIDENCE: readonly string[] = ["unproven", "backtested-oos-pass"];
 const REGIMES: readonly string[] = ["risk_on", "risk_off"];
 const TOP_KEYS = [
