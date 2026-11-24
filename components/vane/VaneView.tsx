@@ -112,6 +112,9 @@ function Live({ bundle: b, staleness }: { bundle: VaneBundle; staleness: Stalene
               <h3 className="vane-tranche-head">
                 {t < 0 ? "Untracked" : `Tranche ${t}`} · {usd(byTranche.get(t)!.reduce((a, p) => a + p.market_value, 0))}
               </h3>
+              {t < 0 ? (
+                <p className="vane-dim">Held at the broker but not opened by VANE — flagged for review.</p>
+              ) : null}
               <div className="vane-scroll">
                 <table className="vane-table">
                   <thead>
