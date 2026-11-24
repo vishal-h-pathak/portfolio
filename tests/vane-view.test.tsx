@@ -48,6 +48,7 @@ describe("VaneView", () => {
     expect(h).toContain("Untracked");
     expect(h.indexOf("Untracked")).toBeGreaterThan(h.indexOf("Tranche 2"));
     expect(h).not.toContain("Tranche -1");
+    expect(h).toContain("Held at the broker but not opened by VANE — flagged for review.");
   });
   it("shows the stale warning when the export is >2 sessions old", () => {
     const h = html(interpretRow(makeBundle(), new Date("2026-03-20T18:00:00Z")));

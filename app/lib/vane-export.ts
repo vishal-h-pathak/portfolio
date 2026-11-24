@@ -254,7 +254,7 @@ export function validateVaneBundle(raw: unknown): Validation {
     c.oneOf(t, "side", path, ["buy", "sell"]);
     c.num(t, "qty", path);
     c.num(t, "fill_price", path, { nullable: true });
-    c.num(t, "tranche", path, { int: true, min: 0 });
+    c.num(t, "tranche", path, { int: true, min: 0, max: 2 });
     c.str(t, "client_order_id", path, { nonEmpty: true });
     c.bool(t, "floor_trade", path);
     c.str(t, "status", path, { nonEmpty: true });
@@ -297,6 +297,19 @@ export function validateVaneBundle(raw: unknown): Validation {
     c.str(d, "date", path, { re: DATE_RE });
     c.str(d, "text", path, { nonEmpty: true });
   });
+
+  // Equity identity: summary.equity == sum(position market values) + cash + tbill, within $0.01.
+  if (s && tb && Array.isArray(raw.positions) && typeof raw.cash === "number") {
+    const mvs = raw.positions.map((p) => (isRec(p) ? p.market_value : NaN));
+    if (
+      typeof s.equity === "number" && typeof tb.market_value === "number" &&
+      mvs.every((v) => typeof v === "number" && Number.isFinite(v))
+    ) {
+      const parts = (mvs as number[]).reduce((a, v) => a + v, 0) + raw.cash + tb.market_value;
+      if (Math.abs(s.equity - parts) > 0.01)
+        c.fail("$.summary.equity", `must equal positions + cash + tbill (${parts.toFixed(2)}), got ${s.equity}`);
+    }
+  }
 
   // Cross-field consistency: a bundle that contradicts itself is a mismatch, not data.
   if (raw.evidence_label !== undefined && r && r.evidence_label !== raw.evidence_label)

@@ -42,6 +42,7 @@ describe("golden fixtures (tests/fixtures/vane)", () => {
     "week_met_inconsistent.json": "$.weeks[0].met",
     "week_required_wrong.json": "$.weeks[0].required",
     "wrong_schema_version.json": "schema_version",
+    "equity_not_sum_of_parts.json": "$.summary.equity",
     "bool_as_int_tranche.json": "$.positions[0].tranche",
     "equity_curve_session_bad_format.json": "$.equity_curve[1].session",
     "nan_in_summary.json": "UNPARSEABLE", // NaN is not JSON: rejected before validation
@@ -79,6 +80,15 @@ describe("golden fixtures (tests/fixtures/vane)", () => {
     expect(mutate((b) => (b.positions[0].tranche = 0.5)).ok).toBe(false);
     expect(mutate((b) => (b.positions[0].tranche = false)).ok).toBe(false);
     expect(mutate((b) => (b.summary.equity = Infinity)).ok).toBe(false);
+  });
+  it("trades[].tranche must be 0-2", () => {
+    expect(mutate((b) => (b.trades[0].tranche = 3)).ok).toBe(false);
+    expect(mutate((b) => (b.trades[0].tranche = -1)).ok).toBe(false);
+    expect(mutate((b) => (b.trades[0].tranche = 2)).ok).toBe(true);
+  });
+  it("equity identity tolerates $0.01 and no more", () => {
+    expect(mutate((b) => (b.summary.equity += 0.005)).ok).toBe(true);
+    expect(mutate((b) => (b.summary.equity += 0.02)).ok).toBe(false);
   });
   it("retired names anywhere in a string are rejected (built programmatically)", () => {
     const name = ["sol", "iton"].join("");

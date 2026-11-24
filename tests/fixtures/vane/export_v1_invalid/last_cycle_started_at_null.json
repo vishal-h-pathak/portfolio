@@ -70,10 +70,10 @@
   }
  ],
  "evidence_label": "unproven",
- "exported_at": "2026-11-24T17:48:19Z",
+ "exported_at": "2026-11-24T17:59:32Z",
  "last_cycle": {
   "error": null,
-  "finished_at": "2026-11-24T17:48:19Z",
+  "finished_at": "2026-11-24T17:59:32Z",
   "outcome": "ok",
   "started_at": null
  },
@@ -179,7 +179,7 @@
  "summary": {
   "degrossed": false,
   "drawdown": 0.012428,
-  "equity": 246893.03,
+  "equity": 246948.03,
   "excess_return": -0.013522,
   "peak_equity": 250000.0,
   "regime": "risk_on",
