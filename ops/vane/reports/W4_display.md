@@ -8,7 +8,7 @@ reachable and has no `vane` row. Fetching `/projects/<retired>/design` on the pr
 
 ## Removed
 Retired trading pages (public project page, design page, archive page), the console tab, their
-components and sample fixture, the old reader, bench entry, console nav/home cards, the MERIDIAN
+components and sample fixture, the old reader, bench entry, console nav/home cards, the old trading-agent
 runbook entry in the console agents page, and stale mentions in docs/comments/CSS.
 
 ## Redirects (308) and the grep acceptance
@@ -17,15 +17,15 @@ the same paths but are not the literal strings, so `.next/routes-manifest.json` 
 Covers /projects/<x>(/...), /console/<x>(/...), /<x>. Verified locally: all old URLs return 308 to
 /projects/vane (a trailing-slash variant first goes through Next's own slash-strip 308, then ours).
 
-Server-side source maps (never served) embed three.js, whose geometry code has the word "meridian" in
-a comment. `scripts/postbuild-retired-names.mjs` (npm postbuild) drops `.next/server` maps, then scans
+Server-side source maps (never served) embed three.js, whose geometry code has one of the retired names (a
+geometry term) in a comment. `scripts/postbuild-retired-names.mjs` (npm postbuild) drops `.next/server` maps, then scans
 all of `.next` (excluding build cache) and FAILS the build on any hit. Names are built from
 fragments so the script is not a hit.
 
-    $ grep -ril "soliton\|meridian" .next/        -> no output, exit 1
-    $ grep -rilE "soliton|meridian" --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git .
+    $ grep -ril "<name1>\|<name2>" .next/        -> no output, exit 1
+    $ grep -rilE "<name1>|<name2>" --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git .
                                                   -> no output, exit 1
-(This report is excluded from the second grep only by omission: it never spells the names.)
+(<name1>/<name2> are the two retired page names; this report avoids spelling them so it stays grep-clean.)
 
 ## Checks
 - `npx tsc --noEmit`: clean
