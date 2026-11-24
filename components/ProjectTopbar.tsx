@@ -1,8 +1,7 @@
 /**
- * Shared topbar for every project micro-site (Soliton, Cellular Gaits,
- * Meridian archive). One back affordance, one destination (`/#bench`), one
+ * Shared topbar for every project micro-site (VANE, Cellular Gaits). One back affordance, one destination (`/#bench`), one
  * CSS block — see app/projects/project-shell.css. Replaces the three
- * copy-paste `.sol-topbar` / `.cg-topbar` forks that had drifted on padding,
+ * copy-paste per-project topbar forks that had drifted on padding,
  * z-index, alignment, and breakpoint (W5/#23).
  */
 export function ProjectTopbar({ num }: { num: string }) {

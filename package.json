@@ -6,7 +6,9 @@
     "dev": "next dev",
     "prebuild": "node scripts/check-status-types.mjs && node scripts/check-tokens.mjs",
     "build": "next build",
+    "postbuild": "node scripts/postbuild-retired-names.mjs",
     "start": "next start",
+    "test": "vitest run",
     "gen:status": "node scripts/gen-status-types.mjs",
     "verify:controller": "node scripts/verify-controller.mjs"
   },
@@ -29,6 +31,7 @@
     "@types/react-dom": "^19",
     "@types/three": "^0.184.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^2.1.8"
   }
 }

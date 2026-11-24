@@ -22,7 +22,6 @@ app/
                                  # prefill / mark-applied / skip / mark-failed (M-6 cockpit)
     dashboard/profile-insight/  # Classify + save learned insights (J-11)
     dashboard-login/            # Session cookie issuer
-    meridian/                   # Trading-agent telemetry
   dashboard/
     page.tsx                    # Triage + browse view
     MatchAgent.tsx              # Per-job chat → tailor framing (+J-11 writeback)

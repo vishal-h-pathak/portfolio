@@ -1,7 +1,7 @@
 /**
  * Shared footer for every project micro-site. One CSS block (tokenized
- * spacing/hover) instead of the drifted `.cg-footer` / `.sol-footer` forks,
- * and gives the Meridian archive the exit it previously had none of (W5/#28).
+ * spacing/hover) instead of the drifted per-project footer forks,
+ * with a consistent exit link (W5/#28).
  */
 export type ProjectFooterItem = {
   label: string;

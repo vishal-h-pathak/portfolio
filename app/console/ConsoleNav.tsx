@@ -3,9 +3,9 @@
 /**
  * ConsoleNav — the single umbrella nav for the gated console, replacing
  * the three separate per-tool chromes as the shared top-level entry. It
- * switches between the tools (Job pipeline, Meridian) and links back to
+ * switches between the tools (Job pipeline, Card-tracker) and links back to
  * the public site. Each tool keeps its own internal sub-navigation
- * (the job pipeline's DashboardNav, Meridian's wordmark) beneath this.
+ * (the job pipeline's DashboardNav) beneath this.
  *
  * Deliberately NOT sticky: the job-pipeline pages own a sticky
  * DashboardNav at top-0, so a second sticky bar would collide. This bar
@@ -25,7 +25,6 @@ const FLEET_URL =
 
 const TOOLS = [
   { href: "/console/jobs", label: "Job pipeline", match: "/console/jobs" },
-  { href: "/console/soliton", label: "Soliton", match: "/console/soliton" },
   { href: "/console/credits", label: "Card-tracker", match: "/console/credits" },
 ];
 

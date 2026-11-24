@@ -14,12 +14,6 @@ const TOOLS = [
       "Hunt → tailor → review queue, with run controls and cost insights.",
   },
   {
-    href: "/console/soliton",
-    name: "Soliton",
-    blurb:
-      "Engine status for the public trading experiment — track arm/halt state, kill events, export freshness.",
-  },
-  {
     href: "/console/credits",
     name: "Card-tracker",
     blurb:

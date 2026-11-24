@@ -33,7 +33,7 @@ flowchart TD
 
     subgraph CONSOLE["Console — operator cockpit (app/console/)"]
         CJ["Jobs tab<br/>BrowseView, ReviewPanel, RunsPanel,<br/>ManualTailorPanel, WatcherPanel, MatchAgent, stories, insights"]
-        CO["Other tabs<br/>credits (Amex tracker), meridian (trading-agent), agents (fleet)"]
+        CO["Other tabs<br/>credits (Amex tracker), agents (fleet)"]
     end
 
     subgraph API["API layer (app/api/)"]
