@@ -1,120 +1,364 @@
 {
-  "schema_version": 1,
-  "system": "vane",
-  "config_id": "vane_v1",
+ "as_of_session": "2026-03-12",
+ "cash": 2041.18,
+ "config_id": "vane_v1",
+ "day0": {
+  "equity": 250000.0,
+  "session": "2026-03-02",
+  "spy_tr_close": 400.6149161626644
+ },
+ "disclosures": [
+  {
+   "date": "2026-11-24",
+   "text": "VANE launched 2026-11-24; replaces the previous experiment. Paper trading only. Strategy vane_v1 launched as specified and unproven; any change after the research verdict will be a dated config change listed here."
+  }
+ ],
+ "equity_curve": [
+  {
+   "equity": 250000.0,
+   "session": "2026-03-02",
+   "spy_tr_index": 1.0,
+   "vane_index": 1.0
+  },
+  {
+   "equity": 249620.91,
+   "session": "2026-03-03",
+   "spy_tr_index": 0.990016,
+   "vane_index": 0.998484
+  },
+  {
+   "equity": 248848.78,
+   "session": "2026-03-04",
+   "spy_tr_index": 0.98414,
+   "vane_index": 0.995395
+  },
+  {
+   "equity": 249162.07,
+   "session": "2026-03-05",
+   "spy_tr_index": 0.989781,
+   "vane_index": 0.996648
+  },
+  {
+   "equity": 249888.78,
+   "session": "2026-03-06",
+   "spy_tr_index": 0.992009,
+   "vane_index": 0.999555
+  },
+  {
+   "equity": 248309.33,
+   "session": "2026-03-09",
+   "spy_tr_index": 0.991502,
+   "vane_index": 0.993237
+  },
+  {
+   "equity": 247248.09,
+   "session": "2026-03-10",
+   "spy_tr_index": 0.994765,
+   "vane_index": 0.988992
+  },
+  {
+   "equity": 246825.7,
+   "session": "2026-03-11",
+   "spy_tr_index": 0.991115,
+   "vane_index": 0.987303
+  },
+  {
+   "equity": 246893.03,
+   "session": "2026-03-12",
+   "spy_tr_index": 1.001094,
+   "vane_index": 0.987572
+  }
+ ],
+ "evidence_label": "unproven",
+ "exported_at": "2026-11-24T17:24:04Z",
+ "last_cycle": {
+  "error": null,
+  "finished_at": "2026-11-24T17:24:04Z",
+  "outcome": "ok",
+  "started_at": "2026-11-24T17:24:04Z"
+ },
+ "positions": [
+  {
+   "avg_entry": 46.045,
+   "entered_session": "",
+   "mark": 43.6182,
+   "market_value": 26258.16,
+   "qty": 602,
+   "symbol": "AEX",
+   "tranche": 0
+  },
+  {
+   "avg_entry": 108.9279,
+   "entered_session": "2026-03-09",
+   "mark": 108.4246,
+   "market_value": 27431.43,
+   "qty": 253,
+   "symbol": "AKX",
+   "tranche": 0
+  },
+  {
+   "avg_entry": 165.4746,
+   "entered_session": "2026-03-02",
+   "mark": 160.4766,
+   "market_value": 26799.59,
+   "qty": 167,
+   "symbol": "AUX",
+   "tranche": 0
+  },
+  {
+   "avg_entry": 51.3292,
+   "entered_session": "2026-03-04",
+   "mark": 47.6585,
+   "market_value": 25640.27,
+   "qty": 538,
+   "symbol": "ABX",
+   "tranche": 1
+  },
+  {
+   "avg_entry": 55.5715,
+   "entered_session": "2026-03-11",
+   "mark": 56.0513,
+   "market_value": 27633.3,
+   "qty": 493,
+   "symbol": "ACX",
+   "tranche": 1
+  },
+  {
+   "avg_entry": 140.9774,
+   "entered_session": "2026-03-11",
+   "mark": 143.6743,
+   "market_value": 27872.81,
+   "qty": 194,
+   "symbol": "AJX",
+   "tranche": 1
+  },
+  {
+   "avg_entry": 58.0438,
+   "entered_session": "2026-03-06",
+   "mark": 57.0687,
+   "market_value": 27278.86,
+   "qty": 478,
+   "symbol": "AGX",
+   "tranche": 2
+  },
+  {
+   "avg_entry": 175.2379,
+   "entered_session": "2026-03-06",
+   "mark": 179.5916,
+   "market_value": 28375.47,
+   "qty": 158,
+   "symbol": "AQX",
+   "tranche": 2
+  },
+  {
+   "avg_entry": 155.9257,
+   "entered_session": "2026-03-06",
+   "mark": 155.7173,
+   "market_value": 27561.96,
+   "qty": 177,
+   "symbol": "AYX",
+   "tranche": 2
+  }
+ ],
+ "research": {
   "evidence_label": "unproven",
-  "as_of_session": "2026-11-25",
-  "exported_at": "2026-11-25T22:31:04Z",
-  "day0": {
-    "session": "2026-11-24",
-    "equity": 250000,
-    "spy_tr_close": 600.12
+  "report_url": "https://example.com/vane/research",
+  "verdict": "Pending: the pre-registered 16-cell sweep has not reported. vane_v1 trades as specified, unproven."
+ },
+ "schema_version": 1,
+ "strategy_text": "Long-only US large-cap stocks. Each evening the engine ranks the 150 most-traded US common stocks, keeps the strongest 30% by six-month momentum (skipping the most recent month) that are also above their 200-day average, and buys the five that have pulled back the most over the last five sessions. The book is three staggered tranches, each a third of equity and five equal-weight names, held about a week; a tranche rebalances every fifth session on a fixed rotation counted in sessions, so holidays cannot skip one. When SPY closes below its 200-day average each tranche invests half and parks the rest in a T-bill ETF. If equity falls 15% from its peak, gross exposure halves until equity makes a new 20-session high. Orders are whole-share market orders that fill at the next open. A weekly floor guarantees at least three filled orders in any week with three or more sessions (two in shorter weeks) by swapping the least attractive holding for the most attractive unheld name; those swaps are labelled floor trades.",
+ "summary": {
+  "degrossed": false,
+  "drawdown": 0.012428,
+  "equity": 246893.03,
+  "excess_return": -0.013522,
+  "peak_equity": 250000.0,
+  "regime": "risk_on",
+  "spy_total_return": 0.001094,
+  "total_return": -0.012428
+ },
+ "system": "vane",
+ "tbill": {
+  "market_value": 0.0,
+  "qty": 0.0,
+  "symbol": "BIL"
+ },
+ "trades": [
+  {
+   "client_order_id": "vane-2026-03-11-1-AZX-sell",
+   "fill_price": 220.96777457689382,
+   "filled_at": "2026-03-12T13:30:00Z",
+   "floor_trade": false,
+   "qty": 126.0,
+   "session": "2026-03-11",
+   "side": "sell",
+   "status": "filled",
+   "submitted_at": "2026-03-11T21:10:00Z",
+   "symbol": "AZX",
+   "tranche": 1
   },
-  "equity_curve": [
-    {
-      "session": "2026-11-24",
-      "equity": 250000,
-      "spy_tr_index": 1.0,
-      "vane_index": 1.0
-    },
-    {
-      "session": "2026-11-25",
-      "equity": 251250,
-      "spy_tr_index": 1.004,
-      "vane_index": 1.005
-    }
-  ],
-  "summary": {
-    "equity": 251250,
-    "total_return": 0.005,
-    "spy_total_return": 0.004,
-    "excess_return": 0.001,
-    "peak_equity": 251250,
-    "drawdown": 0,
-    "degrossed": false,
-    "regime": "risk_on"
+  {
+   "client_order_id": "vane-2026-03-11-1-BAX-sell",
+   "fill_price": 226.67495527630345,
+   "filled_at": "2026-03-12T13:30:00Z",
+   "floor_trade": false,
+   "qty": 121.0,
+   "session": "2026-03-11",
+   "side": "sell",
+   "status": "filled",
+   "submitted_at": "2026-03-11T21:10:00Z",
+   "symbol": "BAX",
+   "tranche": 1
   },
-  "positions": [
-    {
-      "tranche": 0,
-      "symbol": "AAA",
-      "qty": 10,
-      "avg_entry": 100,
-      "mark": 101,
-      "market_value": 1010,
-      "entered_session": "2026-11-24"
-    },
-    {
-      "tranche": 1,
-      "symbol": "BBB",
-      "qty": 5,
-      "avg_entry": null,
-      "mark": 198,
-      "market_value": 990,
-      "entered_session": ""
-    }
-  ],
-  "cash": 10000,
-  "tbill": {
-    "symbol": "BIL",
-    "qty": 100,
-    "market_value": 9150
+  {
+   "client_order_id": "vane-2026-03-11-1-AJX-buy",
+   "fill_price": 140.9773563956141,
+   "filled_at": "2026-03-12T13:30:00Z",
+   "floor_trade": false,
+   "qty": 194.0,
+   "session": "2026-03-11",
+   "side": "buy",
+   "status": "filled",
+   "submitted_at": "2026-03-11T21:10:00Z",
+   "symbol": "AJX",
+   "tranche": 1
   },
-  "trades": [
-    {
-      "session": "2026-11-25",
-      "submitted_at": "2026-11-25T20:45:00Z",
-      "filled_at": "2026-11-26T14:30:02Z",
-      "symbol": "BBB",
-      "side": "buy",
-      "qty": 5,
-      "fill_price": 200,
-      "tranche": 1,
-      "client_order_id": "vane-t-1",
-      "floor_trade": true,
-      "status": "filled"
-    },
-    {
-      "session": "2026-11-24",
-      "submitted_at": null,
-      "filled_at": null,
-      "symbol": "AAA",
-      "side": "buy",
-      "qty": 10,
-      "fill_price": null,
-      "tranche": 0,
-      "client_order_id": "vane-t-0",
-      "floor_trade": false,
-      "status": "submitted"
-    }
-  ],
-  "weeks": [
-    {
-      "week_start": "2026-11-23",
-      "sessions": 3,
-      "required": 3,
-      "filled": 4,
-      "floor_trades": 1,
-      "met": true,
-      "complete": false
-    }
-  ],
-  "last_cycle": {
-    "started_at": "2026-11-25T20:45:00Z",
-    "finished_at": null,
-    "outcome": "ok",
-    "error": null
+  {
+   "client_order_id": "vane-2026-03-11-1-ACX-buy",
+   "fill_price": 55.57152167288178,
+   "filled_at": "2026-03-12T13:30:00Z",
+   "floor_trade": false,
+   "qty": 493.0,
+   "session": "2026-03-11",
+   "side": "buy",
+   "status": "filled",
+   "submitted_at": "2026-03-11T21:10:00Z",
+   "symbol": "ACX",
+   "tranche": 1
   },
-  "strategy_text": "Synthetic fixture strategy text.",
-  "research": {
-    "verdict": "Synthetic verdict.",
-    "evidence_label": "unproven",
-    "report_url": null
+  {
+   "client_order_id": "vane-2026-03-09-0-AVX-sell",
+   "fill_price": 151.97316723069252,
+   "filled_at": "2026-03-10T13:30:00Z",
+   "floor_trade": false,
+   "qty": 184.0,
+   "session": "2026-03-09",
+   "side": "sell",
+   "status": "filled",
+   "submitted_at": "2026-03-09T21:10:00Z",
+   "symbol": "AVX",
+   "tranche": 0
   },
-  "disclosures": [
-    {
-      "date": "2026-11-24",
-      "text": "Synthetic disclosure."
-    }
-  ]
+  {
+   "client_order_id": "vane-2026-03-09-0-AKX-buy",
+   "fill_price": 108.92785102852096,
+   "filled_at": "2026-03-10T13:30:00Z",
+   "floor_trade": false,
+   "qty": 253.0,
+   "session": "2026-03-09",
+   "side": "buy",
+   "status": "filled",
+   "submitted_at": "2026-03-09T21:10:00Z",
+   "symbol": "AKX",
+   "tranche": 0
+  },
+  {
+   "client_order_id": "vane-2026-03-06-2-AYX-buy",
+   "fill_price": 155.92565280883466,
+   "filled_at": "2026-03-09T13:30:00Z",
+   "floor_trade": false,
+   "qty": 177.0,
+   "session": "2026-03-06",
+   "side": "buy",
+   "status": "filled",
+   "submitted_at": "2026-03-06T22:10:00Z",
+   "symbol": "AYX",
+   "tranche": 2
+  },
+  {
+   "client_order_id": "vane-2026-03-06-2-AGX-buy",
+   "fill_price": 58.043801646178544,
+   "filled_at": "2026-03-09T13:30:00Z",
+   "floor_trade": false,
+   "qty": 478.0,
+   "session": "2026-03-06",
+   "side": "buy",
+   "status": "filled",
+   "submitted_at": "2026-03-06T22:10:00Z",
+   "symbol": "AGX",
+   "tranche": 2
+  },
+  {
+   "client_order_id": "vane-2026-03-06-2-AQX-buy",
+   "fill_price": 175.23790018908645,
+   "filled_at": "2026-03-09T13:30:00Z",
+   "floor_trade": false,
+   "qty": 158.0,
+   "session": "2026-03-06",
+   "side": "buy",
+   "status": "filled",
+   "submitted_at": "2026-03-06T22:10:00Z",
+   "symbol": "AQX",
+   "tranche": 2
+  },
+  {
+   "client_order_id": "vane-2026-03-04-1-ABX-buy",
+   "fill_price": 51.32917509364635,
+   "filled_at": "2026-03-05T14:30:00Z",
+   "floor_trade": false,
+   "qty": 538.0,
+   "session": "2026-03-04",
+   "side": "buy",
+   "status": "filled",
+   "submitted_at": "2026-03-04T22:10:00Z",
+   "symbol": "ABX",
+   "tranche": 1
+  },
+  {
+   "client_order_id": "vane-2026-03-04-1-BAX-buy",
+   "fill_price": 228.193112376008,
+   "filled_at": "2026-03-05T14:30:00Z",
+   "floor_trade": false,
+   "qty": 121.0,
+   "session": "2026-03-04",
+   "side": "buy",
+   "status": "filled",
+   "submitted_at": "2026-03-04T22:10:00Z",
+   "symbol": "BAX",
+   "tranche": 1
+  },
+  {
+   "client_order_id": "vane-2026-03-04-1-AZX-buy",
+   "fill_price": 218.05796691196153,
+   "filled_at": "2026-03-05T14:30:00Z",
+   "floor_trade": false,
+   "qty": 126.0,
+   "session": "2026-03-04",
+   "side": "buy",
+   "status": "filled",
+   "submitted_at": "2026-03-04T22:10:00Z",
+   "symbol": "AZX",
+   "tranche": 1
+  }
+ ],
+ "weeks": [
+  {
+   "complete": true,
+   "filled": 6,
+   "floor_trades": 0,
+   "met": true,
+   "required": 3,
+   "sessions": 5,
+   "week_start": "2026-03-02"
+  },
+  {
+   "complete": false,
+   "filled": 9,
+   "floor_trades": 0,
+   "met": true,
+   "required": 3,
+   "sessions": 5,
+   "week_start": "2026-03-09"
+  }
+ ]
 }

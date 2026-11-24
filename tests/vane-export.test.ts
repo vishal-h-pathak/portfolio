@@ -8,7 +8,7 @@ import { makeBundle } from "./fixtures/vane-bundle";
 
 vi.spyOn(console, "error").mockImplementation(() => {});
 
-const NOW = new Date("2026-11-25T23:00:00Z"); // Wed 18:00 ET
+const NOW = new Date("2026-03-13T18:00:00Z"); // Fri, one session after the fixture as_of (2026-03-12)
 
 function mutate(fn: (b: Record<string, any>) => void) {
   const b = makeBundle() as Record<string, any>;
@@ -21,12 +21,40 @@ describe("golden fixtures (tests/fixtures/vane)", () => {
     const r = validateVaneBundle(JSON.parse(readFileSync(join(FIXTURE_DIR, "export_v1_valid.json"), "utf8")));
     expect(r.ok).toBe(true);
   });
+  // filename -> substring that must appear in the reported errors (path or rule)
+  const EXPECTED: Record<string, string> = {
+    "day0_spy_tr_close_null.json": "$.day0.spy_tr_close",
+    "equity_curve_first_session_not_day0.json": "$.equity_curve[0].session",
+    "exported_at_not_utc_z.json": "$.exported_at",
+    "extra_top_level_key.json": "unexpected top-level key",
+    "last_cycle_started_at_null.json": "$.last_cycle.started_at",
+    "missing_top_level_key.json": "missing",
+    "null_top_level_key.json": "$.strategy_text",
+    "position_entered_session_empty_string.json": "$.positions[0].entered_session",
+    "position_mark_null.json": "$.positions[0].mark",
+    "research_evidence_label_mismatch.json": "$.research.evidence_label",
+    "research_report_url_not_https.json": "$.research.report_url",
+    "session_bad_format.json": "$.as_of_session",
+    "trade_filled_at_not_utc_z.json": "$.trades[0].filled_at",
+    "trade_side_invalid.json": "$.trades[0].side",
+    "trades_over_200.json": "$.trades",
+    "week_floor_trades_exceed_filled.json": "$.weeks[0].floor_trades",
+    "week_met_inconsistent.json": "$.weeks[0].met",
+    "week_required_wrong.json": "$.weeks[0].required",
+    "wrong_schema_version.json": "schema_version",
+  };
+  // retired_name_in_content.json is intentionally not copied (the literal would
+  // break the source grep); that rule is tested below with a runtime-built string.
   const invDir = join(FIXTURE_DIR, "export_v1_invalid");
   const files = readdirSync(invDir).filter((f) => f.endsWith(".json"));
-  it("has invalid fixtures", () => expect(files.length).toBeGreaterThan(0));
+  it("every invalid fixture has an expectation, and vice versa", () => {
+    expect(files.sort()).toEqual(Object.keys(EXPECTED).sort());
+  });
   for (const f of files) {
-    it(`invalid/${f} fails`, () => {
-      expect(validateVaneBundle(JSON.parse(readFileSync(join(invDir, f), "utf8"))).ok).toBe(false);
+    it(`invalid/${f} fails on ${EXPECTED[f]}`, () => {
+      const r = validateVaneBundle(JSON.parse(readFileSync(join(invDir, f), "utf8")));
+      expect(r.ok).toBe(false);
+      if (!r.ok) expect(r.errors.join(" | ")).toContain(EXPECTED[f]);
     });
   }
   it("retired names anywhere in a string are rejected (built programmatically)", () => {
@@ -83,11 +111,18 @@ describe("validateVaneBundle", () => {
   it("rejects more than 200 trades", () => {
     expect(mutate((b) => (b.trades = Array.from({ length: 201 }, () => b.trades[0]))).ok).toBe(false);
   });
-  it("allows the contracted nulls (valid fixture contains them)", () => {
-    const b = makeBundle();
-    expect(b.positions[1].avg_entry).toBeNull();
-    expect(b.trades[1].submitted_at).toBeNull();
-    expect(validateVaneBundle(b).ok).toBe(true);
+  it("allows every contracted null", () => {
+    const r = mutate((b) => {
+      b.positions[0].avg_entry = null;
+      b.positions[0].entered_session = null;
+      b.trades[0].submitted_at = null;
+      b.trades[0].filled_at = null;
+      b.trades[0].fill_price = null;
+      b.last_cycle.finished_at = null;
+      b.last_cycle.error = null;
+      b.research.report_url = null;
+    });
+    expect(r.ok).toBe(true);
   });
 });
 
@@ -128,7 +163,7 @@ describe("staleness", () => {
     expect(assessStaleness("2026-12-01", now)).toMatchObject({ sessionsBehind: 3, stale: true });
   });
   it("stale flows through interpretRow", () => {
-    const r = interpretRow(makeBundle(), new Date("2026-12-10T18:00:00Z"));
+    const r = interpretRow(makeBundle(), new Date("2026-03-20T18:00:00Z"));
     expect(r.status === "ok" && r.staleness.stale).toBe(true);
   });
 });

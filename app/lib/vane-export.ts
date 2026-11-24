@@ -112,6 +112,9 @@ const TS_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
 const HTTPS_RE = /^https:\/\//;
 // Retired names never render. Character classes keep the literals out of source and build output.
 const RETIRED_RE = /sol[i]ton|mer[i]dian/i;
+const RETIRED_RE_G = /sol[i]ton|mer[i]dian/gi;
+/** Error text may echo rejected values; the retired names must never render, even there. */
+export const sanitizeDetail = (s: string) => s.replace(RETIRED_RE_G, "[retired name]");
 const EVIDENCE: readonly string[] = ["unproven", "backtested-oos-pass"];
 const REGIMES: readonly string[] = ["risk_on", "risk_off"];
 const TOP_KEYS = [
@@ -350,12 +353,12 @@ export async function getVaneExport(now: Date = new Date()): Promise<VaneResult>
 export function interpretRow(bundle: unknown, now: Date = new Date()): VaneResult {
   const v = validateVaneBundle(bundle);
   if (!v.ok) {
-    console.error(`[vane-export] row rejected: ${v.errors.join("; ")}`);
+    console.error(`[vane-export] row rejected: ${v.errors.map(sanitizeDetail).join("; ")}`);
     return {
       status: "error",
       kind: "validation",
       message: "The export row does not match the schema this page understands, so nothing is shown.",
-      details: v.errors,
+      details: v.errors.map(sanitizeDetail),
     };
   }
   return { status: "ok", bundle: v.bundle, staleness: assessStaleness(v.bundle.as_of_session, now) };
